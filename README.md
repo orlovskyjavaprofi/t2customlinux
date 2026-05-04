@@ -6,4 +6,4 @@ Custom configs and examples for T2 Linux
 Please refer for any suggestions or support to official github of t2 linux = > https://github.com/rxrbln/t2sde/
 
 ## Do you need commercial support?
-Well dont hesitate visit Orlovsky Consulting GbR oficial website: orlovskyconsulting.de
+Well dont hesitate visit Orlovsky Consulting GbR oficial website: https://orlovskyconsulting.de
