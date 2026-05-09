@@ -1,0 +1,257 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/parse-config
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# Copyright (C) 1998 - 2003 ROCK Linux Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+# Use the stack protector patch, if not disabled for the pkg
+#
+if [ "$SDECFG_SSP" = 1 ]; then
+    if ! hasflag NO-SSP; then
+	var_append GCC_WRAPPER_INSERT ' ' -fstack-protector-strong
+    else
+	echo 'Stack-Smashing Protector disabled for this package'
+    fi
+fi
+
+[ "$SDECFG_AUTO_VAR_INIT" = 1 ] && case $pkg in
+    gcc) : ;;	# TODO: fine grained and bootloaders, too?
+    *)
+	var_append GCC_WRAPPER_INSERT ' ' '-ftrivial-auto-var-init=zero' ;;
+esac
+
+# It's usually better to not change the kernel optimization too drastically.
+#
+atstage toolchain &&
+	export KCC="$CC" ||
+	export KCC="${archprefix}kcc"
+var_insert KCC_WRAPPER_REMOVE ' ' "-O -O[0-9sgz]"
+
+# set CC, CXX and F77 environment variables
+#
+for x in CC CXX F77 ; do
+	eval "y=\$SDECFG_DEFAULT_$x"
+	if [[ $y = gcc* || $pkg = glibc* || $pkg = gcc || $pkg = memtest86 || $pkg = grub2 ]]; then
+		case "$x-$stagelevel" in
+		    CC-*)
+			z="${archprefix}gcc ${archprefix}gcc" ;;
+		    CXX*)
+			z="${archprefix}g++ ${archprefix}g++" ;;
+		    F77*)
+			z="${archprefix}g77 ${archprefix}gfortran" ;;
+		    *)
+			export $x=${x}_not_available_in_stage_${stagelevel}
+			continue ;;
+		esac
+		for y in $z ; do
+			[ "`type -p $y`" ] && export $x=$y
+		done
+	fi
+done
+
+# Add the usual gcc optimazation options
+# Strip or add debug information
+#
+debug_flags='-g -ggdb -g[0-9] -gdwarf*'
+
+if [ "$SDECFG_DEBUG" = 0 ]; then
+	var_append GCC_WRAPPER_APPEND ' ' -c?:-s
+	var_insert GCC_WRAPPER_REMOVE ' ' $debug_flags
+	var_append SYSGCC_WRAPPER_APPEND ' ' -c?:-s
+	var_insert SYSGCC_WRAPPER_REMOVE ' ' $debug_flags
+else
+	var_append GCC_WRAPPER_APPEND ' ' -ggdb
+	var_insert GCC_WRAPPER_REMOVE ' ' "-s $debug_flags"
+	var_append SYSGCC_WRAPPER_APPEND ' ' -ggdb
+	var_insert SYSGCC_WRAPPER_REMOVE ' ' "-s $debug_flags"
+fi
+
+# Remove the optimization options, since we pass generic ones ... In ROCK
+# history this has been -m*, but this caused -msse and -maltivec style options
+# to get removed. So we better only remove a known set of -m options ...
+var_insert GCC_WRAPPER_REMOVE ' ' "-O -O[0-9sgz] -mtune* -march* -mcpu* -Werror -Wextra"
+var_insert KCC_WRAPPER_REMOVE ' ' -Werror
+var_insert SYSGCC_WRAPPER_REMOVE ' ' "-O -O[0-9sgz] -mtune* -march* -mcpu* -Werror"
+
+# Disable some new compiler warnings to avoid patching thousands of packages.
+[ $arch != avr32 ] &&
+case $pkg in
+   gcc)
+	# libstdc++ breaks w/ -Wno-error?
+	: ;;
+   *)
+	var_append GCC_WRAPPER_INSERT ' ' "-Wno-error=implicit-int -Wno-error=incompatible-pointer-types"
+	var_append GCC_WRAPPER_INSERT ' ' -Wno-error=implicit-function-declaration
+	;;
+esac
+
+case "$SDECFG_OPT" in
+	smart*)
+		f="$confdir/$pkg.prof"
+		# hack mostly for glibc32, could be made more generic
+		[ -f "$f" ] || f="$confdir/../${pkg%%[0-9]*}/${pkg%%[0-9]*}.prof"
+		# TODO: or fix awk script for non existing file?
+		[ -f "$f" ] || f="/dev/null"
+
+		basek="-Os"
+		[ "$arch_sizeof_char_p" = 4 ] && basec="-Os" || basec="-O1"
+		[ "$arch_sizeof_char_p" = 4 ] && basecxx="-O1" || basecxx="-O2"
+		opt="-O2"
+		[ "$SDECFG_OPT" = "smartly" ] && basecxx="$basec"
+		[ "$SDECFG_OPT" = "smarter" ] && opt="-O3"
+		kopt="$opt"
+		[ "$SDECFG_OPT" = "smartest" ] && opt="-Ofast" && kopt="-O3"
+
+		var_insert CC_WRAPPER_INSERT ' ' $basec
+		var_insert CXX_WRAPPER_INSERT ' ' $basecxx
+		var_insert GCC_WRAPPER_INSERT ' ' -HOT$opt
+		var_insert GCC_WRAPPER_FILTER '|' "gawk -f $base/misc/tools-source/smart_wrapper.awk $f -"
+		var_insert KCC_WRAPPER_INSERT ' ' "$basek -HOT$kopt"
+		var_insert KCC_WRAPPER_FILTER '|' "gawk -f $base/misc/tools-source/smart_wrapper.awk $f -"
+		var_insert SYSCC_WRAPPER_INSERT ' ' $basec
+		var_insert SYSCXX_WRAPPER_INSERT ' ' $basecxx
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -HOT$opt
+		var_insert SYSGCC_WRAPPER_FILTER '|' "gawk -f $base/misc/tools-source/smart_wrapper.awk $f -"
+		unset basec basecxx basek opt kopt
+		;;
+	speed)
+		var_insert GCC_WRAPPER_INSERT ' ' -O2
+		var_insert KCC_WRAPPER_INSERT ' ' -O2
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -O2
+		;;
+	fast)
+		var_insert GCC_WRAPPER_INSERT ' ' -O3
+		var_insert KCC_WRAPPER_INSERT ' ' -O3
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -O3
+		;;
+	faster)
+		var_insert GCC_WRAPPER_INSERT ' ' -Ofast
+		var_insert KCC_WRAPPER_INSERT ' ' -Ofast
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -Ofast
+		;;
+	size)
+		var_insert GCC_WRAPPER_INSERT ' ' -Os
+		var_insert KCC_WRAPPER_INSERT ' ' -Os
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -Os
+		;;
+	lazy)
+		var_insert GCC_WRAPPER_INSERT ' ' -O1
+		var_insert KCC_WRAPPER_INSERT ' ' -O1
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -O1
+		;;
+	debug)
+		var_insert GCC_WRAPPER_INSERT ' ' -Og
+		var_insert KCC_WRAPPER_INSERT ' ' -Og
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -Og
+		;;
+	none)
+		var_insert GCC_WRAPPER_INSERT ' ' -O0
+		var_insert KCC_WRAPPER_INSERT ' ' -O0
+		var_insert SYSGCC_WRAPPER_INSERT ' ' -O0
+		;;
+esac
+
+# Add the architecture gcc optimisation options
+#
+if [ -f architecture/$arch/gcc-options.in ]; then
+	. architecture/$arch/gcc-options.in
+fi
+
+# gcc-4.1.0 hangs with -v --help -pipe, thus we do not add it in that case
+var_insert GCC_WRAPPER_INSERT ' ' --help?:-pipe
+var_insert SYSGCC_WRAPPER_INSERT ' ' --help?:-pipe
+
+[ "$SDECFG_LD_AS_NEEDED" != 0 ] &&
+	var_append GCC_WRAPPER_INSERT ' ' "-c?:-Wl,--as-needed"
+
+
+if hasflag NO-PIE; then
+	[ "$SDECFG_PIE" == 1 ] &&
+		echo 'Position-Independent Executables disabled for this package'
+elif [ "$SDECFG_PIE" == 1 ]; then
+	case $SDECFG_STATIC in
+		0) var_append GCC_WRAPPER_INSERT ' ' "-fPIE -c?:-pie"
+		   var_append GCC_WRAPPER_APPEND ' ' "-fPIC" ;;
+		1) var_append GCC_WRAPPER_INSERT ' ' "-fPIE -c?:-static-pie" ;;
+	esac
+fi
+
+var_append GCC_WRAPPER_APPEND ' ' $SDECFG_C_FLAGS
+var_append KCC_WRAPPER_APPEND ' ' $SDECFG_C_FLAGS
+
+# Compile (i.e. link) all bins statically
+#
+if [ "$SDECFG_STATIC" = 1 ]; then
+	var_insert GCC_WRAPPER_INSERT ' ' -static
+fi
+
+# Compile with no exceptions or rtti, gcc itself must support both
+#
+if [ "$SDECFG_LIMITCXX" = 1 ] && [[ $pkg != gcc* ]]; then
+	var_append CXX_WRAPPER_APPEND ' ' "-fno-exceptions -fno-rtti"
+fi
+
+# Passing -I/usr{/local/}include creates a warning in gcc3 which is confusing
+# some of the configure scripts and Makefiles.
+#
+var_insert GCC_WRAPPER_REMOVE ' ' "-I/usr/include -I/usr/local/include"
+
+# pkg-config and other output or hardcoded configure assumption
+# do not include the "DESTDIR" we need to adapt the pathes accordingly
+gcc_sysroot_filter() {
+	# merge multiple path separators
+	var_append GCC_WRAPPER_FILTER '|' "sed -e 's,//*,/,g'"
+
+	# translate all non-$sysroot with trailing /lib and correct to $libdir
+	var_append GCC_WRAPPER_FILTER '|' \
+	"sed -e 's@^\(-[L]\|-Wl.*-rpath-link,\)*\(/\|/usr/\|/usr/[^/]*/\|/opt/[^/]*/\)\(lib\)\$@\1$root\2${libdir##*/}@'"
+
+	# keep any other non-$sysdir /lib* as it
+	var_append GCC_WRAPPER_FILTER '|' \
+	"sed -e 's@^\(-[L]\|-Wl.*-rpath-link,\)*\(/\|/usr/\|/usr/[^/]*/\|/opt/[^/]*/\)\(lib\)@\1$root\2\3@'"
+
+	# and tranlate includes, too, and yes, we need "lib" for for lib/glib/include/glibconfig.h
+	var_append GCC_WRAPPER_FILTER '|' \
+	"sed -e 's@^\(-[I]\)*\(/\|/usr/\|/usr/[^/]*/\|/opt/[^/]*/\)\(include\|lib\)@\1$root\2\3@'"
+	var_append CPP_WRAPPER_FILTER '|' \
+	"sed -e 's@^\(-[I]\)*\(/\|/usr/\|/usr/[^/]*/\|/opt/[^/]*/\)\(include\|lib\)@\1$root\2\3@'"
+}
+hook_add prepare 5 gcc_sysroot_filter
+
+# Inject -fPIC if the package is marked to need a quirk ...
+#
+hasflag FPIC && var_append GCC_WRAPPER_APPEND ' ' -fPIC
+
+# Build with LTO, if not disabled for this package
+#
+if [ "$SDECFG_LTO" != 1 ]; then
+    var_append GCC_WRAPPER_REMOVE ' ' "-flto*"
+else
+    hasflag CUSTOM-LTO || var_append GCC_WRAPPER_REMOVE ' ' "-flto*"
+    if hasflag NO-LTO; then
+	echo 'Link Time Optimization disabled for this package'
+	SDECFG_LTO=0 # hide from pkgs, might be conditionally disabled for $arch or $cc
+    elif ! hasflag CUSTOM-LTO; then
+	if [ "$SDECFG_DEFAULT_CC" = clang ]; then
+	    var_append GCC_WRAPPER_INSERT ' ' "conftest*.*?:-flto=thin"
+	else
+	    var_append GCC_WRAPPER_INSERT ' ' "conftest*.*?:-flto=${SDECFG_PARALLEL:-auto}"
+	    var_append GCC_WRAPPER_INSERT ' ' "conftest*.*?:-shared?:-fwhole-program"
+	    hasflag FAT-LTO && var_append GCC_WRAPPER_INSERT ' ' -ffat-lto-objects
+	fi
+    fi
+fi
+
+# -fcommon backward compatibility
+hasflag FCOMMON && var_append GCC_WRAPPER_INSERT ' ' -fcommon
+
+# usually 64-bit -latomic for some architectures
+hasflag LATOMIC && [ $arch != avr32 ] && var_append GCC_WRAPPER_INSERT ' ' '-c?:-latomic -Wl,--as-needed'
+
+# Remove -Wl,--as-needed, some packages break with it...
+#
+if hasflag NO-AS-NEEDED; then
+	var_remove_regex GCC_WRAPPER_INSERT ' ' ".*-Wl,--as-needed"
+	var_append GCC_WRAPPER_REMOVE ' ' "-Wl,--as-needed"
+fi

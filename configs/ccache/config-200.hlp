@@ -1,0 +1,19 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/ccache/config-200.hlp
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# Copyright (C) 1998 - 2003 ROCK Linux Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+SDECFG_PKG_CCACHE_USEIT
+  Enables the Compiler Cache for caching compiler output. Please keep
+  in mind that the Compiler Cache will need A LOT of disk-space -
+  approximately the size of the build sandbox.
+
+SDECFG_PKG_CCACHE_MAX
+  Defines the maximal size of content allowed in the cache. The value is
+  stored inside the per package cache directory.
+
+SDECFG_PKG_CCACHE_CLEANUP
+  Controls whether to automatically clean the ccache by removing files that
+  have not been referenced during the build.

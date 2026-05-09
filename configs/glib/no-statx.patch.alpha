@@ -1,0 +1,17 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/glib/no-statx.patch.alpha
+# Copyright (C) 2020 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- glib-2.66.1/meson.build.vanilla	2020-10-04 14:28:43.665526843 +0200
++++ glib-2.66.1/meson.build	2020-10-04 14:28:52.457526796 +0200
+@@ -342,7 +342,7 @@
+   }
+   '''
+ if host_system != 'android' and cc.compiles(statx_code, name : 'statx() test')
+-  glib_conf.set('HAVE_STATX', 1)
++  #glib_conf.set('HAVE_STATX', 1)
+ endif
+ 
+ if glib_conf.has('HAVE_LOCALE_H')

@@ -1,0 +1,37 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/libffi/libffi.desc
+[COPY] Copyright (C) 2010 - 2026 The T2 SDE Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] A portable, high level programming interface to various calling conventions
+
+[T] A portable, high level programming interface to various calling conventions.
+
+[U] http://sources.redhat.com/libffi/
+
+[A] Anthony Green
+[M] Aldas Nabazas <baldzius@gmail.com>
+
+[C] base/library
+[F] CROSS
+
+[L] MIT
+[V] 3.5.2
+[P] X 01---5---9 106.000
+
+[D] 9d0b0500bb4b0a847abd47341a356f925b30977b4faa7ee2b115f752 libffi-3.5.2.tar.gz https://github.com/libffi/libffi/releases/download/v3.5.2/
+
+var_append confopt " " "--enable-shared --disable-static"
+var_append CFLAGS " " "-fPIC"
+
+pkg_libffi_preconf() {
+    # Force libffi to realize it is in the correct directory 
+    # and stop it from trying to 'continue configure' elsewhere.
+    export MKDIR_P="mkdir -p"
+}
+hook_add preconf 5 pkg_libffi_preconf
+
+# This is the "Magic" line for libffi path errors:
+# It forces the build to happen exactly where the configure script is.
+var_append confopt " " "--srcdir=."

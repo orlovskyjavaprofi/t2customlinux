@@ -1,0 +1,30 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/304-index_macro.patch.uclibc
+# Copyright (C) 2011 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- gcc-4.1.0/libstdc++-v3/include/ext/rope.mps	2006-03-24 01:49:51 +0100
++++ gcc-4.1.0/libstdc++-v3/include/ext/rope	2006-03-24 01:49:37 +0100
+@@ -59,6 +59,9 @@
+ #include <bits/allocator.h>
+ #include <ext/hash_fun.h>
+ 
++/* cope w/ index defined as macro, SuSv3 proposal */
++#undef index
++
+ # ifdef __GC
+ #   define __GC_CONST const
+ # else
+--- gcc-4.1.0/libstdc++-v3/include/ext/ropeimpl.h.mps	2006-03-24 01:50:04 +0100
++++ gcc-4.1.0/libstdc++-v3/include/ext/ropeimpl.h	2006-03-24 01:50:28 +0100
+@@ -49,6 +49,9 @@
+ #include <ext/memory> // For uninitialized_copy_n
+ #include <ext/numeric> // For power
+ 
++/* cope w/ index defined as macro, SuSv3 proposal */
++#undef index
++
+ namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
+ {
+ _GLIBCXX_BEGIN_NAMESPACE_VERSION

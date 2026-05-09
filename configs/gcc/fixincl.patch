@@ -1,0 +1,17 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/fixincl.patch
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+ 
+--- gcc-4.0.1/fixincludes/fixinc.in.vanilla	2005-08-23 22:28:53.000000000 +0200
++++ gcc-4.0.1/fixincludes/fixinc.in	2005-08-23 22:29:25.000000000 +0200
+@@ -164,6 +164,8 @@
+     INPUTLIST="$@"
+ fi
+ 
++exit # not with us -ReneR
++
+ for INPUT in ${INPUTLIST} ; do
+ 
+ cd ${ORIGDIR}

@@ -1,0 +1,16 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/libintl.diff.uclibc
+# Copyright (C) 2008 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+--- ./gcc/config/linux.h.orig	2006-02-18 12:12:51.000000000 +0100
++++ ./gcc/config/linux.h	2007-06-25 17:53:25.000000000 +0200
+@@ -71,6 +71,7 @@
+ #undef	LIB_SPEC
+ #define LIB_SPEC \
+   "%{pthread:-lpthread} \
++   %{!nointl:-lintl} \
+    %{shared:-lc} \
+    %{!shared:%{mieee-fp:-lieee} %{profile:-lc_p}%{!profile:-lc}}"
+ 

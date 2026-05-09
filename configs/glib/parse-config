@@ -1,0 +1,9 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/glib/parse-config
+# Copyright (C) 2010 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+
+flistdel="$flistdel|$prefix/share/icons/hicolor/icon-theme.cache"
+[ "$pkg" = glib ] || flistdel="$flistdel|$prefix/share/glib-2.0/schemas/gschemas.compiled"

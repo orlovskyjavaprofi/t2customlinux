@@ -1,0 +1,38 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/disable-cet.patch.cross
+# Copyright (C) 2020 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- gcc-11.1.0-RC-20210423/libiberty/configure.vanilla	2021-04-25 23:45:21.547430546 +0200
++++ gcc-11.1.0-RC-20210423/libiberty/configure	2021-04-25 23:46:00.331433335 +0200
+@@ -5283,11 +5283,12 @@
+ 
+ case "$host" in
+   i[34567]86-*-linux* | x86_64-*-linux*)
+-    may_have_cet=yes
++    may_have_cet=no
+     cet_save_CFLAGS="$CFLAGS"
+     CFLAGS="$CFLAGS -fcf-protection"
+     case "$enable_cet" in
+       auto)
++	max_have_cet=yes
+ 	# Check if target supports multi-byte NOPs
+ 	# and if compiler and assembler support CET.
+ 	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+--- gcc-11.1.0-RC-20210423/lto-plugin/configure.vanilla	2021-04-25 23:46:17.618434578 +0200
++++ gcc-11.1.0-RC-20210423/lto-plugin/configure	2021-04-25 23:47:03.574437883 +0200
+@@ -5681,11 +5681,12 @@
+ 
+ case "$host" in
+   i[34567]86-*-linux* | x86_64-*-linux*)
+-    may_have_cet=yes
++    may_have_cet=no
+     cet_save_CFLAGS="$CFLAGS"
+     CFLAGS="$CFLAGS -fcf-protection"
+     case "$enable_cet" in
+       auto)
++	may_have_cet=yes
+ 	# Check if target supports multi-byte NOPs
+ 	# and if compiler and assembler support CET.
+ 	cat confdefs.h - <<_ACEOF >conftest.$ac_ext

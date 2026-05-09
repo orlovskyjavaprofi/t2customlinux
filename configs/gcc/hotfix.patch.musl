@@ -1,0 +1,17 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/hotfix.patch.musl
+# Copyright (C) 2016 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- gcc-6.2.0/configure.vanilla	2016-12-19 00:08:47.059395835 +0000
++++ gcc-6.2.0/configure	2016-12-19 00:09:11.563396256 +0000
+@@ -2842,7 +2842,7 @@
+ # Skipdirs are removed silently.
+ skipdirs=
+ # Noconfigdirs are removed loudly.
+-noconfigdirs=""
++noconfigdirs="target-libmpx target-libgomp"
+ 
+ use_gnu_ld=
+ # Make sure we don't let GNU ld be added if we didn't want it.

@@ -1,0 +1,17 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/glib/no-xlocale.patch.cross0
+# Copyright (C) 2020 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- glib-2.64.1/meson.build.vanilla	2020-03-15 12:15:55.884281368 +0100
++++ glib-2.64.1/meson.build	2020-03-15 12:16:03.276281371 +0100
+@@ -274,7 +274,7 @@
+   'unistd.h',
+   'values.h',
+   'wchar.h',
+-  'xlocale.h',
++  '_noxlocale.h',
+ ]
+ 
+ foreach h : headers

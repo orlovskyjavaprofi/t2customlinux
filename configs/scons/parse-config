@@ -1,0 +1,7 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/scons/parse-config
+# Copyright (C) 2004 - 2025 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+[ "$SDECFG_PARALLEL" ] && var_insert sconsopt ' ' "--jobs $SDECFG_PARALLEL"

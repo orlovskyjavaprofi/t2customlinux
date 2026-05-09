@@ -1,0 +1,41 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/wrappers.in
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# Copyright (C) 1998 - 2003 ROCK Linux Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+gcc_build_wrapper() {
+	local x="$1" y z; shift
+	local p="$1"; shift
+	for y; do
+		local ver=`$y -dumpversion 2> /dev/null`
+		[ $? != 0 ] && continue
+		[ "$x" != "$p" ] && z="$x,$p" || z="$x"
+
+		if [ $x = KCC ]; then
+			build_wrapper $x $y
+		else
+			build_wrapper $z $y
+		fi
+	done
+}
+
+atstage native ||
+gcc_build_wrapper CPP	CPP ${arch_target}-cpp
+gcc_build_wrapper CC	GCC ${arch_target}-cc ${arch_target}-gcc
+gcc_build_wrapper CXX	GCC ${arch_target}-c++ ${arch_target}-g++
+gcc_build_wrapper KCC	GCC ${arch_target}-kcc
+
+if atstage native || [ "$SDECFG_USE_CROSSCC" = 0 ]; then
+	gcc_build_wrapper CC  GCC cc gcc
+	gcc_build_wrapper CXX GCC {c,g}++
+	gcc_build_wrapper F77 GCC f77 gfortran
+	gcc_build_wrapper KCC GCC kcc
+	gcc_build_wrapper CPP CPP cpp
+else
+	# system compiler used in stage 0 - mostly for ccache
+	gcc_build_wrapper SYSCC  SYSGCC {,g}cc
+	gcc_build_wrapper SYSCXX SYSGCC {c,g}++
+	gcc_build_wrapper SYSCPP SYSCPP cpp
+fi

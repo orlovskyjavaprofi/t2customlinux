@@ -1,0 +1,18 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/glib/no-libelf.patch.cross
+# Copyright (C) 2019 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- glib-2.60.6/gio/meson.build.vanilla	2019-09-11 21:51:12.296622092 +0000
++++ glib-2.60.6/gio/meson.build	2019-09-11 21:51:27.004621656 +0000
+@@ -890,7 +890,8 @@
+ endif
+ 
+ if have_libelf
+-  glib_conf.set('HAVE_LIBELF', 1)
++  #glib_conf.set('HAVE_LIBELF', 1)
++  libelf = []
+ else
+   libelf = []
+ endif

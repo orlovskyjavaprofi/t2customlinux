@@ -1,0 +1,25 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/man/parse-config
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# Copyright (C) 1998 - 2003 ROCK Linux Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+postflist_man() {
+	egrep '^usr/share/(man|info)/.*\.gz$' $builddir/flist.txt |
+	while read fn ; do
+		[ -f $root/$fn ] || continue
+		rm -f $root/${fn%.gz}
+		gzip -d $root/$fn
+		add_flist $root/${fn%.gz}
+	done
+
+	egrep '^usr/share/(man|info)/' $builddir/flist.txt |
+	while read fn ; do
+		[ -f $root/$fn ] || continue
+		chmod 0644 $fn
+		chown root:root $fn
+	done
+}
+
+hook_add postflist 2 postflist_man

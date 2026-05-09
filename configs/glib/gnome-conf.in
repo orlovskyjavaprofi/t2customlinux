@@ -1,0 +1,34 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/glib/gnome-conf.in
+# Copyright (C) 2004 - 2025 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+if [ "$prefix_auto" = 1 ]; then
+	if [ "$1" == "NO_SANITY_CHECK" ]; then
+		if [ "$SDECFG_PKG_GNOME2_CORE_PREFIX" ]; then
+			prefix="$SDECFG_PKG_GNOME2_CORE_PREFIX"
+	  	else
+			prefix="opt/gnome"
+	  	fi
+  	elif pkginstalled glib; then
+  		pkgprefix -t glib
+		prefix=`pkgprefix glib`
+	fi
+	set_confopt
+fi
+
+# index.sgml is missing in almost all packages ...
+var_append confopt ' ' --disable-gtk-doc
+
+# disable g-ir-scanner caching, TODO: move to own parse-config?
+export GI_SCANNER_DISABLE_CACHE=1
+
+# don't run a gtk test program which would try to acccess an X server
+var_append confopt ' ' --disable-gtktest
+
+# include sub-package definitions
+. package/*/gtk+/gtk+-pkg.conf
+. package/*/*/scrollkeeper-pkg.conf
+. package/*/gconf/gconf-pkg.conf
+. package/*/gstreamer/gstreamer-pkg.conf

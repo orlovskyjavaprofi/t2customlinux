@@ -1,0 +1,21 @@
+[TIMESTAMP] 1760529778 Wed Oct 15 14:02:58 2025
+[BUILDTIME] 120 (9)
+[SIZE] 27.37 MB, 2678 files
+
+[OPT] acl
+[OPT] attr
+[DEP] bash
+[DEP] binutils
+[DEP] coreutils
+[DEP] diffutils
+[DEP] findutils
+[DEP] gawk
+[DEP] grep
+[DEP] libunistring
+[DEP] libxml
+[DEP] linux-header
+[DEP] make
+[OPT] openjdk
+[DEP] sed
+[DEP] tar
+[DEP] xz

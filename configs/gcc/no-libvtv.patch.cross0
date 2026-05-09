@@ -1,0 +1,13 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/gcc/no-libvtv.patch.cross0
+# Copyright (C) 2015 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- gcc-5.1.0/libvtv/configure.tgt.vanilla	2015-01-29 08:03:56.000000000 +0000
++++ gcc-5.1.0/libvtv/configure.tgt	2015-04-24 10:25:07.980000000 +0000
+@@ -43,3 +43,4 @@
+   *)
+ 	;;
+ esac
++VTV_SUPPORTED=no

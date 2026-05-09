@@ -1,0 +1,19 @@
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/inetutils/path-proc-net.patch
+# Copyright (C) 2021 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0 or patched project license
+# --- T2-COPYRIGHT-END ---
+
+--- inetutils-2.0/ifconfig/system/linux.c.vanilla	2021-02-06 17:16:29.261063633 +0100
++++ inetutils-2.0/ifconfig/system/linux.c	2021-02-06 17:17:23.747066444 +0100
+@@ -50,6 +50,10 @@
+ #include <read-file.h>
+ #include <unused-parameter.h>
+ 
++#ifndef PATH_PROCNET_DEV
++#define PATH_PROCNET_DEV "/proc/net/dev"
++#endif
++
+ #include "../ifconfig.h"
+ 
+ 

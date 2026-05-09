@@ -1,0 +1,32 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/udev/udev.desc
+[COPY] Copyright (C) 2004 - 2026 The T2 SDE Project
+[COPY] Copyright (C) 1998 - 2003 ROCK Linux Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] A Userspace Implementation for dynamic /dev nodes
+
+[T] U/dev is a program that replaces the functionality of DevFS (only providing
+[T] /dev entries for devices that are in the system at any point in time).
+[T] It is an attempt to move all naming policy out of the kernel.
+
+[U] http://cdn.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
+
+[A] Greg Kroah-Hartman <greg@kroah.com>
+[M] René Rebe <rene@exactco.de>
+
+[C] base/system base/kernel
+[F] CROSS DIETLIBC NO-LTO.gcc NO-PIE NO-SSP LATOMIC.sparc
+
+[E] add jinja2
+[E] del valgrind
+[E] opt acl
+[E] opt systemtap
+
+[L] GPL
+[V] 260.1
+[P] X --2--5---9 127.000
+
+[CV-GROUP] systemd
+[D] b64cd3f66c06f4b5c830cdea1c2a318f3857f5c888614ffd0a724581 systemd-260.1.tar.gz https://github.com/systemd/systemd/archive/v260.1/
