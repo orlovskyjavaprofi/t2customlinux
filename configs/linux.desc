@@ -203,19 +203,19 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-# Fix for modern systemd-udevd path drift
+# 1. Ensure the directory structure exists in the target root
         mkdir -p $root/lib/udev
         mkdir -p $root/sbin
         mkdir -p $root/usr/lib/systemd
 
-        # 1. Link the helpers (ata_id, etc)
-        ln -sf /usr/lib/udev/ata_id $root/lib/udev/ata_id
-        ln -sf /usr/lib/udev/scsi_id $root/lib/udev/scsi_id
-        ln -sf /usr/lib/udev/cdrom_id $root/lib/udev/cdrom_id
-
-        # 2. Link the main daemon to the legacy path mkinitrd expects
-        # We use the path you just found: /usr/lib/systemd/systemd-udevd
-        ln -sf /usr/lib/systemd/systemd-udevd $root/sbin/udevd
+        # 2. Use RELATIVE symlinks to bridge the UsrMerge gap
+        # These go UP one level from /lib/udev or /sbin to find /usr
+        ln -sfv ../usr/lib/udev/ata_id $root/lib/udev/ata_id
+        ln -sfv ../usr/lib/udev/scsi_id $root/lib/udev/scsi_id
+        ln -sfv ../usr/lib/udev/cdrom_id $root/lib/udev/cdrom_id
+        
+        # 3. The daemon link (pointing from /sbin up to /usr/lib/...)
+        ln -sfv ../usr/lib/systemd/systemd-udevd $root/sbin/udevd
 
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
