@@ -203,19 +203,19 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-# 1. Ensure the directory structure exists in the target root
+        # 1. Create target directories in the root
         mkdir -p $root/lib/udev
         mkdir -p $root/sbin
         mkdir -p $root/usr/lib/systemd
 
-        # 2. Use RELATIVE symlinks to bridge the UsrMerge gap
-        # These go UP one level from /lib/udev or /sbin to find /usr
-        ln -sfv ../usr/lib/udev/ata_id $root/lib/udev/ata_id
-        ln -sfv ../usr/lib/udev/scsi_id $root/lib/udev/scsi_id
-        ln -sfv ../usr/lib/udev/cdrom_id $root/lib/udev/cdrom_id
+        # 2. RELATIVE LINKS (The secret sauce)
+        # From /lib/udev/ go UP two levels to root, then down to /usr/lib/udev/
+        ln -sfv $root/usr/lib/udev/ata_id $root/lib/udev/ata_id
+        ln -sfv $root/usr/lib/udev/scsi_id $root/lib/udev/scsi_id
+        ln -sfv $root/usr/lib/udev/cdrom_id $root/lib/udev/cdrom_id
         
-        # 3. The daemon link (pointing from /sbin up to /usr/lib/...)
-        ln -sfv ../usr/lib/systemd/systemd-udevd $root/sbin/udevd
+        # From /sbin/ go UP one level to root, then down to /usr/lib/...
+        ln -sfv $root/usr/lib/systemd/systemd-udevd $root/sbin/udevd
 
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
