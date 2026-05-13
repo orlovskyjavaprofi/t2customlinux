@@ -203,19 +203,18 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-        # 1. Create target directories in the root
+        # 1. Create target directories
         mkdir -p $root/lib/udev
         mkdir -p $root/sbin
-        mkdir -p $root/usr/lib/systemd
 
-        # 2. RELATIVE LINKS (The secret sauce)
-        # From /lib/udev/ go UP two levels to root, then down to /usr/lib/udev/
-        ln -sfv $root/usr/lib/udev/ata_id $root/lib/udev/ata_id
-        ln -sfv $root/usr/lib/udev/scsi_id $root/lib/udev/scsi_id
-        ln -sfv $root/usr/lib/udev/cdrom_id $root/lib/udev/cdrom_id
+        # 2. PHYSICAL COPY (No links, no path mismatches)
+        # This puts the real binary data where the script expects it
+        cp -v $root/usr/lib/udev/ata_id $root/lib/udev/ata_id
+        cp -v $root/usr/lib/udev/scsi_id $root/lib/udev/scsi_id
+        cp -v $root/usr/lib/udev/cdrom_id $root/lib/udev/cdrom_id
         
-        # From /sbin/ go UP one level to root, then down to /usr/lib/...
-        ln -sfv $root/usr/lib/systemd/systemd-udevd $root/sbin/udevd
+        # Copy the systemd daemon to the legacy sbin/udevd location
+        cp -v $root/usr/lib/systemd/systemd-udevd $root/sbin/udevd
 
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
