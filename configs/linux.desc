@@ -203,18 +203,18 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-        # 1. Create target directories
+     # 1. Ensure the directories exist
         mkdir -p $root/lib/udev
         mkdir -p $root/sbin
 
-        # 2. PHYSICAL COPY (No links, no path mismatches)
-        # This puts the real binary data where the script expects it
-        cp -v $root/usr/lib/udev/ata_id $root/lib/udev/ata_id
-        cp -v $root/usr/lib/udev/scsi_id $root/lib/udev/scsi_id
-        cp -v $root/usr/lib/udev/cdrom_id $root/lib/udev/cdrom_id
+        # 2. Use 'cp -L' (follow links) and '--force'
+        # Or even better, a simple check to avoid the "same file" error:
+        [ "$root/usr/lib/udev/ata_id" != "$root/lib/udev/ata_id" ] && cp -vL $root/usr/lib/udev/ata_id $root/lib/udev/ata_id
+        [ "$root/usr/lib/udev/scsi_id" != "$root/lib/udev/scsi_id" ] && cp -vL $root/usr/lib/udev/scsi_id $root/lib/udev/scsi_id
         
-        # Copy the systemd daemon to the legacy sbin/udevd location
-        cp -v $root/usr/lib/systemd/systemd-udevd $root/sbin/udevd
+        # For the daemon, we copy it specifically to the legacy sbin location
+        # Using -f (force) to overwrite any existing broken links
+        cp -vfL $root/usr/lib/systemd/systemd-udevd $root/sbin/udevd
 
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
