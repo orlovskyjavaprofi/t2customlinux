@@ -162,14 +162,6 @@ linux_install() {
 		;;
 	esac
 
-    # Fix for ROCm 7.2.2 path changes
-        if [ -d "$builddir/amdgpu-rocm-7.2.2" ]; then
-                echo "Applying ROCm 7.2.2 path fix-up..."
-                mkdir -p "$builddir/amdgpu-rocm-7.2.2/amd/dkms/oot"
-                ln -sf "$builddir/amdgpu-rocm-7.2.2/drivers/gpu/drm/amd/dkms/Makefile" \
-                       "$builddir/amdgpu-rocm-7.2.2/amd/dkms/oot/Makefile.oot"
-        fi
-
 	# iterate over the packages that provide 3rd party linux kernel modules
 	if grep -q "CONFIG_MODULES=y" .config; then
 		module_error=0
