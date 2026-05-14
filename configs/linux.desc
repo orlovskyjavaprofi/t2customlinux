@@ -162,6 +162,14 @@ linux_install() {
 		;;
 	esac
 
+    # Fix for ROCm 7.2.2 path changes
+        if [ -d "$builddir/amdgpu-rocm-7.2.2" ]; then
+                echo "Applying ROCm 7.2.2 path fix-up..."
+                mkdir -p "$builddir/amdgpu-rocm-7.2.2/amd/dkms/oot"
+                ln -sf "$builddir/amdgpu-rocm-7.2.2/drivers/gpu/drm/amd/dkms/Makefile" \
+                       "$builddir/amdgpu-rocm-7.2.2/amd/dkms/oot/Makefile.oot"
+        fi
+
 	# iterate over the packages that provide 3rd party linux kernel modules
 	if grep -q "CONFIG_MODULES=y" .config; then
 		module_error=0
@@ -203,18 +211,28 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-     # 1. Ensure the directories exist
-        mkdir -p $root/lib/udev
-        mkdir -p $root/sbin
+# 1. Ensure target directories exist
+        mkdir -p "$root/lib/udev" "$root/sbin"
 
-        # 2. Use 'cp -L' (follow links) and '--force'
-        # Or even better, a simple check to avoid the "same file" error:
-        [ "$root/usr/lib/udev/ata_id" != "$root/lib/udev/ata_id" ] && cp -vL $root/usr/lib/udev/ata_id $root/lib/udev/ata_id
-        [ "$root/usr/lib/udev/scsi_id" != "$root/lib/udev/scsi_id" ] && cp -vL $root/usr/lib/udev/scsi_id $root/lib/udev/scsi_id
-        
-        # For the daemon, we copy it specifically to the legacy sbin location
-        # Using -f (force) to overwrite any existing broken links
-        cp -vfL $root/usr/lib/systemd/systemd-udevd $root/sbin/udevd
+        # 2. Define the binary mapping (Source:Destination)
+        # Using a list to keep the code clean and maintainable
+        UDEV_FILES="usr/lib/udev/ata_id:lib/udev/ata_id 
+                    usr/lib/udev/scsi_id:lib/udev/scsi_id 
+                    usr/lib/udev/cdrom_id:lib/udev/cdrom_id 
+                    usr/lib/systemd/systemd-udevd:sbin/udevd"
+
+        for entry in $UDEV_FILES; do
+            src="${entry%:*}"
+            dst="${entry#*:}"
+
+            # Only attempt copy if source and destination are NOT the same physical file
+            if [ ! "$root/$src" -ef "$root/$dst" ]; then
+                echo "Bridging $src to $dst..."
+                cp -vfL "$root/$src" "$root/$dst"
+            else
+                echo "Skip: $dst is already linked to $src (UsrMerge active)."
+            fi
+        done
 
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
