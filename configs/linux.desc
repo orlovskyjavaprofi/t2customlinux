@@ -25,7 +25,7 @@
 
 [CV-FLAGS] NO-MAJOR
 [D] cc6ca744442d44f6b1680b81ebbc728bf1d3d45f8aeb031914db7edd linux-7.0.tar.xz http://www.kernel.org/pub/linux/kernel/v7.x/
-[D] 28a9779c80e67635bbbec0cf968b7c385fa57439c89745b8c2632c7d linux-patch-7.0.6.xz !https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.0.6.xz
+[D] 3615756cb45239300b04ee98bf3148f202aa5eb9bcb910fa2fc4ef15 linux-patch-7.0.7.xz !https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.0.7.xz
 #[D] 0 linux-tip-6f85aad74a7.tar.gz git+https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git 6f85aad74a7
 
 . $base/package/*/linux/linux-conf.in
@@ -203,41 +203,41 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-# 1. Ensure target directories exist
-mkdir -p "$root/lib/udev" "$root/sbin" "$root/usr/lib/systemd"
+	# 1. Ensure target directories exist
+	mkdir -p "$root/lib/udev" "$root/sbin" "$root/usr/lib/systemd"
 
-# 2. Define the binary mapping (Target_Binary:Link_Location)
-# We swap the logic to: "Create a link AT 'dst' pointing TO 'src'"
-UDEV_LINKS="usr/lib/udev/ata_id:lib/udev/ata_id 
-            usr/lib/udev/scsi_id:lib/udev/scsi_id 
-            usr/lib/udev/cdrom_id:lib/udev/cdrom_id 
-            usr/lib/systemd/systemd-udevd:sbin/udevd"
+	# 2. Define the binary mapping (Target_Binary:Link_Location)
+	# We swap the logic to: "Create a link AT 'dst' pointing TO 'src'"
+	UDEV_LINKS="usr/lib/udev/ata_id:lib/udev/ata_id 
+				usr/lib/udev/scsi_id:lib/udev/scsi_id 
+				usr/lib/udev/cdrom_id:lib/udev/cdrom_id 
+				usr/lib/systemd/systemd-udevd:sbin/udevd"
 
-for entry in $UDEV_LINKS; do
-    src_rel="${entry%:*}"  # The actual file (relative to root)
-    dst_rel="${entry#*:}"  # Where the link should be (relative to root)
-    
-    # Define absolute paths for the check
-    src_abs="$root/$src_rel"
-    dst_abs="$root/$dst_rel"
+	for entry in $UDEV_LINKS; do
+		src_rel="${entry%:*}"  # The actual file (relative to root)
+		dst_rel="${entry#*:}"  # Where the link should be (relative to root)
+		
+		# Define absolute paths for the check
+		src_abs="$root/$src_rel"
+		dst_abs="$root/$dst_rel"
 
-    # Only act if the source exists
-    if [ -e "$src_abs" ] || [ -L "$src_abs" ]; then
-        # If they are already the same file (inode), skip to avoid recursion
-        if [ ! "$src_abs" -ef "$dst_abs" ]; then
-            echo "Creating bridge: $dst_rel -> /$src_rel"
-            # Remove any existing dead link/file at destination
-            rm -f "$dst_abs"
-            # Create a relative symlink. 
-            # We use a leading / to ensure it points to the root of the new image.
-            ln -sf "/$src_rel" "$dst_abs"
-        else
-            echo "Verification: $dst_rel is already correctly mapped to $src_rel."
-        fi
-    else
-        echo "Warning: Source $src_rel not found, skipping bridge."
-    fi
-done
+		# Only act if the source exists
+		if [ -e "$src_abs" ] || [ -L "$src_abs" ]; then
+			# If they are already the same file (inode), skip to avoid recursion
+			if [ ! "$src_abs" -ef "$dst_abs" ]; then
+				echo "Creating bridge: $dst_rel -> /$src_rel"
+				# Remove any existing dead link/file at destination
+				rm -f "$dst_abs"
+				# Create a relative symlink. 
+				# We use a leading / to ensure it points to the root of the new image.
+				ln -sf "/$src_rel" "$dst_abs"
+			else
+				echo "Verification: $dst_rel is already correctly mapped to $src_rel."
+			fi
+		else
+			echo "Warning: Source $src_rel not found, skipping bridge."
+		fi
+	done
 
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
