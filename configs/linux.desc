@@ -21,7 +21,7 @@
 [E] opt lvm2
 
 [L] GPL
-[V] 7.0.6
+[V] 7.0.7
 
 [CV-FLAGS] NO-MAJOR
 [D] cc6ca744442d44f6b1680b81ebbc728bf1d3d45f8aeb031914db7edd linux-7.0.tar.xz http://www.kernel.org/pub/linux/kernel/v7.x/
