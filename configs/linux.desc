@@ -203,39 +203,32 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-	# 1. Ensure target directories exist
+	# 1. Ensure target directories exist inside the build root
 	mkdir -p "$root/lib/udev" "$root/sbin" "$root/usr/lib/systemd"
 
-	# 2. Define the binary mapping (Target_Binary:Link_Location)
-	# We swap the logic to: "Create a link AT 'dst' pointing TO 'src'"
+	# 2. Move INTO the root to ensure links are relative and internal
+	pushd "$root" > /dev/null
+
 	UDEV_LINKS="usr/lib/udev/ata_id:lib/udev/ata_id 
 				usr/lib/udev/scsi_id:lib/udev/scsi_id 
 				usr/lib/udev/cdrom_id:lib/udev/cdrom_id 
 				usr/lib/systemd/systemd-udevd:sbin/udevd"
 
 	for entry in $UDEV_LINKS; do
-		src_rel="${entry%:*}"  # The actual file (relative to root)
-		dst_rel="${entry#*:}"  # Where the link should be (relative to root)
-		
-		# Define absolute paths for the check
-		src_abs="$root/$src_rel"
-		dst_abs="$root/$dst_rel"
+		src="${entry%:*}"
+		dst="${entry#*:}"
 
-		# Only act if the source exists
-		if [ -e "$src_abs" ] || [ -L "$src_abs" ]; then
-			# If they are already the same file (inode), skip to avoid recursion
-			if [ ! "$src_abs" -ef "$dst_abs" ]; then
-				echo "Creating bridge: $dst_rel -> /$src_rel"
-				# Remove any existing dead link/file at destination
-				rm -f "$dst_abs"
-				# Create a relative symlink. 
-				# We use a leading / to ensure it points to the root of the new image.
-				ln -sf "/$src_rel" "$dst_abs"
-			else
-				echo "Verification: $dst_rel is already correctly mapped to $src_rel."
-			fi
+		# Verify source actually exists in this build
+		if [ -e "$src" ] || [ -L "$src" ]; then
+			echo "Bridging: /$dst -> /$src"
+			rm -f "$dst"
+			
+			# We use a RELATIVE link. If we are in /root, 
+			# and dst is sbin/udevd, it needs to point to ../usr/lib/systemd/systemd-udevd
+			# To keep it simple, we point to the absolute path within the final system:
+			ln -sf "/$src" "$dst"
 		else
-			echo "Warning: Source $src_rel not found, skipping bridge."
+			echo "Notice: $src not found in build tree, skipping."
 		fi
 	done
 
