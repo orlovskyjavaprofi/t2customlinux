@@ -204,27 +204,40 @@ linux_install() {
 	fi
 	
 # 1. Ensure target directories exist
-        mkdir -p "$root/lib/udev" "$root/sbin"
+mkdir -p "$root/lib/udev" "$root/sbin" "$root/usr/lib/systemd"
 
-        # 2. Define the binary mapping (Source:Destination)
-        # Using a list to keep the code clean and maintainable
-        UDEV_FILES="usr/lib/udev/ata_id:lib/udev/ata_id 
-                    usr/lib/udev/scsi_id:lib/udev/scsi_id 
-                    usr/lib/udev/cdrom_id:lib/udev/cdrom_id 
-                    usr/lib/systemd/systemd-udevd:sbin/udevd"
+# 2. Define the binary mapping (Target_Binary:Link_Location)
+# We swap the logic to: "Create a link AT 'dst' pointing TO 'src'"
+UDEV_LINKS="usr/lib/udev/ata_id:lib/udev/ata_id 
+            usr/lib/udev/scsi_id:lib/udev/scsi_id 
+            usr/lib/udev/cdrom_id:lib/udev/cdrom_id 
+            usr/lib/systemd/systemd-udevd:sbin/udevd"
 
-        for entry in $UDEV_FILES; do
-            src="${entry%:*}"
-            dst="${entry#*:}"
+for entry in $UDEV_LINKS; do
+    src_rel="${entry%:*}"  # The actual file (relative to root)
+    dst_rel="${entry#*:}"  # Where the link should be (relative to root)
+    
+    # Define absolute paths for the check
+    src_abs="$root/$src_rel"
+    dst_abs="$root/$dst_rel"
 
-            # Only attempt copy if source and destination are NOT the same physical file
-            if [ ! "$root/$src" -ef "$root/$dst" ]; then
-                echo "Bridging $src to $dst..."
-                cp -vfL "$root/$src" "$root/$dst"
-            else
-                echo "Skip: $dst is already linked to $src (UsrMerge active)."
-            fi
-        done
+    # Only act if the source exists
+    if [ -e "$src_abs" ] || [ -L "$src_abs" ]; then
+        # If they are already the same file (inode), skip to avoid recursion
+        if [ ! "$src_abs" -ef "$dst_abs" ]; then
+            echo "Creating bridge: $dst_rel -> /$src_rel"
+            # Remove any existing dead link/file at destination
+            rm -f "$dst_abs"
+            # Create a relative symlink. 
+            # We use a leading / to ensure it points to the root of the new image.
+            ln -sf "/$src_rel" "$dst_abs"
+        else
+            echo "Verification: $dst_rel is already correctly mapped to $src_rel."
+        fi
+    else
+        echo "Warning: Source $src_rel not found, skipping bridge."
+    fi
+done
 
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
