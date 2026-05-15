@@ -203,35 +203,6 @@ linux_install() {
 		ln -sf ../../../usr/src/linux-${lx_kernelrelease} $root/lib/modules/${lx_kernelrelease}/source
 	fi
 	
-	# 1. Ensure target directories exist inside the build root
-	mkdir -p "$root/lib/udev" "$root/sbin" "$root/usr/lib/systemd"
-
-	# 2. Move INTO the root to ensure links are relative and internal
-	pushd "$root" > /dev/null
-
-	UDEV_LINKS="usr/lib/udev/ata_id:lib/udev/ata_id 
-				usr/lib/udev/scsi_id:lib/udev/scsi_id 
-				usr/lib/udev/cdrom_id:lib/udev/cdrom_id 
-				usr/lib/systemd/systemd-udevd:sbin/udevd"
-
-	for entry in $UDEV_LINKS; do
-		src="${entry%:*}"
-		dst="${entry#*:}"
-
-		# Verify source actually exists in this build
-		if [ -e "$src" ] || [ -L "$src" ]; then
-			echo "Bridging: /$dst -> /$src"
-			rm -f "$dst"
-			
-			# We use a RELATIVE link. If we are in /root, 
-			# and dst is sbin/udevd, it needs to point to ../usr/lib/systemd/systemd-udevd
-			# To keep it simple, we point to the absolute path within the final system:
-			ln -sf "/$src" "$dst"
-		else
-			echo "Notice: $src not found in build tree, skipping."
-		fi
-	done
-
 	local initrdopts=
 	atstage native || initrdopts="-R $root -a $archprefix"
 	if [ -e $root/sbin/mkinitrd ]; then
