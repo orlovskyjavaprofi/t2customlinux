@@ -1,0 +1,108 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/llvm/llvm.desc
+[COPY] Copyright (C) 2008 - 2026 The T2 SDE Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] Low Level Virtual Machine
+
+[T] Low-Level Virtual Machine (LLVM) is a compiler infrastructure designed for
+[T] compile-time, link-time, run-time, and "idle-time" optimization of
+[T] programs from arbitrary programming languages. It currently supports
+[T] compilation of C, Objective-C, and C++ programs, using front-ends derived
+[T] from GCC 4.0, GCC 4.2, and a custom new front-end, "clang". It supports
+[T] x86, x86-64, ia64, PowerPC, and SPARC, with support for Alpha and ARM
+[T] under development.
+
+[U] https://llvm.org/
+[U] https://clang.llvm.org/
+[U] https://vmkit.llvm.org/
+
+[A] University of Illinois/NCSA
+[A] Chris Lattner <clattner@apple.com>
+[M] René Rebe <rene@exactco.de>
+
+[C] base/system
+
+# LTO works, but either becomes large, and/or does segfault
+[F] CROSS OBJDIR NO-LTO.gcc
+[R] - alpha arc avr32 blackfin cris m68k microblaze nios2 openrisc
+
+[L] BSD
+[V] 22.1.5
+[P] X 01---5---9 102.500
+
+[CV-GROUP] llvm-project
+[D] 539b0fa857272b2b18ad9b9e58e11d4e48e0f1c807ec375d5ca91913 llvm-project-22.1.5.src.tar.xz https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.5/
+
+runconf=0
+srcdir=*/llvm
+
+cmake_mod() {
+        var_append cmakeopt ' ' -DLLVM_THIRD_PARTY_DIR=$(echo $PWD/../../third-party*)
+}
+hook_add preconf 5 cmake_mod
+
+create_llvm_config_x() {
+        # TODO: check -lz -lnucrses deps!
+        local host=x86
+     [[ $arch = x86* ]] && host=NaN # TODO: != native llvm target
+        cat <<-EOT > $root/TOOLCHAIN/$toolsdir/bin/llvm-config-x
+#!/bin/bash
+llvm-config "\$@" |
+sed \
+-e 's, $host[^ ]*,,g' \\
+-e 's,-L$root/TOOLCHAIN/cross/lib,-L$root$libdir,g' \\
+-e 's,-I$root/TOOLCHAIN/cross/include,,g' \\
+-e 's,-lLLVM,-lz -lncurses &,'
+EOT
+        chmod +x $root/TOOLCHAIN/$toolsdir/bin/llvm-config-x
+}
+
+# Limit parallel linkers - most impactful fix for OOM
+var_append cmakeopt ' ' "-DLLVM_PARALLEL_LINK_JOBS=2"
+
+targets="host" # host for cross compilation
+xtargets="SPIRV"
+target="$arch_target"
+
+. $base/package/*/*/llvm-conf.in
+
+# TODO: fix and maybe add a config.in option?
+#var_append cmakeopt ' ' "-DLLVM_TARGETS_TO_BUILD='$targets'"
+var_append cmakeopt ' ' "-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD='$xtargets'"
+var_append cmakeopt ' ' -DLLVM_DEFAULT_TARGET_TRIPLE=$target
+
+if atstage toolchain; then
+        var_append cmakeopt ' ' -DLLVM_HOST_TRIPLE=$arch_build
+elif atstage cross; then
+        var_append cmakeopt ' ' -DLLVM_TABLEGEN=$root/TOOLCHAIN/$toolsdir/bin/llvm-tblgen
+        var_append cmakeopt ' ' -DLLVM_CONFIG_PATH=$root/TOOLCHAIN/$toolsdir/bin/llvm-config
+        var_append GCC_WRAPPER_FILTER '|' "sed 's,^/lib64/libcurses.so,-lcurses,'"
+        var_append GCC_WRAPPER_FILTER '|' "sed 's,$root/lib64/libcurses.so,-lcurses,'"
+
+        hook_add premake 5 create_llvm_config_x
+fi
+
+[ "${libdir##*/lib}" ] && var_append cmakeopt ' ' "-DLLVM_LIBDIR_SUFFIX=${libdir##*/lib}"
+# builds libraries as static and links all of them into an unique shared one
+var_append cmakeopt ' ' "-DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON"
+#[ "$SDECFG_STATIC" = 1 ] || var_append cmakeopt ' ' -DBUILD_SHARED_LIBS=ON
+
+var_append cmakeopt ' ' -DLLVM_ENABLE_ZLIB=ON
+var_append cmakeopt ' ' -DLLVM_ENABLE_TERMINFO=OFF
+var_append cmakeopt ' ' -DLLVM_ENABLE_BACKTRACES=OFF
+if pkginstalled binutils; then
+    [ $stagelevel -gt 1 ] &&
+        var_append cmakeopt ' ' -DLLVM_BINUTILS_INCDIR=$root/usr/include
+    atstage toolchain &&
+        var_append cmakeopt ' ' -DLLVM_BINUTILS_INCDIR=$root/TOOLCHAIN/cross/usr/$arch_build/$arch_target/include
+fi
+
+var_append cmakeopt ' ' "-DLLVM_ENABLE_RTTI=ON" # for Mesa?
+var_append cmakeopt ' ' "-DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_TESTS=OFF"
+var_append cmakeopt ' ' "-DLLVM_ENABLE_BINDINGS=OFF -DLLVM_INCLUDE_GO_TESTS=OFF"
+var_append cmakeopt ' ' "-DLLVM_ENABLE_ZSTD=OFF" # TODO: .a's need -lzstd?
+
+# required by rustc-1.81.x to link against the "llvm::machineinstr::dump() const" function
+var_append cmakeopt ' ' -DLLVM_ENABLE_DUMP=ON
