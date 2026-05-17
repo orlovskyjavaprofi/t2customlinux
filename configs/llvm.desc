@@ -61,6 +61,7 @@ EOT
 
 # Limit parallel linkers - most impactful fix for OOM
 var_append cmakeopt ' ' "-DLLVM_PARALLEL_LINK_JOBS=2"
+var_append cmakeopt ' ' "-DLLVM_TARGETS_TO_BUILD=host"
 
 targets="host" # host for cross compilation
 xtargets="SPIRV"
