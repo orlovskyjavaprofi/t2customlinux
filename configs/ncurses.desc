@@ -1,0 +1,68 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/ncurses/ncurses.desc
+[COPY] Copyright (C) 2004 - 2026 The T2 SDE Project
+[COPY] Copyright (C) 1998 - 2003 ROCK Linux Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] The ncurses (new curses) library
+
+[T] The ncurses (new curses) library is a free software emulation of
+[T] curses in System V Release 4.0, and more. It uses terminfo format,
+[T] supports pads and color and multiple highlights and forms characters
+[T] and function-key mapping, and has all the other SYSV-curses
+[T] enhancements over BSD curses.
+
+[U] https://www.gnu.org/software/ncurses/
+
+[A] Zeyd Ben-Halim, Eric S. Raymond, Thomas Dickey and Jurgen Pfeifer
+[M] RenÃ© Rebe <rene@exactco.de>
+
+[C] base/library
+[F] CROSS DIETLIBC FPIC NO-LTO.gcc
+
+[DEP] opt gpm
+
+[L] MIT
+[V] 6.6
+[P] X -1---5---9 102.400
+
+[D] ec9a052ba19678277802c9d8e7813f5df304597307c932d9cdc98f69 ncurses-6.6.tar.gz http://ftp.gnu.org/pub/gnu/ncurses/
+
+[ $prefix_auto = 1 ] && prefix= && set_confopt &&
+	var_append confopt ' ' --with-ada-include=/$datadir/ada/adainclude
+
+var_append makeopt ' ' AR_OPTS=rv
+var_append CXX_WRAPPER_APPEND ' ' -std=c++17
+
+atstage toolchain && var_remove_regex confopt " " "--target=.*"
+atstage native &&
+	var_append confopt ' ' --with-ada-objects="$libdir/ada/adalib" ||
+	var_append confopt ' ' --without-ada
+
+# we do not need to waste build cpu cycles just for the tests,
+var_append confopt ' ' --without-tests
+
+var_append confopt ' ' "--with-normal --disable-widec"
+[ "$SDECFG_STATIC" != 1 ] && var_append confopt ' ' --with-shared
+var_append confopt ' ' "--enable-sigwinch --enable-hard-tabs --enable-colorfgbg"
+
+hook_add postmake 6 "ln -svf libncurses.a $root$libdir/libtermcap.a; \
+	ln -svf libncurses.so $root$libdir/libtermcap.so"
+
+var_append confopt ' ' "--enable-pc-files --with-pkg-config-libdir=$libdir/pkgconfig"
+
+# (maybe) build the wide-curses variant ...
+[ "$SDECFG_LIBC" != dietlibc ] &&
+hook_add postmake 5 "eval $MAKE distclean; \
+		     eval_config_command $confopt --enable-widec --includedir=$includedir/ncursesw; \
+		     hook_eval premake; \
+		     eval $MAKE $makeopt; eval $MAKE $makeinstopt"
+
+hook_add postmake 7 "\
+	ln -svf libncurses.so $root$libdir/libcurses.so; \
+	ln -svf libncurses.a $root$libdir/libcurses.a"
+
+# includedir=$includedir/ncurses
+var_append makeinstopt ' ' "'INSTALL_LIB=\$(INSTALL) -m 755'"
+var_append confopt " " "--without-ada"
