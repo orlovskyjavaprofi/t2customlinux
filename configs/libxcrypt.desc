@@ -26,5 +26,4 @@ var_append EXTRA_CFLAGS ' ' '-Wno-error=implicit-function-declaration'
 var_append EXTRA_CFLAGS ' ' '-Wno-error=discarded-qualifiers'
 var_append GCC_WRAPPER_APPEND " " "-Wno-error=discarded-qualifiers"
 
-hook_add preconf 3 "sed -i 's/-Werror[^ ]*//g' \
-  Makefile.in lib/Makefile.in configure"
+hook_add preconf 3 "sed -i 's/-Werror[^ ]*//g' Makefile.in configure"
