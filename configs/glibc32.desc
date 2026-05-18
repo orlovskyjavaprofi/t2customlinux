@@ -29,15 +29,6 @@
 [CV-GROUP] glibc
 [D] d96fecd0d5b61ead010de9156c844429ecc2ce6a2622201a9c8b179c glibc-2.43.tar.xz http://ftp.gnu.org/pub/gnu/glibc/
 
-# Force the compiler wrapper flag for this package
-var_append GCC_WRAPPER_APPEND " " "-Wno-error=attributes"
-
-# Tell the configure stage to drop werror
-var_append CONFOUT " " "--disable-werror"
-
-# Run the sed patch right before make starts
-hook_add premake 3 "sed -i 's/-Werror//g' Makerules ../Makerules 2>/dev/null; true"
-
 # force 32 bit code
 if [[ $arch_target = *mips* ]]; then
 	var_insert GCC_WRAPPER_INSERT ' ' -mabi=32
@@ -74,6 +65,10 @@ var_append makeinstopt ' ' install-lib-all
 
 libdir="${libdir%/*}/lib"
 slibdir=lib
+
+var_append GCC_WRAPPER_APPEND " " "-Wno-error=attributes"
+var_append confopt " " "--disable-werror"
+hook_add premake 3 "sed -i 's/-Werror//g' Makerules ../Makerules 2>/dev/null; true"
 
 # and last overwrite the postmake function to do less stuff
 glibc_postmake() {
