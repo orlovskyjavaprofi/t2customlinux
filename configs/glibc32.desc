@@ -68,7 +68,7 @@ slibdir=lib
 
 var_append confopt " " "--disable-werror"
 var_append confopt " " "-Wno-error=attributes -m32"
-hook_add premake 3 "sed -i 's/-Werror//g' \$src/Makerules"
+hook_add premake 3 "sed -i 's/-Werror//g' /TOOLCHAIN/src.glibc32.*/glibc-2.43/Makerules"
 
 
 # and last overwrite the postmake function to do less stuff
