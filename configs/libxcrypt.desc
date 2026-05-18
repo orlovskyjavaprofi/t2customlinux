@@ -26,5 +26,5 @@ var_append EXTRA_CFLAGS ' ' '-Wno-error=implicit-function-declaration'
 var_append EXTRA_CFLAGS ' ' '-Wno-error=discarded-qualifiers'
 var_append GCC_WRAPPER_APPEND " " "-Wno-error=discarded-qualifiers"
 
-hook_add postconf 3 "find . -name 'Makefile' -o -name 'Makefile.in' | \
-  xargs sed -i 's/-Werror[^ ]*//g'"
+hook_add premake 3 "find . -name 'Makefile' | xargs sed -i 's/-Werror//g'"
+
