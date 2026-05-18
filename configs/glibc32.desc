@@ -30,6 +30,7 @@
 [D] d96fecd0d5b61ead010de9156c844429ecc2ce6a2622201a9c8b179c glibc-2.43.tar.xz http://ftp.gnu.org/pub/gnu/glibc/
 
 var_append GCC_WRAPPER_APPEND " " "-Wno-error=attributes"
+var_append confopt ' ' '--disable-werror'
 
 # force 32 bit code
 if [[ $arch_target = *mips* ]]; then
