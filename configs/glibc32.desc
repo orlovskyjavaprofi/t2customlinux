@@ -68,7 +68,6 @@ slibdir=lib
 
 var_append GCC_WRAPPER_APPEND " " "-Wno-error=attributes"
 var_append confopt " " "--disable-werror"
-hook_add premake 3 "sed -i 's/-Werror//g' Makerules ../Makerules 2>/dev/null; true"
 
 # and last overwrite the postmake function to do less stuff
 glibc_postmake() {
