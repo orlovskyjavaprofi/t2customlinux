@@ -67,6 +67,7 @@ libdir="${libdir%/*}/lib"
 slibdir=lib
 
 var_append confopt " " "--disable-werror"
+var_append confopt " " "-Wno-error=attributes"
 
 # and last overwrite the postmake function to do less stuff
 glibc_postmake() {
