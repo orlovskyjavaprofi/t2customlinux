@@ -1,0 +1,83 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/glibc32/glibc32.desc
+[COPY] Copyright (C) 2004 - 2026 The T2 SDE Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] The GNU C library 32bit compatbility version for 64bit systems
+
+[T] GNU C library (glibc) defines the ``system calls'' and other
+[T] basic facilities such as open, malloc, printf,
+[T] exit... It is used by almost all C programs and provides
+[T] the most essential program interface.
+
+[U] https://www.gnu.org/software/libc/
+
+[A] The GNU Project / FSF
+[M] RenÃ© Rebe <rene@exactco.de>
+
+[C] base/library
+[F] OBJDIR CROSS NO-SSP NO-LTO
+[R] + x86-64 sparc64 powerpc64 mips64
+
+[E] del libgd
+
+[L] LGPL
+[V] 2.43
+[P] X -1---5---9 101.600
+
+[CV-GROUP] glibc
+[D] d96fecd0d5b61ead010de9156c844429ecc2ce6a2622201a9c8b179c glibc-2.43.tar.xz http://ftp.gnu.org/pub/gnu/glibc/
+
+var_append GCC_WRAPPER_APPEND " " "-Wno-error=attributes"
+
+# force 32 bit code
+if [[ $arch_target = *mips* ]]; then
+	var_insert GCC_WRAPPER_INSERT ' ' -mabi=32
+	var_append GCC_WRAPPER_INSERT ' ' " -modd-spreg"
+else
+	var_insert GCC_WRAPPER_INSERT ' ' -m32
+fi
+
+arch_target="`echo $arch_target | arch2arch32`"
+echo "Set arch_target to $arch_target"
+set_confopt
+
+# force minimal optimization due TLS
+[ "$SDECFG_X8664_OPT" = "generic" ] && var_append GCC_WRAPPER_INSERT ' ' -march=i686
+[ "$SDECFG_SPARC64_OPT" = "generic" ] && var_append GCC_WRAPPER_INSERT ' ' -mcpu=v9
+
+# do what glibc does
+. $base/package/*/glibc/glibc.conf
+
+# a bit hacky - might need/get a cleanup ...
+var_append patchfiles ' ' "`ls $confdir/../glibc/*.patch`"
+if ! atstage native; then
+	var_append patchfiles ' ' "`ls $confdir/../glibc/*.patch.cross 2>/dev/null`"
+fi
+
+# do not build the programs
+hook_add premake 5 "cat > configparms <<-EOT
+build-programs=no
+EOT
+"
+
+var_remove makeinstopt ' ' install
+var_append makeinstopt ' ' install-lib-all
+
+libdir="${libdir%/*}/lib"
+slibdir=lib
+
+# and last overwrite the postmake function to do less stuff
+glibc_postmake() {
+	ln -sfv ../lib64/locale $root$libdir/locale
+	cp -avf gnu/lib-names-*.h $root$includedir/gnu/
+
+	# Create /lib/ld-lsb.so.1 symlink
+	#
+	if [ -f $root$slibdir/ld-linux-$arch_machine.so.2 ]; then
+		ln -vfs ld-linux-$arch_machine.so.2 $root$slibdir/ld-lsb.so.1
+	elif [ -f $root$slibdir/ld-linux.so.2 ]; then
+		ln -vfs ld-linux.so.2 $root$slibdir/ld-lsb.so.1
+	fi
+}
