@@ -1,0 +1,30 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/libxcrypt/libxcrypt.desc
+[COPY] Copyright (C) 2006 - 2026 The T2 SDE Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] Extended crypt library
+
+[T] Extended crypt library for descrypt, md5crypt, bcrypt, and others.
+
+[U] https://github.com/besser82/libxcrypt/
+
+[A] Björn Esser <besser82@fedoraproject.org>
+[M] René Rebe <rene@exactco.de>
+
+[C] base/system extra/security
+[F] CROSS NO-LTO.clang NO-LTO.microblaze
+
+[L] LGPL
+[V] 4.5.2
+[P] O --2--5---9 100.000
+
+[D] 10f3ec89965b0fe8ae35a480d50d927ef3b881032ee46e0fab83ebb3 libxcrypt-4.5.2.tar.xz https://github.com/besser82/libxcrypt/releases/download/v4.5.2/
+
+var_append EXTRA_CFLAGS ' ' '-Wno-error=implicit-function-declaration'
+var_append EXTRA_CFLAGS ' ' '-Wno-error=discarded-qualifiers'
+var_append GCC_WRAPPER_APPEND " " "-Wno-error=discarded-qualifiers"
+
+hook_add preconf 3 "sed -i 's/-Werror[^ ]*//g' \
+  Makefile.in lib/Makefile.in configure"
