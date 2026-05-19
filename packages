@@ -678,7 +678,7 @@ O -----5---- 130.445 x11 glfw 3.4 / extra/multimedia NO-LTO.gcc 0
 O -----5---- 130.500 python pyslsk 1.2.7c / extra/multimedia 0
 O -----5---- 130.600 develop libmhash 0.9.9.9 / base/tool CROSS 0
 O -----5---- 130.900 perl snmpsession 1.00 / extra/base CROSS 0
-O -?2--5---- 131.000 network dbus 1.16.2 / base/system CROSS NO-AS-NEEDED LATOMIC.sparc 0
+X -?2--5---- 131.000 network dbus 1.16.2 / base/system CROSS NO-AS-NEEDED LATOMIC.sparc 0
 O -----5---- 131.100 multimedia libdvdnav 7.0.0 / extra/multimedia CROSS 0
 O -----5---- 131.200 mail metamail 2.7 / extra/base CROSS 0
 O -----5---- 131.300 x11 matrox-m9x 1.4.3 / base/system BINARY 0
