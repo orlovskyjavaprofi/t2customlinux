@@ -735,7 +735,7 @@ O -----5---- 136.800 develop ell 0.83 / extra/network CROSS LATOMIC.sparc 0
 O -----5---- 136.800 python html5lib 1.1 / extra/development CROSS 0
 O -----5---- 136.800 python markdown 3.10.2 / extra/development CROSS 0
 O -----5---- 136.800 python rst2html5 2.0.1 / extra/development CROSS 0
-O -----5---- 136.820 network dbus-glib 0.114 / extra/network CROSS NO-AS-NEEDED NO-LTO 0
+X -----5---- 136.820 network dbus-glib 0.114 / extra/network CROSS NO-AS-NEEDED NO-LTO 0
 O ?----5---- 136.850 office libharu 2.4.6 / extra/office 0
 O ?----5---- 136.850 office libical 3.0.20 / extra/office CROSS 0
 O ?----5---- 136.850 python pystring 1.1.5 / extra/development CROSS OBJDIR 0
@@ -2523,7 +2523,7 @@ O -----5---- 800.000 base procinfo 2.0.304 / base/tool CROSS 0
 O -----5---- 800.000 base quota 4.11 / base/system CROSS 0
 O -----5---- 800.000 base quotatool 1.8.0 / base/system CROSS 0
 O -----5---- 800.000 base rng-tools 6.17 / extra/base CROSS DIETLIBC 0
-O -----5---- 800.000 base rsyslog 8.2604.0 / base/system CROSS 0
+X -----5---- 800.000 base rsyslog 8.2604.0 / base/system CROSS 0
 O -----5---- 800.000 base serpnp 0.0.2 / base/system CROSS 0
 O -----5---- 800.000 base setserial 2.17 / base/system CROSS 0
 O -----5---- 800.000 base suspend 2007-02-23 / base/tool CROSS 0
