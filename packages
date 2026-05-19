@@ -11,7 +11,7 @@ X --2--5---- 100.000 security libxcrypt 4.5.2 / base/system extra/security CROSS
 O -----5---- 100.010 multimedia libimobiledevice-glue 1.3.2 / extra/development CROSS 0
 O -----5---- 100.698 archiver brotli 1.2.0 / base/system CROSS 0
 X 01---5---- 101.600 base glibc 2.43 / base/library OBJDIR CROSS LIBC NO-AS-NEEDED NO-SSP NO-LTO NO-PIE.microblaze 0
-X -1---5---- 101.600 base glibc32 2.43 / base/library OBJDIR CROSS NO-SSP NO-LTO 0
+O -1---5---- 101.600 base glibc32 2.43 / base/library OBJDIR CROSS NO-SSP NO-LTO 0
 O 01---5---- 101.600 base picolibc 1.8.11 / extra/library CROSS 0
 O 01---5---- 101.700 base musl 1.2.6 / base/library CROSS LIBC NO-LTO 0
 O 01---5---- 101.700 base uclibc 1.0.57 / base/library CROSS NOPARALLEL LIBC NO-LTO.gcc 0
@@ -252,7 +252,7 @@ O -----5---- 110.300 python tokenizers 0.22.2 / extra/development 0
 X -----5---- 110.500 textproc inih 62 / base/library CROSS 0
 X 0----5---- 110.600 archiver unzip 6.0 / base/tool CROSS 0
 O -----5---- 110.600 python python-incremental 24.11.0 / extra/development 0
-O --2--5---- 110.700 archiver zip 3.0 / base/tool CROSS NO-LTO.clang 0
+X --2--5---- 110.700 archiver zip 3.0 / base/tool CROSS NO-LTO.clang 0
 O --2--5---- 110.700 init runit 2.3.1 / base/system CROSS INIT 0
 O -----5---- 110.800 audio alsa-lib 1.2.15.3 / base/system base/kernel CROSS NO-LTO 0
 O -----5---- 110.800 audio salsa-lib 0.2.0 / base/system base/kernel CROSS 0
