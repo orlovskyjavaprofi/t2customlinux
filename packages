@@ -720,7 +720,7 @@ O -----5---- 135.800 textproc iniparser 4.2.6 / extra/configuration CROSS 0
 O -----5---- 135.800 x11 fvwm 2.7.0 / extra/windowmanager 0
 O -----5---- 135.900 enlightenment imlib2 1.12.6 / extra/multimedia CROSS 0
 X --2--5---- 136.000 init systemd 258.3 / base/system CROSS INIT 0
-O ?----5---- 136.010 security polkit 127 / extra/development CROSS 0
+X ?----5---- 136.010 security polkit 127 / extra/development CROSS 0
 O -----5---- 136.401 contrib vidix 1.0.0 / extra/multimedia 0
 O -----5---- 136.500 filesystem fuse 3.18.2 / extra/filesystem CROSS NO-LTO.clang 0
 O -----5---- 136.500 filesystem fuse2 2.9.9 / extra/filesystem CROSS 0
