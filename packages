@@ -846,7 +846,7 @@ O -----5---- 142.000 filesystem libudfread 1.2.0 / extra/multimedia CROSS NO-LTO
 O -----5---- 142.000 python pyrexc 0.9.9 / base/tool 0
 O -----5---- 142.100 gnome gnome-keyring 50.0 / extra/development extra/base extra/desktop/gnome CROSS 0
 O -----5---- 142.100 multimedia gpac 26.02.0 / extra/multimedia CROSS NOPARALLEL 0
-O -----5---- 142.100 network dbus-python 1.4.0 / extra/network NOPARALLEL NO-AS-NEEDED 0
+X -----5---- 142.100 network dbus-python 1.4.0 / extra/network NOPARALLEL NO-AS-NEEDED 0
 O -----5---- 142.150 gnome gtk-sharp2 2.12.9 / extra/development NOPARALLEL 0
 O -----5---- 142.190 multimedia libbdplus 0.2.0 / extra/multimedia CROSS 0
 O -----5---- 142.200 gnome startup-notification 0.12 / extra/tool extra/desktop/gnome CROSS 0
