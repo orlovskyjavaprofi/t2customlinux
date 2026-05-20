@@ -359,3 +359,4 @@ if [ "$SDECFG_POWERPC64_32" = 1 -o "$SDECFG_SPARC64_32BIT" = 1 ]; then
 fi
 
 var_insert confopt ' ' '--enable-languages=$languages'
+var_insert confopt ' ' '--disable-multilib'
