@@ -3677,7 +3677,7 @@ O -----5---- 800.000 develop openvino 2025.4.2 / extra/development 0
 O -----5---- 800.000 develop oprofile 1.4.0 / base/system CROSS NO-LTO.gcc 0
 O -----5---- 800.000 develop or-tools 9.15 / extra/development CROSS 0
 O -----5---- 800.000 develop parrot 8.1.0 / extra/development 0
-O -----5---- 800.000 develop patchelf 0.18.0 / extra/development CROSS 0
+X -----5---- 800.000 develop patchelf 0.18.0 / extra/development CROSS 0
 O -----5---- 800.000 develop patchutils 0.4.5 / base/development CROSS 0
 O -----5---- 800.000 develop pawn 4.1.7487 / extra/development CROSS 0
 O -----5---- 800.000 develop pcc 1.1.0 / extra/development NOPARALLEL 0
