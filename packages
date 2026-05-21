@@ -134,7 +134,7 @@ X -----5---- 109.002 python python-gpep517 19 / extra/development CROSS 0
 X -----5---- 109.003 python pycparser 3.00 / extra/development CROSS 0
 X -----5---- 109.003 python python-flit-core 3.12.0 / extra/development CROSS 0
 O -----5---- 109.004 python python-wheel 0.45.1 / extra/development CROSS 0
-O -----5---- 109.005 python packaging 24.2 / extra/development 0
+X -----5---- 109.005 python packaging 24.2 / extra/development 0
 O -----5---- 109.005 python python-click 8.3.1 / extra/development 0
 O -----5---- 109.006 python cxxheaderparser 1.5.4 / extra/development 0
 X ?----5---- 109.006 python setuptools 82.0.1 / extra/development CROSS 0
