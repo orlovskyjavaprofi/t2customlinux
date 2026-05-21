@@ -140,7 +140,7 @@ O -----5---- 109.006 python cxxheaderparser 1.5.4 / extra/development 0
 X ?----5---- 109.006 python setuptools 82.0.1 / extra/development CROSS 0
 X -----5---- 109.006 python zipp 3.23.0 / extra/development CROSS 0
 O -----5---- 109.007 python importlib_metadata 8.6.1 / extra/development CROSS 0
-O -----5---- 109.007 python pyproject-metadata 0.11.0 / extra/development CROSS 0
+X -----5---- 109.007 python pyproject-metadata 0.11.0 / extra/development CROSS 0
 O -----5---- 109.007 python python-pathspec 1.0.4 / extra/development CROSS 0
 O -----5---- 109.007 python python-pluggy 1.6.0 / extra/development CROSS 0
 O -----5---- 109.007 python python-trove-classifiers 2026.1.14.14 / extra/development CROSS 0
