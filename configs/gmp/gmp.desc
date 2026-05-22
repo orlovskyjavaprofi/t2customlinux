@@ -37,12 +37,10 @@
 
 IGNORE_CONFMISC=1
 
-var_append CC_WRAPPER_APPEND ' ' "-std=gnu17 -fpermissive -Wno-error"
-var_append SYSCC_WRAPPER_APPEND ' ' "-std=gnu17 -fpermissive -Wno-error"
-var_append confopt ' ' "--enable-mpfr --disable-cxx --disable-static --enable-shared ABI=64"
+export ABI=64
+var_append confopt ' ' "--enable-mpfr --disable-cxx --disable-static --enable-shared"
 
 if atstage toolchain; then
-	export CXX=g++ # use host g++ at toolchain stage
+	export CXX=g++
 	var_remove_regex confopt ' ' '--target=.*'
-	var_append SYSCC_WRAPPER_APPEND ' ' -std=gnu99
 fi
