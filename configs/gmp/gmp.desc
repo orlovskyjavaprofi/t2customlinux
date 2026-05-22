@@ -36,11 +36,12 @@
 [D] 916179a5ead7d92603f00a243911a4c9cec65b7b44fa915095d78a34 gmp-6.3.0.tar.xz http://ftp.gnu.org/pub/gnu/gmp/
 
 IGNORE_CONFMISC=1
-
 export ABI=64
+export CC_WRAPPER_BYPASS=1
+export SYSCC_WRAPPER_BYPASS=1
 var_append confopt ' ' "--enable-mpfr --disable-cxx --disable-static --enable-shared"
 
 if atstage toolchain; then
-	export CXX=g++
-	var_remove_regex confopt ' ' '--target=.*'
+    export CXX=g++
+    var_remove_regex confopt ' ' '--target=.*'
 fi
