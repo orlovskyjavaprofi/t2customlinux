@@ -39,9 +39,11 @@ IGNORE_CONFMISC=1
 export ABI=64
 export CC_WRAPPER_BYPASS=1
 export SYSCC_WRAPPER_BYPASS=1
-var_append confopt ' ' "--enable-mpfr --disable-cxx --disable-static --enable-shared"
+var_append CC_WRAPPER_APPEND ' ' -std=gnu17
+var_append confopt ' ' "--enable-mpfr --disable-cxx"
 
 if atstage toolchain; then
-    export CXX=g++
-    var_remove_regex confopt ' ' '--target=.*'
+        export CXX=g++ # use host g++ at toolchain stage
+        var_remove_regex confopt ' ' '--target=.*'
+        var_append SYSCC_WRAPPER_APPEND ' ' -std=gnu99
 fi
