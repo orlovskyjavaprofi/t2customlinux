@@ -50,3 +50,5 @@ if atstage toolchain; then
         var_remove_regex confopt ' ' '--target=.*'
         var_append SYSCC_WRAPPER_APPEND ' ' -std=gnu99
 fi
+
+hook_add preconf 5 "sed -i 's/void g(){}/void g(int a,t1 const*b,t1 c,t2 d,t1 const*e,int f){}/g' configure"
