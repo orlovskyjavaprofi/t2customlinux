@@ -37,7 +37,8 @@
 
 IGNORE_CONFMISC=1
 
-var_append CC_WRAPPER_APPEND ' ' -std=gnu17
+var_append CC_WRAPPER_APPEND ' ' "-std=gnu17 -fpermissive -Wno-error"
+var_append SYSCC_WRAPPER_APPEND ' ' "-std=gnu17 -fpermissive -Wno-error"
 var_append confopt ' ' "--enable-mpfr --disable-cxx"
 
 if atstage toolchain; then
