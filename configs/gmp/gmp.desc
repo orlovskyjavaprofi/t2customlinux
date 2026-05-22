@@ -36,14 +36,17 @@
 [D] 916179a5ead7d92603f00a243911a4c9cec65b7b44fa915095d78a34 gmp-6.3.0.tar.xz http://ftp.gnu.org/pub/gnu/gmp/
 
 IGNORE_CONFMISC=1
-export ABI=64
-export CC_WRAPPER_BYPASS=1
-export SYSCC_WRAPPER_BYPASS=1
+CC_WRAPPER_BYPASS=1
+SYSCC_WRAPPER_BYPASS=1
+
+# Pass ABI=64 directly to the configuration and compilation environments
+var_append configenv ' ' "ABI=64"
+var_append makeenv ' ' "ABI=64"
+
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
-var_append confopt ' ' "--enable-mpfr --disable-cxx"
+var_append confopt ' ' "--disable-cxx"
 
 if atstage toolchain; then
-        export CXX=g++ # use host g++ at toolchain stage
         var_remove_regex confopt ' ' '--target=.*'
         var_append SYSCC_WRAPPER_APPEND ' ' -std=gnu99
 fi
