@@ -5167,7 +5167,7 @@ O -----5---- 800.000 network dendrite 0.15.2 / extra/network CROSS 0
 X -----5---- 800.000 network dhcp 4.4.3-P1 / base/system extra/server CROSS JAIL NO-LTO.gcc LATOMIC.arch32 0
 O -----5---- 800.000 network dhcp6c v20200512 / extra/network CROSS 0
 X -----5---- 800.000 network dhcpcd 10.3.1 / extra/network CROSS AUTOMAKE-QUIRK 0
-X -----5---- 800.000 network dhcpcd-scriptconfig 0.1 / extra/network 0
+O -----5---- 800.000 network dhcpcd-scriptconfig 0.1 / extra/network 0
 O -----5---- 800.000 network dhcpclient 20071104 / extra/network CROSS 0
 O -----5---- 800.000 network djbdns 1.05 / extra/tool extra/server CROSS DIETLIBC 0
 O -----5---- 800.000 network dnrd 2.20.3 / extra/network extra/server CROSS 0
