@@ -44,5 +44,5 @@ if [[ $pkg != *-java ]]; then
 fi
 
 # Force historical standard interpretation and suppress function pointer complaints
-var_append confopt " " "--with-cryptography=no --with-mutex=POSIX/pthreads CFLAGS='-w -fpermissive -fPIC' CXXFLAGS='-w -fpermissive -fPIC'" -Wno-error=incompatible-pointer-types'"
+var_append confopt " " "--with-cryptography=no --with-mutex=POSIX/pthreads CFLAGS='-w -fpermissive' CXXFLAGS='-w -fpermissive'" -Wno-error=incompatible-pointer-types'"
 hook_add premake 3 "find . -name 'Makefile' | xargs sed -i 's/-Werror//g' 2>/dev/null; true"
