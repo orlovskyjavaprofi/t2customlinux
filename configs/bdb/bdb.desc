@@ -45,3 +45,4 @@ if [[ $pkg != *-java ]]; then
 fi
 
 var_append confopt " " "CFLAGS=-Wno-error=implicit-int -Wno-error=implicit-function-declaration"
+var_append confopt " " "CFLAGS='-w -O2 -std=gnu89'"
