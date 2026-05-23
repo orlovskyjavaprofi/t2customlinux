@@ -65,4 +65,4 @@ hook_add postmake 7 "\
 
 # includedir=$includedir/ncurses
 var_append makeinstopt ' ' "'INSTALL_LIB=\$(INSTALL) -m 755'"
-var_append confopt " " "--without-ada"
+var_append confopt " " "--without-ada --with-shared --with-cxx-shared CFLAGS=-fPIC CXXFLAGS=-fPIC"
