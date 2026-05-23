@@ -96,7 +96,7 @@ O -----5---- 106.000 develop dyncall 1.4 / extra/development CROSS 0
 X 01---5---- 106.000 develop libffi 3.5.2 / base/library CROSS 0
 O -----5---- 106.000 develop libirecovery 1.3.1 / extra/development CROSS 0
 O -----5---- 106.000 filesystem libusbmuxd 2.1.1 / extra/development CROSS NO-LTO.gcc 0
-X -----5---- 106.000 go go 1.26.2 / extra/development CROSS 0
+O -----5---- 106.000 go go 1.26.2 / extra/development CROSS 0
 O ?----5---- 106.000 x11 freetype 2.14.3 / base/system CROSS 0
 O -----5---- 106.600 shells ksh 2020.0.0 / base/system NO-LTO.gcc 0
 X --2--5---- 106.600 shells mksh R59c / base/system CROSS NO-LTO DIETLIBC 0
