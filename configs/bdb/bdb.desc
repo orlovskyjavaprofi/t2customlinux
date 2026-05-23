@@ -44,4 +44,5 @@ if [[ $pkg != *-java ]]; then
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db_185.h ${root}$includedir/../db_185.h"
 fi
 
-var_append confopt " " "--with-cryptography=no CFLAGS='-w -std=gnu89' CXXFLAGS='-w -std=gnu89'"
+var_append confopt ' ' '--with-mutex=x86/gcc-assembly'
+var_append confopt " " "--with-cryptography=no --with-mutex=POSIX/pthreads CFLAGS='-w' CXXFLAGS='-w'"
