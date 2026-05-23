@@ -43,3 +43,5 @@ if [[ $pkg != *-java ]]; then
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db.h ${root}$includedir/../db.h"
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db_185.h ${root}$includedir/../db_185.h"
 fi
+
+var_append confopt " " "CFLAGS=-Wno-error=implicit-int -Wno-error=implicit-function-declaration"
