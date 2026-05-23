@@ -102,7 +102,7 @@ O -----5---- 106.600 shells ksh 2020.0.0 / base/system NO-LTO.gcc 0
 X --2--5---- 106.600 shells mksh R59c / base/system CROSS NO-LTO DIETLIBC 0
 O -----5---- 106.600 shells zsh 5.9 / base/system CROSS NO-LTO.gcc 0
 O -----5---- 106.700 shells tcsh 6.24.16 / extra/shell CROSS 0
-O -----5---- 107.000 database bdb 5.3.28 / base/library CROSS FPIC 0
+X -----5---- 107.000 database bdb 5.3.28 / base/library CROSS FPIC 0
 X --2--5---- 107.100 base coreutils 9.11 / base/tool CROSS DIETLIBC 0
 X 0-2--5---- 107.200 base findutils 4.10.0 / base/tool CROSS DIETLIBC 0
 X --2--5---- 107.500 develop diffutils 3.12 / base/development CROSS DIETLIBC 0
