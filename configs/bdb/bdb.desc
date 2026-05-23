@@ -45,4 +45,5 @@ if [[ $pkg != *-java ]]; then
 fi
 
 var_append confopt ' ' '--with-mutex=x86/gcc-assembly'
-var_append confopt " " "--with-cryptography=no --with-mutex=POSIX/pthreads CFLAGS='-w' CXXFLAGS='-w'"
+var_append confopt " " "--with-cryptography=no --with-mutex=POSIX/pthreads CFLAGS='-w -Wno-error' CXXFLAGS='-w -Wno-error'"
+hook_add premake 3 "find . -name 'Makefile' | xargs sed -i 's/-Werror//g' 2>/dev/null; true"
