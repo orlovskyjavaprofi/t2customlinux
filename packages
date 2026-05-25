@@ -203,7 +203,7 @@ O -----5---- 109.800 python hatch-fancy-pypi-readme 25.1.0 / extra/development C
 X -----5---- 109.800 python jinja2 3.1.6 / extra/development CROSS 0
 O -----5---- 109.800 python mrab-regex 2026.4.4 / extra/development 0
 O -----5---- 109.800 python narwhals 2.20.0 / extra/development 0
-X -----5---- 109.900 base sharutils 4.15.2 / base/tool CROSS FCOMMON 0
+O -----5---- 109.900 base sharutils 4.15.2 / base/tool CROSS FCOMMON 0
 O -----5---- 109.900 python attrs 25.3.0 / extra/development 0
 X --2--5---- 110.000 base libusb 1.0.29 / base/library CROSS 0
 O -----5---- 110.000 base libusb-compat 0.1.8 / base/library CROSS 0
