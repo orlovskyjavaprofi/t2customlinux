@@ -1,0 +1,31 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/rsyslog/rsyslog.desc
+[COPY] Copyright (C) 2007 - 2026 The T2 SDE Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] An enhanced syslog daemon
+
+[T] Rsyslog is an enhanced multi-threaded syslogd. Among other features,
+[T] it offers support for reliable syslog over TCP and RFC 3195, writing
+[T] to MySQL databases, fully configurable output formats (including great
+[T] timestamps), the ability to filter on any part of the syslog message, and
+[T] on-the-wire message compression. It is designed as a drop-in replacement
+[T] for stock syslogd and thus is able to work with the same configuration
+[T] file syntax. Of course, some enhanced features require changing the
+[T] configuration file, but in general, this should be fairly easy.
+
+[U] https://www.rsyslog.com/
+
+[A] Rainer Gerhards <rgerhards@adiscon.com>
+[M] René Rebe <rene@exactco.de>
+[C] base/system
+[F] CROSS
+
+[L] GPL
+[V] 8.2604.0
+
+[D] ce6ba65bcb66530ceff68300812d5765f71b2645213158d454666ad1 rsyslog-8.2604.0.tar.gz https://www.rsyslog.com/files/download/rsyslog/
+
+# Force explicit linking against zlib to resolve the missing 'uncompress' reference
+var_append confopt " LDFLAGS=\"-lz\" "
