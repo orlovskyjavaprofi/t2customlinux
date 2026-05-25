@@ -11,3 +11,5 @@ Please refer for any suggestions or support to official **[github of t2 linux](h
 
 ## Do you need commercial support?
 Well don't hesitate visit **[Orlovsky Consulting GbR oficial website](https://orlovskyconsulting.de)**
+
+## [Read our wiki](https://github.com/orlovskyjavaprofi/t2customlinux/wiki)
