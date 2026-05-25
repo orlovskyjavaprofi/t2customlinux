@@ -24,7 +24,7 @@ O ----45---- 102.001 attic autoconf-2.13 2.13 / base/development CROSS DIETLIBC 
 X 0-2--5---- 102.001 develop autoconf 2.73 / base/development CROSS DIETLIBC 0
 X 0-2--5---- 102.002 develop automake 1.18.1 / base/development CROSS 0
 X 0-2--5---- 102.040 archiver gzip 1.14 / base/tool CROSS DIETLIBC 0
-O -----5---- 102.040 base embutils 0.19 / base/system CROSS DIETLIBC NO-LTO 0
+X -----5---- 102.040 base embutils 0.19 / base/system CROSS DIETLIBC NO-LTO 0
 X 0-2--5---- 102.050 archiver cpio 2.15 / base/tool CROSS DIETLIBC 0
 O -----5---- 102.050 boot u-boot 2026.04 / base/boot CROSS NO-LTO.gcc 0
 X 0-2--5---- 102.050 doc texinfo 7.3 / base/tool CROSS DIETLIBC 0
