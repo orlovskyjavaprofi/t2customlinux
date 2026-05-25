@@ -1,6 +1,6 @@
 # t2customlinux
 Custom configs and examples for T2 Linux , **build target X86_64 AMD CPU platform.**
-## Here i gather all my custom config and or iso's which i have created during the building of custom t2 linux image
+## Here we gather all our custom configs and or iso's which we have created during the building of custom t2 linux image
 
 ## This is template for so called base distribution withou x server! (Hint: Linux server)
 
