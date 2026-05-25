@@ -1,7 +1,7 @@
 X 01-------- 025.300 kernel linux-header 6.6 / base/system CROSS DIETLIBC 0
 O -----5---- 100.000 archiver libzip 1.11.4 / extra/archive CROSS 0
 X --2------- 100.000 base mkinitrd 2025-08-15 / base/system CROSS 0
-O -----5---- 100.000 develop duktape 2.7.0 / extra/development CROSS 0
+X -----5---- 100.000 develop duktape 2.7.0 / extra/development CROSS 0
 O -----5---- 100.000 develop fast_float 8.2.5 / extra/base CROSS 0
 O -----5---- 100.000 develop libplist 2.7.0 / extra/development CROSS NO-LTO.gcc 0
 O ?----5---- 100.000 develop spirv-headers 1.4.341.0 / extra/base CROSS OBJDIR 0
