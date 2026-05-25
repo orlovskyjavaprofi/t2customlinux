@@ -1941,7 +1941,7 @@ O -----5---- 300.000 containers containerd 2.2.3 / extra/base CROSS 0
 O -----5---- 300.000 contrib bcg729 1.1.1 / extra/base CROSS 0
 O -----5---- 300.000 contrib blueprint-compiler 0.20.4 / extra/base CROSS 0
 O -----5---- 300.000 contrib catch2 3.14.0 / extra/tool CROSS OBJDIR 0
-O -----5---- 300.000 contrib libestr 0.1.11 / extra/base CROSS 0
+X -----5---- 300.000 contrib libestr 0.1.11 / extra/base CROSS 0
 O -----5---- 300.000 contrib libopusenc 0.3.0 / extra/base CROSS 0
 O -----5---- 300.000 contrib libsmi 0.5.0 / extra/base CROSS 0
 O -----5---- 300.000 contrib libxpresent 1.0.2 / extra/base CROSS 0
