@@ -457,7 +457,7 @@ O -----5---- 120.000 database lmdb 0.9.35 / extra/database CROSS 0
 O -----5---- 120.000 develop double-conversion 3.4.0 / extra/development OBJDIR NO-LTO.gcc FPIC CROSS 0
 O -----5---- 120.000 develop libbsd 0.12.2 / extra/development CROSS 0
 O -----5---- 120.000 develop libtasn1 4.21.0 / extra/development CROSS NO-LTO.clang 0
-O -----5---- 120.000 develop snappy 1.2.2 / extra/development OBJDIR 0
+X -----5---- 120.000 develop snappy 1.2.2 / extra/development OBJDIR 0
 O -----5---- 120.000 filesystem fam 2.7.0 / extra/filesystem CROSS 0
 O -----5---- 120.000 fonts woff2 1.0.2 / extra/base CROSS OBJDIR 0
 O -----5---- 120.000 gnome gbinder 1.1.45 / extra/development 0
