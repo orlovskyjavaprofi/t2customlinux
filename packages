@@ -1934,7 +1934,7 @@ O -----5---- 262.420 kde kdepim-runtime 26.04.0 / extra/office extra/desktop/kde
 O -----5---- 274.000 develop sdbus-cpp 2.2.1 / extra/base CROSS 0
 O -----5---- 280.000 printing libinklevel 0.9.7 / extra/printing CROSS 0
 O -----5---- 290.000 kde kdevelop 26.04.0 / extra/development extra/desktop/kde CROSS OBJDIR 0
-O -----5---- 300.00 contrib libfastjson 1.2304.0 / extra/library CROSS 0
+X -----5---- 300.00 contrib libfastjson 1.2304.0 / extra/library CROSS 0
 O -----5---- 300.000 archiver minizip-ng 4.2.0 / base/library CROSS 0
 O -----5---- 300.000 cinnamon xapp 3.2.2 / extra/desktop/cinnamon 0
 O -----5---- 300.000 containers containerd 2.2.3 / extra/base CROSS 0
