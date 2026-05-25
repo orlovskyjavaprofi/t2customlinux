@@ -1540,7 +1540,7 @@ O -----5---- 200.000 contrib libphonenumber 9.0.29 / extra/tool CROSS OBJDIR 0
 O -----5---- 200.000 contrib libsodium 1.0.22 / extra/base CROSS 0
 O -----5---- 200.000 contrib libtsm 4.5.0 / extra/tool CROSS 0
 O -----5---- 200.000 contrib openvr 2.15.6 / extra/tool CROSS 0
-O -----5---- 200.000 contrib protobuf-c 1.5.2 / extra/base 0
+X -----5---- 200.000 contrib protobuf-c 1.5.2 / extra/base 0
 O -----5---- 200.000 contrib pugixml 1.15 / extra/base CROSS 0
 O -----5---- 200.000 contrib qxlsx 1.5.0 / extra/tool CROSS 0
 O -----5---- 200.000 contrib robin-map 1.4.1 / extra/base CROSS 0
