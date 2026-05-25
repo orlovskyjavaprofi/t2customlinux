@@ -250,7 +250,7 @@ O -----5---- 110.280 python python-altair 6.0.0 / extra/development 0
 O -----5---- 110.300 develop slang 2.3.3 / base/development CROSS 0
 O -----5---- 110.300 python tokenizers 0.22.2 / extra/development 0
 X -----5---- 110.500 textproc inih 62 / base/library CROSS 0
-X 0----5---- 110.600 archiver unzip 6.0 / base/tool CROSS 0
+X 0----5---- 110.600 archiver unzip 6.0.2 / base/tool CROSS 0
 O -----5---- 110.600 python python-incremental 24.11.0 / extra/development 0
 X --2--5---- 110.700 archiver zip 3.0 / base/tool CROSS NO-LTO.clang 0
 O --2--5---- 110.700 init runit 2.3.1 / base/system CROSS INIT 0
