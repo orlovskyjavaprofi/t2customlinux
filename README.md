@@ -4,6 +4,8 @@ Custom configs and examples for **[T2 Linux](https://t2linux.com/)** , **build t
 
 ## This is template for so called base distribution without x server! (Hint: Linux server)
 
+## READ THE NOTES ABOUT RELEASES!
+
 ### The sources provided as IS no warranty, no support , no gurantee!
 Please refer for any suggestions or support to official **[github of t2 linux](https://github.com/rxrbln/t2sde/)**
 
