@@ -6,6 +6,8 @@ Custom configs and examples for **[T2 Linux](https://t2linux.com/)** , **build t
 
 ## [IMPORTANT! READ RELEASES NOTES!](https://github.com/orlovskyjavaprofi/t2customlinux/wiki/Release-notes)
 
+### Do you need guide for configuring your T2 Linux after install ? [Click here](https://github.com/orlovskyjavaprofi/t2customlinux/wiki/After-install-configuration-%E2%80%90-Amount-of-Terminals-%E2%80%90-SSH-%E2%80%90-Network)
+
 ### The sources provided as IS no warranty, no support , no gurantee!
 Please refer for any suggestions or support to official **[github of t2 linux](https://github.com/rxrbln/t2sde/)**
 
