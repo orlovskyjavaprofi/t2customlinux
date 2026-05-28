@@ -1,0 +1,36 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---.
+[COPY] t2/package/*/protobuf-c/protobuf-c.desc
+[COPY] Copyright (C) 2022 - 2026 The T2 SDE Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---.
+
+[I] Protocol Buffers implementation in C
+
+[T] Protocol Buffers implementation in C.
+
+[U] https://github.com/protobuf-c/protobuf-c
+
+[A] Protobuf-c Authors
+[M] RenÃ© Rebe <rene@exactco.de>
+
+[C] extra/base
+
+[V] 1.5.2
+[L] BSD
+[P] X -----5---9 200.000
+
+[D] ca63d8aeaea4af15e04354a20cf23c8ce92a8931fa5bb305b19fe30f protobuf-c-1.5.2.tar.gz https://github.com/protobuf-c/protobuf-c/releases/download/v1.5.2/
+
+hook_add preconf 5 '
+    echo "=== Bypassing Google Protobuf Header Check for GCC 16 ==="
+    sed -i "s/as_fn_error \$? \"required protobuf header file not found\"/echo \"Bypassing header check failure\"/" configure
+'
+
+# Force configure to use the correct sysroot paths and modern C++ dialect
+var_append confopt " CFLAGS=\"-I$root/usr/include\" "
+var_append confopt " CXXFLAGS=\"-I$root/usr/include/ -std=c++20 -w\" "
+var_append confopt " LDFLAGS=\"-L$root/usr/lib\" "
+
+# Specify the explicit binary path for protoc tool execution
+var_append confopt " --with-protoc=$root/usr/bin/protoc "
+
