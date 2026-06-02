@@ -46,49 +46,35 @@ hook_add premake 2 '
         sed -i "s/sosrm soscp/sosrm soscp xtract/" Makefile
 
     # --- Prototype / signature fixes ---
-    sed -i \
-        -e "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" \
-        chroot.c
-
-    sed -i \
-        -e "s/int (\*op)([[:space:]]*);/int (*op)(int, char *, size_t);/" \
-        buffer.c
-
-    sed -i \
-        -e "s/^main(int argc,char \*argv\[\])/int main(int argc, char *argv[])/" \
-        ln.c
+    # Fix chroot.c error() signature
+    sed -i -e "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c
+    
+    # Fix buffer.c function pointer
+    sed -i -e "s/int (\*op)([[:space:]]*);/int (*op)(int, char *, size_t);/" buffer.c
+    
+    # Fix ln.c main() signature
+    sed -i -e "s/^main(int argc,char \*argv\[\])/int main(int argc, char *argv[])/" ln.c
 
     # --- Header injection helper (idempotent) ---
     need_header() {
         local file="$1" pattern="$2" header="$3"
-        grep -qEw "$pattern" "$file" && \
-        grep -qF "$header"   "$file" || \
-        sed -i "1i $header"  "$file"
+        # Only inject if the pattern exists AND the header is missing
+        if grep -qEw "$pattern" "$file" && ! grep -qF "$header" "$file"; then
+            sed -i "1i $header" "$file"
+        fi
     }
 
     # --- Per-file header scan ---
     for f in *.c; do
         [ -f "$f" ] || continue
 
-        need_header "$f" "str(len|cmp|cat|cpy|ncmp|ncpy|dup|str)" \
-            "#include <string.h>"
-
-        need_header "$f" "major|minor|makedev" \
-            "#include <sys/sysmacros.h>"
-
-        need_header "$f" "sendfile" \
-            "#include <sys/sendfile.h>"
-
-        need_header "$f" "write|read|close|chdir|fchdir|unlink|fork|getpid" \
-            "#include <unistd.h>"
-
-        need_header "$f" "fprintf|printf|sprintf|snprintf|fopen|fclose|fread|fwrite" \
-            "#include <stdio.h>"
-
-        need_header "$f" "malloc|calloc|realloc|free|exit|getenv" \
-            "#include <stdlib.h>"
-
-        need_header "$f" "errno" \
-            "#include <errno.h>"
+        # Standard header injections
+        need_header "$f" "str(len|cmp|cat|cpy|ncmp|ncpy|dup|str)" "#include <string.h>"
+        need_header "$f" "major|minor|makedev" "#include <sys/sysmacros.h>"
+        need_header "$f" "sendfile" "#include <sys/sendfile.h>"
+        need_header "$f" "write|read|close|chdir|fchdir|unlink|fork|getpid" "#include <unistd.h>"
+        need_header "$f" "fprintf|printf|sprintf|snprintf|fopen|fclose|fread|fwrite" "#include <stdio.h>"
+        need_header "$f" "malloc|calloc|realloc|free|exit|getenv" "#include <stdlib.h>"
+        need_header "$f" "errno" "#include <errno.h>"
     done
 '
