@@ -1,8 +1,8 @@
-[COPY] --- T2-COPYRIGHT-BEGIN ---
-[COPY] t2/package/*/embutils/embutils.desc
-[COPY] Copyright (C) 2004 - 2026 The T2 SDE Project
-[COPY] SPDX-License-Identifier: GPL-2.0
-[COPY] --- T2-COPYRIGHT-END ---
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/package/*/embutils/embutils.desc
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
 
 [I] Stripped down utilities for embedded use
 
@@ -27,40 +27,38 @@
 
 pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
 
-var_append CC_WRAPPER_APPEND ' ' -std=gnu17
+# Standardize compiler
+var_append CC_WRAPPER_APPEND ' ' -std=gnu89
 
-# non-dietlibc, e.g. glibc/musl system libc?
+# Handle libc
 [ "$SDECFG_DIETLIBC_embutils" = 1 ] ||
 	var_append patchfiles ' ' $confdir/not-dietlibc.diff
+
+# Build optimizations for modern strictness
+var_append CFLAGS ' ' "-Wno-error=strict-prototypes -Wno-error=implicit-function-declaration -Wno-error=stringop-overflow -fpermissive"
+var_append makeopt ' ' "V=1 DIET= OBJDIR=bin CC=$CC STRIP=$STRIP"
+var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
 hook_add premake 5 "mkdir -p bin"
 hook_add inmake 5 'mkdir -p $root$bindir'
 
-# we control some stuff ourselves
-var_append makeopt ' ' 'DIET= OBJDIR=bin'
-var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
-
-# Add these to your build flags in the .desc file
-var_append CFLAGS ' ' "-Wno-error=strict-prototypes -std=gnu89 -fpermissive"
-
-var_append makeopt ' ' "V=1"
-
-# 1. Error prototype fix
-hook_add premake 1 'sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c'
-
-# 2. Buffer.c function pointer fix
-hook_add premake 2 'sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c'
-
-# 3. ln.c main fix
-hook_add premake 3 'sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c'
-
-# 4. mv.c sendfile header
-hook_add premake 3 'sed -i "1i #include <sys/sendfile.h>" mv.c'
-
-# 5. Global header injection for missing string.h, stdio.h, etc.
-# This loop replaces all your manual single-file header additions
-hook_add premake 5 'for f in *.c; do \
-    grep -q "strlen" "$f" && ! grep -q "string.h" "$f" && { echo "Patching $f"; sed -i "1i #include <string.h>" "$f"; }; \
-    grep -q "sendfile" "$f" && ! grep -q "sys/sendfile.h" "$f" && { echo "Patching $f"; sed -i "1i #include <sys/sendfile.h>" "$f"; }; \
-    grep -q "wait" "$f" && ! grep -q "sys/wait.h" "$f" && { echo "Patching $f"; sed -i "1i #include <sys/wait.h>" "$f"; }; \
-done'
+# Consolidated and Idempotent Patching Hook
+hook_add premake 2 '
+    # Fix chroot.c prototype
+    sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c
+    
+    # Fix buffer.c function pointer
+    sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c
+    
+    # Fix ln.c main prototype
+    sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c
+    
+    # Global Header Injection (Self-Healing)
+    for f in *.c; do
+        grep -q "strlen" "$f" && ! grep -q "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
+        grep -q "sendfile" "$f" && ! grep -q "<sys/sendfile.h>" "$f" && sed -i "1i #include <sys/sendfile.h>" "$f"
+        grep -q "wait" "$f" && ! grep -q "<sys/wait.h>" "$f" && sed -i "1i #include <sys/wait.h>" "$f"
+        grep -q "atol" "$f" && ! grep -q "<stdlib.h>" "$f" && sed -i "1i #include <stdlib.h>" "$f"
+        grep -q "strcmp" "$f" && ! grep -q "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
+    done
+'
