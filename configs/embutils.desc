@@ -39,14 +39,30 @@ var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 hook_add premake 5 "mkdir -p bin"
 hook_add inmake 5 'mkdir -p $root$bindir'
 
-# Consolidated and Idempotent Patching Hook
 hook_add premake 2 '
-    # Fix chroot.c prototype
+    # 1. Error prototype fix
     sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c
     
-    # Fix buffer.c function pointer
+    # 2. Buffer.c function pointer fix
     sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c
     
-    # Fix ln.c main prototype
-    sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c    
+    # 3. ln.c main fix
+    sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c
+    
+    # 4. Inject <unistd.h> for write, chdir, fchdir, close
+    # Used in: write12.h (included by many), mkdir.c, rmdir.c, mknod.c
+    sed -i "1i #include <unistd.h>" write12.h
+    sed -i "1i #include <unistd.h>" mkdir.c
+    sed -i "1i #include <unistd.h>" rmdir.c
+    sed -i "1i #include <unistd.h>" mknod.c
+    
+    # 5. Inject <sys/sysmacros.h> for makedev (needed by mknod.c on modern glibc)
+    sed -i "1i #include <sys/sysmacros.h>" mknod.c
+    
+    # 6. Inject <string.h> for strlen, strcmp
+    sed -i "1i #include <string.h>" sosrm.c
+    
+    # 7. Inject <stdio.h> for fprintf/printf
+    sed -i "1i #include <stdio.h>" rmdir.c
+    sed -i "1i #include <stdio.h>" mkdir.c
 '
