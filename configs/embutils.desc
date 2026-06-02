@@ -92,7 +92,3 @@ hook_add premake 2 '
             "#include <errno.h>"
     done
 '
-
-    # ... (your existing consolidated headers) ...
-    
- 
