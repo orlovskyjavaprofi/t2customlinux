@@ -48,14 +48,5 @@ hook_add premake 2 '
     sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c
     
     # Fix ln.c main prototype
-    sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c
-    
-    # Global Header Injection (Self-Healing)
-    for f in *.c; do
-        grep -q "strlen" "$f" && ! grep -q "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
-        grep -q "sendfile" "$f" && ! grep -q "<sys/sendfile.h>" "$f" && sed -i "1i #include <sys/sendfile.h>" "$f"
-        grep -q "wait" "$f" && ! grep -q "<sys/wait.h>" "$f" && sed -i "1i #include <sys/wait.h>" "$f"
-        grep -q "atol" "$f" && ! grep -q "<stdlib.h>" "$f" && sed -i "1i #include <stdlib.h>" "$f"
-        grep -q "strcmp" "$f" && ! grep -q "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
-    done
+    sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c    
 '
