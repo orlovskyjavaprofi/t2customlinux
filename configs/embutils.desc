@@ -43,10 +43,22 @@ var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 # Add these to your build flags in the .desc file
 var_append CFLAGS ' ' "-Wno-error=strict-prototypes -std=gnu89 -fpermissive"
 
-var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
+# 1. Error prototype fix
 hook_add premake 1 'sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c'
-hook_add premake 2 'sed -i "s/int (\*op)();/int (\*op)(int, void *, size_t);/" buffer.c'
+
+# 2. Buffer.c function pointer fix
 hook_add premake 2 'sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c'
+
+# 3. ln.c main fix
 hook_add premake 3 'sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c'
+
+# 4. mv.c sendfile header
 hook_add premake 3 'sed -i "1i #include <sys/sendfile.h>" mv.c'
-hook_add premake 5 'for f in *.c; do grep -q "strlen" "$f" && ! grep -q "string.h" "$f" && sed -i "1i #include <string.h>" "$f"; done'
+
+# 5. Global header injection for missing string.h, stdio.h, etc.
+# This loop replaces all your manual single-file header additions
+hook_add premake 5 'for f in *.c; do \
+    grep -q "strlen" "$f" && ! grep -q "string.h" "$f" && sed -i "1i #include <string.h>" "$f"; \
+    grep -q "sendfile" "$f" && ! grep -q "sys/sendfile.h" "$f" && sed -i "1i #include <sys/sendfile.h>" "$f"; \
+    grep -q "wait" "$f" && ! grep -q "sys/wait.h" "$f" && sed -i "1i #include <sys/wait.h>" "$f"; \
+done'
