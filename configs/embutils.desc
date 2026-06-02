@@ -48,3 +48,6 @@ hook_add premake 1 'sed -i "s/void error() __attribute__((noreturn));/void error
 hook_add premake 2 'sed -i "s/int (\*op)();/int (\*op)(int, void *, size_t);/" buffer.c'
 hook_add premake 2 'sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c'
 hook_add premake 3 'sed -i "1i #include <string.h>" mygetgrnam.c mygetpwnam.c'
+hook_add premake 3 'sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c'
+hook_add premake 3 'sed -i "1i #include <sys/sendfile.h>" mv.c'
+hook_add premake 3 'sed -i "1i #include <string.h>" buffer.c'
