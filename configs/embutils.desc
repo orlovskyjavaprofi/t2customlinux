@@ -43,3 +43,4 @@ var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
 hook_add premake 1 'sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c'
 hook_add premake 2 'sed -i "s/int (\*op)();/int (\*op)(int, void *, size_t);/" buffer.c'
+hook_add premake 2 'sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c'
