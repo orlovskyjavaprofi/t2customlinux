@@ -1,0 +1,44 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/embutils/embutils.desc
+[COPY] Copyright (C) 2004 - 2026 The T2 SDE Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] Stripped down utilities for embedded use
+
+[T] Stripped down utilities for embedded use including date, mount, umount,
+[T] printenv, tar, tee, dmesg, df, sync, mv, dd, ls, tr, cmp, cat and so
+[T] on.
+
+[U] http://www.fefe.de/embutils/
+
+[A] Felix von Leitner <fefe@fefe.de>
+[M] RenÃ© Rebe <rene@exactco.de>
+
+[F] CROSS DIETLIBC NO-LTO
+
+[C] base/system
+
+[L] GPL
+[V] 0.19
+[P] X -----5---9 102.040
+
+[D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
+
+pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
+
+var_append CC_WRAPPER_APPEND ' ' -std=gnu17
+
+# non-dietlibc, e.g. glibc/musl system libc?
+[ "$SDECFG_DIETLIBC_embutils" = 1 ] ||
+	var_append patchfiles ' ' $confdir/not-dietlibc.diff
+
+hook_add premake 5 "mkdir -p bin"
+hook_add inmake 5 'mkdir -p $root$bindir'
+
+# we control some stuff ourselves
+var_append makeopt ' ' 'DIET= OBJDIR=bin'
+var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
+
+var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
+hook_add premake 1 'sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c'
