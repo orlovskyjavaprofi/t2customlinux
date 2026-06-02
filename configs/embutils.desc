@@ -30,11 +30,11 @@ pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
 # Standardize compiler
 var_append CC_WRAPPER_APPEND ' ' -std=gnu89
 
-
 # Build optimizations for modern strictness
 var_append CFLAGS ' ' "-Wno-error=strict-prototypes -Wno-error=implicit-function-declaration -Wno-error=stringop-overflow -fpermissive"
 var_append makeopt ' ' "V=1 DIET= OBJDIR=bin CC=$CC STRIP=$STRIP"
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
+var_append makeopt ' ' "CC=$CC STRIP=$STRIP"
 
 hook_add premake 5 "mkdir -p bin"
 hook_add inmake 5 'mkdir -p $root$bindir'
@@ -46,19 +46,21 @@ hook_add premake 2 '
         sed -i "s/sosrm soscp/sosrm soscp xtract/" Makefile
 
     # --- Prototype / signature fixes ---
-    # Fix chroot.c error() signature
     sed -i -e "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c
-    
-    # Fix buffer.c function pointer
     sed -i -e "s/int (\*op)([[:space:]]*);/int (*op)(int, char *, size_t);/" buffer.c
-    
-    # Fix ln.c main() signature
     sed -i -e "s/^main(int argc,char \*argv\[\])/int main(int argc, char *argv[])/" ln.c
+
+    # --- NEW: Fix env.c and domainname.c specific issues ---
+    # Fix missing environ declaration
+    [ -f env.c ] && grep -q "environ" env.c && ! grep -q "extern char \*\*environ" env.c && \
+        sed -i "1i extern char **environ;" env.c
+    
+    # Fix domainname structure member rename
+    [ -f domainname.c ] && sed -i "s/domainname/__domainname/g" domainname.c
 
     # --- Header injection helper (idempotent) ---
     need_header() {
         local file="$1" pattern="$2" header="$3"
-        # Only inject if the pattern exists AND the header is missing
         if grep -qEw "$pattern" "$file" && ! grep -qF "$header" "$file"; then
             sed -i "1i $header" "$file"
         fi
@@ -68,7 +70,6 @@ hook_add premake 2 '
     for f in *.c; do
         [ -f "$f" ] || continue
 
-        # Standard header injections
         need_header "$f" "str(len|cmp|cat|cpy|ncmp|ncpy|dup|str)" "#include <string.h>"
         need_header "$f" "major|minor|makedev" "#include <sys/sysmacros.h>"
         need_header "$f" "sendfile" "#include <sys/sendfile.h>"
