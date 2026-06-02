@@ -41,35 +41,37 @@ hook_add inmake 5 'mkdir -p $root$bindir'
 var_append makeopt ' ' "V=1"
 
 hook_add premake 2 '
-    # --- Makefile: ensure xtract target exists ---
-    grep -qw "xtract" Makefile || \
-        sed -i "s/sosrm soscp/sosrm soscp xtract/" Makefile
-
-    # --- Prototype / signature fixes ---
-    sed -i -e "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c
-    sed -i -e "s/int (\*op)([[:space:]]*);/int (*op)(int, char *, size_t);/" buffer.c
-    sed -i -e "s/^main(int argc,char \*argv\[\])/int main(int argc, char *argv[])/" ln.c
-
-    # --- NEW: Fix env.c and domainname.c specific issues ---
-    # Fix missing environ declaration
-    [ -f env.c ] && grep -q "environ" env.c && ! grep -q "extern char \*\*environ" env.c && \
-        sed -i "1i extern char **environ;" env.c
-    
-    # Fix domainname structure member rename
-    [ -f domainname.c ] && sed -i "s/domainname/__domainname/g" domainname.c
-
-    # --- Header injection helper (idempotent) ---
-    need_header() {
-        local file="$1" pattern="$2" header="$3"
-        if grep -qEw "$pattern" "$file" && ! grep -qF "$header" "$file"; then
-            sed -i "1i $header" "$file"
-        fi
+    # Helper: Injects a line at the top of a file if not present
+    inject_line() {
+        local file="$1" line="$2"
+        [ -f "$file" ] && ! grep -qF "$line" "$file" && sed -i "1i $line" "$file"
     }
 
-    # --- Per-file header scan ---
+    # Helper: Safely applies a regex transformation
+    apply_fix() {
+        local file="$1" regex="$2"
+        [ -f "$file" ] && sed -i -e "$regex" "$file"
+    }
+
+    # --- 1. Infrastructure/Makefile Fixes ---
+    grep -qw "xtract" Makefile || sed -i "s/sosrm soscp/sosrm soscp xtract/" Makefile
+
+    # --- 2. Targeted Source Fixes ---
+    apply_fix "chroot.c" "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/"
+    apply_fix "buffer.c" "s/int (\*op)([[:space:]]*);/int (*op)(int, char *, size_t);/"
+    apply_fix "ln.c"     "s/^main(int argc,char \*argv\[\])/int main(int argc, char *argv[])/"
+    apply_fix "env.c"    "1i extern char **environ;"
+    apply_fix "domainname.c" "s/domainname/__domainname/g"
+
+    # --- 3. Header injection helper ---
+    need_header() {
+        local file="$1" pattern="$2" header="$3"
+        grep -qEw "$pattern" "$file" && inject_line "$file" "$header"
+    }
+
+    # --- 4. Per-file header scan ---
     for f in *.c; do
         [ -f "$f" ] || continue
-
         need_header "$f" "str(len|cmp|cat|cpy|ncmp|ncpy|dup|str)" "#include <string.h>"
         need_header "$f" "major|minor|makedev" "#include <sys/sysmacros.h>"
         need_header "$f" "sendfile" "#include <sys/sendfile.h>"
