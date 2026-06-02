@@ -30,9 +30,6 @@ pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
 # Standardize compiler
 var_append CC_WRAPPER_APPEND ' ' -std=gnu89
 
-# Handle libc
-[ "$SDECFG_DIETLIBC_embutils" = 1 ] ||
-	var_append patchfiles ' ' $confdir/not-dietlibc.diff
 
 # Build optimizations for modern strictness
 var_append CFLAGS ' ' "-Wno-error=strict-prototypes -Wno-error=implicit-function-declaration -Wno-error=stringop-overflow -fpermissive"
