@@ -47,8 +47,6 @@ var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
 hook_add premake 1 'sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c'
 hook_add premake 2 'sed -i "s/int (\*op)();/int (\*op)(int, void *, size_t);/" buffer.c'
 hook_add premake 2 'sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c'
-hook_add premake 3 'sed -i "1i #include <string.h>" mygetgrnam.c mygetpwnam.c'
 hook_add premake 3 'sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c'
 hook_add premake 3 'sed -i "1i #include <sys/sendfile.h>" mv.c'
-hook_add premake 3 'sed -i "1i #include <string.h>" buffer.c'
 hook_add premake 5 'for f in *.c; do grep -q "strlen" "$f" && ! grep -q "string.h" "$f" && sed -i "1i #include <string.h>" "$f"; done'
