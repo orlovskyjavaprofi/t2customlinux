@@ -43,6 +43,8 @@ var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 # Add these to your build flags in the .desc file
 var_append CFLAGS ' ' "-Wno-error=strict-prototypes -std=gnu89 -fpermissive"
 
+var_append makeopt ' ' "V=1"
+
 # 1. Error prototype fix
 hook_add premake 1 'sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c'
 
@@ -58,7 +60,7 @@ hook_add premake 3 'sed -i "1i #include <sys/sendfile.h>" mv.c'
 # 5. Global header injection for missing string.h, stdio.h, etc.
 # This loop replaces all your manual single-file header additions
 hook_add premake 5 'for f in *.c; do \
-    grep -q "strlen" "$f" && ! grep -q "string.h" "$f" && sed -i "1i #include <string.h>" "$f"; \
-    grep -q "sendfile" "$f" && ! grep -q "sys/sendfile.h" "$f" && sed -i "1i #include <sys/sendfile.h>" "$f"; \
-    grep -q "wait" "$f" && ! grep -q "sys/wait.h" "$f" && sed -i "1i #include <sys/wait.h>" "$f"; \
+    grep -q "strlen" "$f" && ! grep -q "string.h" "$f" && { echo "Patching $f"; sed -i "1i #include <string.h>" "$f"; }; \
+    grep -q "sendfile" "$f" && ! grep -q "sys/sendfile.h" "$f" && { echo "Patching $f"; sed -i "1i #include <sys/sendfile.h>" "$f"; }; \
+    grep -q "wait" "$f" && ! grep -q "sys/wait.h" "$f" && { echo "Patching $f"; sed -i "1i #include <sys/wait.h>" "$f"; }; \
 done'
