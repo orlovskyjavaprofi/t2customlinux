@@ -38,9 +38,13 @@ var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
 hook_add premake 5 "mkdir -p bin"
 hook_add inmake 5 'mkdir -p $root$bindir'
+var_append makeopt ' ' "V=1"
 
 hook_add premake 2 '
-    # 1. Prototype/Logic Fixes
+   # Ensure xtract is in the Makefile if it is missing
+    grep -q "xtract" Makefile || sed -i "s/sosrm soscp/sosrm soscp xtract/" Makefile
+ 
+ # 1. Prototype/Logic Fixes
     sed -i "s/void error() __attribute__((noreturn));/void error(char *message) __attribute__((noreturn));/" chroot.c
     sed -i "s/int (\*op)(\s*);/int (\*op)(int, char *, size_t);/" buffer.c
     sed -i "s/main(int argc,char \*argv\[\])/int main(int argc,char \*argv\[\])/" ln.c
@@ -54,3 +58,8 @@ hook_add premake 2 '
         grep -qE "fprintf|printf" "$f" && ! grep -q "<stdio.h>" "$f" && sed -i "1i #include <stdio.h>" "$f"
     done
 '
+
+
+    # ... (your existing consolidated headers) ...
+    
+ 
