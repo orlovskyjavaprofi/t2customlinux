@@ -71,9 +71,12 @@ pkg_readline_postmake() {
     # Ensure target directory exists in the target root
     mkdir -p "$root/lib64"
     
-    # Copy the libhistory and libreadline files safely preserving symlinks
-    cp -d "$root/usr/lib64"/libhistory.so* "$root/lib64/"
-    cp -d "$root/usr/lib64"/libreadline.so* "$root/lib64/"
+	# Safely copy libhistory and libreadline only if they don't already exist in the target directory
+	for lib in libhistory.so* libreadline.so*; do
+		if [ ! -e "$root/lib64/$lib" ]; then
+			cp -d "$root/usr/lib64/$lib" "$root/lib64/"
+		fi
+	done
     
     # Dynamically extract the major version number (e.g., "8" from "8.3.3")
     local major_ver="${ver%%.*}"
