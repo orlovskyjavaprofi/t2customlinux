@@ -29,3 +29,6 @@
 
 var_append confopt ' ' '--libexecdir=/usr/libexec'
 [ "$prefix_auto" = 1 ] && prefix="" && set_confopt && bindir="$sbindir"
+
+var_append confopt ' ' "--libexecdir=${libdir}/inetutils"
+var_append confopt ' ' "--bindir=/usr/bin --sbindir=/usr/sbin"
