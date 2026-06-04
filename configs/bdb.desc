@@ -43,3 +43,10 @@ if [[ $pkg != *-java ]]; then
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db.h ${root}$includedir/../db.h"
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db_185.h ${root}$includedir/../db_185.h"
 fi
+
+if atstage preconf; then
+    # Tell the configure script to use POSIX mutexes instead of FCNTL
+    hook_add preconf 2 "sed -i 's/UNIX\/fcntl/POSIX\/pthreads/g' configure"
+    # Or, if that's too aggressive, you can define the mutex type directly:
+    hook_add preconf 2 "echo 'ac_cv_func_pthread_mutex_init=yes' >> config.cache"
+fi
