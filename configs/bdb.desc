@@ -41,3 +41,9 @@ if [[ $pkg != *-java ]]; then
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db.h ${root}$includedir/../db.h"
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db_185.h ${root}$includedir/../db_185.h"
 fi
+
+var_append confopt ' ' "--build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine)"
+
+# Update CFLAGS to include the root and the potential 'build' subdirectories
+# This ensures that #include "db_config.h" will be resolved correctly
+var_append CFLAGS ' ' "-I. -I$srcdir/build_wince -I$srcdir/build_android"
