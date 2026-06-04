@@ -27,6 +27,8 @@
 # Force configuration into the current root to avoid the build_* subfolders
 confdir="."
 
+builddir="."
+
 # Serial build only - BDB is not parallel-safe
 var_append makeopt ' ' "-j1"
 
