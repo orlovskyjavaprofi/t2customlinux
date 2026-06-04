@@ -27,11 +27,8 @@
 # Force configuration into the current root to avoid the build_* subfolders
 confdir="dist"
 
-# Add --srcdir=.. to ensure it finds the sources correctly from inside /dist
-var_append confopt ' ' "--srcdir=.. --build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine) --with-mutex=POSIX/pthreads --enable-compat185 --enable-cxx"
-
-# BDB configure lives in dist/ not source root
-confdir="dist"
+# Serial build only - BDB is not parallel-safe
+var_append makeopt ' ' "-j1"
 
 # Compiler flags
 var_append CFLAGS ' ' "-Wno-error=old-style-definition -I. -I$srcdir"
@@ -39,8 +36,17 @@ var_append CFLAGS ' ' "-Wno-error=old-style-definition -I. -I$srcdir"
 # Libtool fix - separate from makeopt, no 'all' target
 var_append makeopt ' ' 'LIBTOOL="/usr/bin/libtool --tag=CXX"'
 
-# Serial build only - BDB is not parallel-safe
-var_append makeopt ' ' "-j1"
+# Add --srcdir=.. to ensure it finds the sources correctly from inside /dist
+var_append confopt ' ' "--srcdir=.. --build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine) --with-mutex=POSIX/pthreads --enable-compat185 --enable-cxx"
+
+# include the generic config for any bdb
+. $base/package/*/*/bdb-conf.in
+
+if atstage cross; then
+	hook_add preconf 5 "echo 'db_cv_atomic=yes' >> config.cache"
+else
+	var_append makeopt ' ' LIBTOOL=/usr/bin/libtool
+fi
 
 # Header bridge
 # Revised Hook 2: The "find and bring to root"
@@ -63,4 +69,3 @@ if [[ $pkg != *-java ]]; then
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db.h ${root}$includedir/../db.h"
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db_185.h ${root}$includedir/../db_185.h"
 fi
-
