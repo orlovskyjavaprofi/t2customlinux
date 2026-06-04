@@ -25,7 +25,7 @@
 [D] 9a5bc425a3702a07cb3382aca345a75d07d9d398cc6d8dde02b59fe1 db-5.3.28.tar.gz https://download.oracle.com/berkeley-db/
 
 # Force configuration into the current root to avoid the build_* subfolders
-confdir="dist"
+confdir="."
 
 # Serial build only - BDB is not parallel-safe
 var_append makeopt ' ' "-j1"
@@ -37,7 +37,7 @@ var_append CFLAGS ' ' "-Wno-error=old-style-definition -I. -I$srcdir"
 var_append makeopt ' ' 'LIBTOOL="/usr/bin/libtool --tag=CXX"'
 
 # Add --srcdir=.. to ensure it finds the sources correctly from inside /dist
-var_append confopt ' ' "--srcdir=.. --build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine) --with-mutex=POSIX/pthreads --enable-compat185 --enable-cxx"
+var_append confopt ' ' "--with-mutex=POSIX/pthreads --enable-compat185 --enable-cxx --build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine)"
 
 # include the generic config for any bdb
 . $base/package/*/*/bdb-conf.in
@@ -63,6 +63,7 @@ hook_add premake 3 "
         exit 1
     fi
 "
+var_append makeopt ' ' "-C dist all"
 
 # 5. Post-build symlinks
 if [[ $pkg != *-java ]]; then
