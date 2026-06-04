@@ -55,3 +55,5 @@ fi
 var_append confopt ' ' "--with-mutex=POSIX/pthreads"
 
 var_append makeopt ' ' "CFLAGS+=-Wno-error=old-style-definition"
+var_append CFLAGS ' ' "-I$srcdir"
+var_append makeopt ' ' "-j1"
