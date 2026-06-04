@@ -24,25 +24,35 @@
 
 [D] 9a5bc425a3702a07cb3382aca345a75d07d9d398cc6d8dde02b59fe1 db-5.3.28.tar.gz https://download.oracle.com/berkeley-db/
 
-# 1. Force native build to stop cross-compilation detection
-var_append confopt ' ' "--build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine) --with-mutex=POSIX/pthreads --enable-compat185 --enable-cxx"
+# Native build - prevent cross-compilation detection
+var_append confopt ' ' \
+    "--build=$(gcc -dumpmachine) \
+     --host=$(gcc -dumpmachine) \
+     --with-mutex=POSIX/pthreads \
+     --enable-compat185 \
+     --enable-cxx"
 
-# 1.1 Force the make command to build the default target
-# Adding 'all' ensures 'make' doesn't fail with "No targets specified"
-var_append makeopt ' ' "all"
+# BDB configure lives in dist/ not source root
+confdir="dist"
 
-# 2. Modern Compiler & Include Path (Search locally first)
+# Compiler flags
 var_append CFLAGS ' ' "-Wno-error=old-style-definition -I. -I$srcdir"
 
-# 3. Libtool Fix
-local fixed_libtool="/usr/bin/libtool --tag=CXX"
-var_append makeopt ' ' "LIBTOOL=\"$fixed_libtool\" -j1"
+# Libtool fix - separate from makeopt, no 'all' target
+var_append makeopt ' ' 'LIBTOOL="/usr/bin/libtool --tag=CXX"'
 
-# 4. ROBUST Header Bridge (The "find" approach)
-# This finds db_config.h anywhere in the sub-directories and places it in the root
-# then distributes it to the required sub-folders.
+# Serial build only - BDB is not parallel-safe
+var_append makeopt ' ' "-j1"
+
+# Header bridge
 hook_add premake 1 "find . -name db_config.h -exec cp -f {} . \;"
-hook_add premake 2 "cp -f db_config.h lang/db185/ && cp -f db_config.h src/btree/ && cp -f db_config.h src/mutex/"
+hook_add premake 2 "
+    [ -f db_config.h ] && {
+        cp -f db_config.h lang/db185/
+        cp -f db_config.h src/btree/
+        cp -f db_config.h src/mutex/
+    }
+"
 
 # 5. Post-build symlinks
 if [[ $pkg != *-java ]]; then
