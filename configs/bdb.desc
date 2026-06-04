@@ -53,3 +53,5 @@ fi
 
 # Add this to your BDB build options in the desc file
 var_append confopt ' ' "--with-mutex=POSIX/pthreads"
+
+var_append makeopt ' ' "CFLAGS+=-Wno-error=old-style-definition"
