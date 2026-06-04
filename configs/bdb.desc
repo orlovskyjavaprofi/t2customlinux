@@ -50,3 +50,6 @@ if atstage preconf; then
     # Or, if that's too aggressive, you can define the mutex type directly:
     hook_add preconf 2 "echo 'ac_cv_func_pthread_mutex_init=yes' >> config.cache"
 fi
+
+# Add this to your BDB build options in the desc file
+var_append confopt ' ' "--with-mutex=POSIX/pthreads"
