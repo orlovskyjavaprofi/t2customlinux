@@ -24,13 +24,11 @@
 
 [D] 9a5bc425a3702a07cb3382aca345a75d07d9d398cc6d8dde02b59fe1 db-5.3.28.tar.gz https://download.oracle.com/berkeley-db/
 
-# Native build - prevent cross-compilation detection
-var_append confopt ' ' \
-    "--build=$(gcc -dumpmachine) \
-     --host=$(gcc -dumpmachine) \
-     --with-mutex=POSIX/pthreads \
-     --enable-compat185 \
-     --enable-cxx"
+# Force configuration into the current root to avoid the build_* subfolders
+confdir="dist"
+
+# Add --srcdir=.. to ensure it finds the sources correctly from inside /dist
+var_append confopt ' ' "--srcdir=.. --build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine) --with-mutex=POSIX/pthreads --enable-compat185 --enable-cxx"
 
 # BDB configure lives in dist/ not source root
 confdir="dist"
@@ -45,13 +43,19 @@ var_append makeopt ' ' 'LIBTOOL="/usr/bin/libtool --tag=CXX"'
 var_append makeopt ' ' "-j1"
 
 # Header bridge
-hook_add premake 1 "find . -name db_config.h -exec cp -f {} . \;"
-hook_add premake 2 "
-    [ -f db_config.h ] && {
+# Revised Hook 2: The "find and bring to root"
+hook_add premake 2 "find . -name db_config.h -exec cp -f {} . \; 2>/dev/null || true"
+
+# Revised Hook 3: The distribution
+hook_add premake 3 "
+    if [ -f db_config.h ]; then
         cp -f db_config.h lang/db185/
         cp -f db_config.h src/btree/
         cp -f db_config.h src/mutex/
-    }
+    else
+        echo 'Error: db_config.h not found. Check config.log'
+        exit 1
+    fi
 "
 
 # 5. Post-build symlinks
@@ -59,3 +63,4 @@ if [[ $pkg != *-java ]]; then
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db.h ${root}$includedir/../db.h"
     hook_add postmake 3 "ln -sfv db${ver:0:1}/db_185.h ${root}$includedir/../db_185.h"
 fi
+
