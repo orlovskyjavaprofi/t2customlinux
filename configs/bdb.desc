@@ -27,6 +27,10 @@
 # 1. Force native build to stop cross-compilation detection
 var_append confopt ' ' "--build=$(gcc -dumpmachine) --host=$(gcc -dumpmachine) --with-mutex=POSIX/pthreads --enable-compat185 --enable-cxx"
 
+# 1.1 Force the make command to build the default target
+# Adding 'all' ensures 'make' doesn't fail with "No targets specified"
+var_append makeopt ' ' "all"
+
 # 2. Modern Compiler & Include Path (Search locally first)
 var_append CFLAGS ' ' "-Wno-error=old-style-definition -I. -I$srcdir"
 
