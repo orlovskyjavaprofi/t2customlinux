@@ -25,26 +25,28 @@
 
 [D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
 
-pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
+# --- Cleaned embutils.desc ---
 
-# 1. Ensure prefix is defined
+# 1. Define variables upfront
 [ -z "$prefix" ] && prefix="/usr"
-
-# 2. Hardcode the bindir relative to the prefix to avoid expansion errors
 bindir="${prefix}/lib/embutils"
 
+# 2. Compiler flags
+var_append CFLAGS ' ' '-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L'
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 
-# non-dietlibc, e.g. glibc/musl system libc?
-[ "$SDECFG_DIETLIBC_embutils" = 1 ] ||
-	var_append patchfiles ' ' $confdir/not-dietlibc.diff
+# 3. Handle non-dietlibc
+[ "$SDECFG_DIETLIBC_embutils" = 1 ] || var_append patchfiles ' ' $confdir/not-dietlibc.diff
 
+# 4. Hooks
 hook_add premake 5 "mkdir -p bin"
+hook_add premake 6 "sed -i '1i #include <unistd.h>\nextern char **environ;' env.c"
+hook_add premake 7 "sed -i 's/domainname/__domainname/g' domainname.c"
 hook_add inmake 5 'mkdir -p $root$bindir'
 
-# we control some stuff ourselves
+# 5. Build options
 var_append makeopt ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
+# 6. Installation wrapper
 var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
-var_append CFLAGS ' ' '-D_GNU_SOURCE'
