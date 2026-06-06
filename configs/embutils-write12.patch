@@ -1,5 +1,5 @@
---- src/write12.h
-+++ src/write12.h
+--- embutils-0.19/write12.h
++++ embutils-0.19/write12.h
 @@ -1,6 +1,8 @@
  #ifdef __dietlibc__
  #include <write12.h>

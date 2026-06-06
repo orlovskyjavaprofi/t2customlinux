@@ -1,5 +1,5 @@
---- src/rmdir.c
-+++ src/rmdir.c
+--- embutils-0.19/rmdir.c
++++ embutils-0.19/rmdir.c
 @@ -1,6 +1,8 @@
  #include <stdio.h>
  #include <string.h>

@@ -1,5 +1,5 @@
---- src/domainname.c
-+++ src/domainname.c
+--- embutils-0.19/domainname.c
++++ embutils-0.19/domainname.c
 @@ -1,5 +1,6 @@
  #include <unistd.h>
 +#include <string.h>

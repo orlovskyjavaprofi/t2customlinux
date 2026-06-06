@@ -1,5 +1,5 @@
---- src/mknod.c
-+++ src/mknod.c
+--- embutils-0.19/mknod.c
++++ embutils-0.19/mknod.c
 @@ -3,6 +3,8 @@
  #include <errno.h>
  #include <fcntl.h>
