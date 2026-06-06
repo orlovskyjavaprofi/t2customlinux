@@ -25,41 +25,72 @@
 
 [D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
 
-# 1. Define variables
+# 1. Variables
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
 
-# 2. Hardened Compiler Flags for GCC 16+
-# We use -include to force header injection at the compiler level, 
-# which is more reliable than editing files with sed.
-var_append CFLAGS ' ' '-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L'
-var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h -include fcntl.h -include sys/stat.h'
-var_append CFLAGS ' ' '-Wno-implicit-function-declaration -Wno-implicit-int'
-var_append CC_WRAPPER_APPEND ' ' '-std=gnu17'
+# 2. Makefile patches
+hook_add premake 5 '
+    # GCC 16 compat — FLAGS is the Makefile extension point
+    sed -i "s|^FLAGS=$|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|" Makefile
 
-# 3. Patching Hooks
-# Only perform surgery on the struct member which cannot be solved by headers.
-hook_add premake 6 '
-    for file in *.c; do
-        # Rename struct member access globally
-        sed -i "s/\.domainname/\.__domainname/g" "$file"
-        
-        # Add missing extern declaration for global environment pointer
-        if grep -q "environ" "$file" && ! grep -q "extern char \*\*environ" "$file"; then
-             sed -i "/#include/a extern char **environ;" "$file"
+    # Fix parallel mkdir race condition
+    sed -i "s|test -d \$(OBJDIR) || mkdir|mkdir -p|g" Makefile
+
+    # Fix write12.h — write() and strlen() need headers
+    grep -qF "<unistd.h>" write12.h || sed -i "1i #include <unistd.h>" write12.h
+    grep -qF "<string.h>"  write12.h || sed -i "1i #include <string.h>"  write12.h
+
+    # Per .c file fixes
+    for f in *.c; do
+        [ -f "$f" ] || continue
+
+        # struct utsname GNU extension
+        sed -i "s/\.domainname/.__domainname/g" "$f"
+
+        # environ declaration
+        if grep -qw "environ" "$f" && ! grep -qF "extern char **environ" "$f"; then
+            sed -i "1i extern char **environ;" "$f"
+        fi
+
+        # unistd.h
+        if grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && \
+           ! grep -qF "<unistd.h>" "$f"; then
+            sed -i "1i #include <unistd.h>" "$f"
+        fi
+
+        # string.h
+        if grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && \
+           ! grep -qF "<string.h>" "$f"; then
+            sed -i "1i #include <string.h>" "$f"
+        fi
+
+        # stdlib.h
+        if grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && \
+           ! grep -qF "<stdlib.h>" "$f"; then
+            sed -i "1i #include <stdlib.h>" "$f"
+        fi
+
+        # sys/sysmacros.h
+        if grep -qEw "major|minor|makedev" "$f" && \
+           ! grep -qF "<sys/sysmacros.h>" "$f"; then
+            sed -i "1i #include <sys/sysmacros.h>" "$f"
         fi
     done
 '
 
-# 4. Remove MD5 and override Makefile behavior
-hook_add premake 7 "sed -i 's/#include <md5.h>/\/\/#include <md5.h>/g' *.c"
+# 3. MD5 stub
+hook_add premake 7 '
+    for f in *.c; do
+        [ -f "$f" ] || continue
+        sed -i "s|#include <md5\.h>|// #include <md5.h>|g" "$f"
+    done
+'
 
-# 5. Build and Install Setup
-# We force OBJDIR=bin to align with your build system expectation
-# We force DIET= to empty to bypass the dietlibc wrapper
-hook_add inmake 5 'mkdir -p $root$bindir'
-var_append makeopt ' ' 'DIET= OBJDIR=bin'
+# 4. Build
+hook_add inmake 5 "mkdir -p \$root\$bindir"
+var_append makeopt     ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
-# 6. Installation wrapper
-var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
+# 5. Install redirect
+var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,${prefix}/bin/,${bindir}/,'"
