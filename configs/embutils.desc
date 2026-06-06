@@ -31,48 +31,48 @@ bindir="${prefix}/embutils"
 
 # 2. Makefile and Source Patching
 hook_add premake 5 '
-    # Fix Makefile flags: Use substitution with | as delimiter
-    sed -i "s|^FLAGS=.*|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|g" Makefile
+    # Fix Makefile flags: Use single quotes for the sed expression
+    sed -i '\''s|^FLAGS=.*|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|g'\'' Makefile
 
-    # Fix build directory: Change the specific broken test pattern
-    sed -i "s|test -d \$(OBJDIR) || mkdir|mkdir -p \$(OBJDIR)|g" Makefile
+    # Fix build directory: Use single quotes
+    sed -i '\''s|test -d $(OBJDIR) || mkdir|mkdir -p $(OBJDIR)|g'\'' Makefile
 
     # Fix write12.h
     for h in write12.h; do
         [ -f "$h" ] || continue
-        grep -qF "<unistd.h>" "$h" || sed -i "1i #include <unistd.h>" "$h"
-        grep -qF "<string.h>" "$h" || sed -i "1i #include <string.h>" "$h"
+        grep -qF "<unistd.h>" "$h" || sed -i '\''1i #include <unistd.h>'\'' "$h"
+        grep -qF "<string.h>" "$h" || sed -i '\''1i #include <string.h>'\'' "$h"
     done
 
     # Per-source fixes
     for f in *.c; do
         [ -f "$f" ] || continue
 
-        # utsname compatibility: Safe substitution
-        sed -i "s|\.domainname|.__domainname|g" "$f"
+        # utsname compatibility
+        sed -i '\''s|\.domainname|.__domainname|g'\'' "$f"
 
         # environ declaration
         if grep -qw environ "$f" && ! grep -qF "extern char **environ" "$f"; then
-            sed -i "1i extern char **environ;" "$f"
+            sed -i '\''1i extern char **environ;'\'' "$f"
         fi
         
-        # Missing headers (using 1i for surgical insertion)
-        grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && ! grep -qF "<unistd.h>" "$f" && sed -i "1i #include <unistd.h>" "$f"
-        grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && ! grep -qF "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
-        grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && ! grep -qF "<stdlib.h>" "$f" && sed -i "1i #include <stdlib.h>" "$f"
-        grep -qEw "major|minor|makedev" "$f" && ! grep -qF "<sys/sysmacros.h>" "$f" && sed -i "1i #include <sys/sysmacros.h>" "$f"
+        # Missing headers
+        grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && ! grep -qF "<unistd.h>" "$f" && sed -i '\''1i #include <unistd.h>'\'' "$f"
+        grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && ! grep -qF "<string.h>" "$f" && sed -i '\''1i #include <string.h>'\'' "$f"
+        grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && ! grep -qF "<stdlib.h>" "$f" && sed -i '\''1i #include <stdlib.h>'\'' "$f"
+        grep -qEw "major|minor|makedev" "$f" && ! grep -qF "<sys/sysmacros.h>" "$f" && sed -i '\''1i #include <sys/sysmacros.h>'\'' "$f"
     done
 '
 
 # 3. MD5 stub
 hook_add premake 7 '
-    sed -i "s|#include <md5\.h>|// #include <md5.h>|g" *.c
+    sed -i '\''s|#include <md5\.h>|// #include <md5.h>|g'\'' *.c
 '
 
 # 4. Build and install path fixes
 hook_add premake 8 '
-    sed -i "s|prefix=/opt/diet|prefix=/usr|g" Makefile
-    sed -i "s|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)'"$bindir"'|g" Makefile
+    sed -i '\''s|prefix=/opt/diet|prefix=/usr|g'\'' Makefile
+    sed -i '\''s|$(DESTDIR)$(prefix)/bin|'"\$(DESTDIR)$bindir"'|g'\'' Makefile
 '
 
 var_append makeopt       ' ' 'DIET= OBJDIR=bin'
