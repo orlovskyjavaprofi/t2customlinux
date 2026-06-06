@@ -92,5 +92,7 @@ hook_add inmake 5 "mkdir -p \$root\$bindir"
 var_append makeopt     ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
-# 5. Install redirect
-var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,${prefix}/bin/,${bindir}/,'"
+hook_add premake 8 '
+    sed -i "s|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)\$(prefix)/embutils|g" Makefile
+'
+var_append makeinstopt ' ' "prefix=/usr DESTDIR=$root"
