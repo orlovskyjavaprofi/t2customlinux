@@ -29,37 +29,30 @@
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
 
-# 2. Hardened Compiler Flags for GCC 16+
-# We place -D_GNU_SOURCE at the very front to ensure struct definitions are standard
+# 2. Optimized Compiler Flags
+# -D_GNU_SOURCE is mandatory for __domainname
+# -include injects headers at the START of the compilation unit
 var_append CFLAGS ' ' '-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L'
-var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h -include fcntl.h'
+var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h -include fcntl.h -include sys/stat.h'
 var_append CFLAGS ' ' '-Wno-implicit-function-declaration -Wno-implicit-int'
 var_append CC_WRAPPER_APPEND ' ' '-std=gnu17'
 
-# 3. Patching Hooks
-# Consolidated loop for source repair
+# 3. Simplified Patching Hooks
+# Only perform surgery on things that cannot be solved by headers
 hook_add premake 6 '
     for file in *.c; do
-        # 1. Inject standard headers only if they are missing
-        grep -q "string.h" "$file" || sed -i "1i #include <string.h>" "$file"
-        grep -q "unistd.h" "$file" || sed -i "1i #include <unistd.h>" "$file"
-        grep -q "stdlib.h" "$file" || sed -i "1i #include <stdlib.h>" "$file"
-        grep -q "stdio.h"  "$file" || sed -i "1i #include <stdio.h>"  "$file"
-        grep -q "fcntl.h"  "$file" || sed -i "1i #include <fcntl.h>"  "$file"
+        # Fix struct utsname usage by replacing the member access directly
+        sed -i "s/\.domainname/\.__domainname/g" "$file"
         
-        # 2. Force domainname to __domainname via preprocessor redefine
-        # This is safer than sed if the struct member is used in expressions
-        sed -i "1i #define domainname __domainname" "$file"
-        
-        # 3. Safely add extern char **environ
+        # Safely add extern char **environ; only if needed
         if grep -q "environ" "$file" && ! grep -q "extern char \*\*environ" "$file"; then
-            sed -i "/#include/a extern char **environ;" "$file"
+             sed -i "/#include/a extern char **environ;" "$file"
         fi
     done
 '
 
-# 4. Remove troublesome MD5 header
-hook_add premake 7 "grep -l '#include <md5.h>' *.c | xargs -r sed -i 's/#include <md5.h>/\/\/#include <md5.h>/'"
+# 4. Handle MD5
+hook_add premake 7 "sed -i 's/#include <md5.h>/\/\/#include <md5.h>/g' *.c"
 
 # 5. Build and Install Setup
 hook_add inmake 5 'mkdir -p $root$bindir'
