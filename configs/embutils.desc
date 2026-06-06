@@ -33,35 +33,40 @@ export OBJDIR="bin"
 # 2. Makefile and Source Patching
 hook_add premake 5 "
     echo 'DEBUG: Patching Makefile...'
-    # Use pattern matching /c to replace entire lines safely
+    echo 'DEBUG: Running: sed -i /test -d/c mkdir -p \$(OBJDIR) Makefile'
     sed -i '/test -d/c mkdir -p \$(OBJDIR)' Makefile
+    
+    echo 'DEBUG: Running: sed -i /^FLAGS=/c ... Makefile'
     sed -i '/^FLAGS=/c FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error' Makefile
 
     # Fix write12.h
     for h in write12.h; do
         [ -f \"\$h\" ] || continue
-        grep -qF '<unistd.h>' \"\$h\" || sed -i '1i #include <unistd.h>' \"\$h\"
-        grep -qF '<string.h>' \"\$h\" || sed -i '1i #include <string.h>' \"\$h\"
+        grep -qF '<unistd.h>' \"\$h\" || { echo 'DEBUG: Adding unistd.h to \$h'; sed -i '1i #include <unistd.h>' \"\$h\"; }
+        grep -qF '<string.h>' \"\$h\" || { echo 'DEBUG: Adding string.h to \$h'; sed -i '1i #include <string.h>' \"\$h\"; }
     done
 
     # Per-source header fixes
     for f in *.c; do
         [ -f \"\$f\" ] || continue
+        echo 'DEBUG: Patching source file: \$f'
         sed -i 's|\.domainname|.__domainname|g' \"\$f\"
         
-        grep -qEw 'write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork' \"\$f\" && ! grep -qF '<unistd.h>' \"\$f\" && sed -i '1i #include <unistd.h>' \"\$f\"
-        grep -qEw 'strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset' \"\$f\" && ! grep -qF '<string.h>' \"\$f\" && sed -i '1i #include <string.h>' \"\$f\"
-        grep -qEw 'malloc|calloc|realloc|free|exit|atoi|getenv|strtol' \"\$f\" && ! grep -qF '<stdlib.h>' \"\$f\" && sed -i '1i #include <stdlib.h>' \"\$f\"
+        grep -qEw 'write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork' \"\$f\" && ! grep -qF '<unistd.h>' \"\$f\" && { echo 'DEBUG: Adding unistd.h to \$f'; sed -i '1i #include <unistd.h>' \"\$f\"; }
+        grep -qEw 'strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset' \"\$f\" && ! grep -qF '<string.h>' \"\$f\" && { echo 'DEBUG: Adding string.h to \$f'; sed -i '1i #include <string.h>' \"\$f\"; }
+        grep -qEw 'malloc|calloc|realloc|free|exit|atoi|getenv|strtol' \"\$f\" && ! grep -qF '<stdlib.h>' \"\$f\" && { echo 'DEBUG: Adding stdlib.h to \$f'; sed -i '1i #include <stdlib.h>' \"\$f\"; }
     done
 "
 
 # 3. MD5 stub
 hook_add premake 7 "
+    echo 'DEBUG: Stubbing MD5 in *.c...'
     sed -i 's|#include <md5\.h>|// #include <md5.h>|g' *.c
 "
 
 # 4. Compiler Override & Path Fixes
 hook_add premake 8 "
+    echo 'DEBUG: Fixing prefix and paths in Makefile...'
     sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
     sed -i 's|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g' Makefile
 "
