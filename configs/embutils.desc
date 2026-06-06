@@ -32,8 +32,7 @@ bindir="${prefix}/embutils"
 # 2. Makefile and Source Patching
 hook_add premake 5 '
     echo "[premake5] Patching Makefile FLAGS"
-    sed -i '/^FLAGS=/c\
-    FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error' Makefile
+    sed -i '/^FLAGS=/c FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error' Makefile
 
     echo "[premake5] Patching OBJDIR creation"
     sed -i '/test -d/c mkdir -p $(OBJDIR)' Makefile
