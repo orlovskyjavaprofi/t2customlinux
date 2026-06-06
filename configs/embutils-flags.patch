@@ -1,0 +1,12 @@
+--- Makefile.orig
++++ Makefile
+@@ -1,5 +1,5 @@
+-DIET=diet
+-FLAGS=-Os
++DIET=gcc
++FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error
+ OBJDIR=bin
+ 
+ $(OBJDIR):
+-	test -d $(OBJDIR) || mkdir $(OBJDIR)
++	mkdir -p $(OBJDIR)
