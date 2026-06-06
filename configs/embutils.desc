@@ -31,46 +31,47 @@ bindir="${prefix}/embutils"
 
 # 2. Makefile and Source Patching
 hook_add premake 5 "
-    # Fix Makefile flags
+    echo 'DEBUG: Patching Makefile flags...'
     sed -i 's|^FLAGS=.*|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|g' Makefile
 
-    # Fix build directory
+    echo 'DEBUG: Fixing build directory...'
     sed -i 's|test -d \$(OBJDIR) || mkdir|mkdir -p \$(OBJDIR)|g' Makefile
 
-    # Fix write12.h
+    echo 'DEBUG: Checking write12.h...'
     for h in write12.h; do
         [ -f \"\$h\" ] || continue
-        grep -qF '<unistd.h>' \"\$h\" || sed -i '1i #include <unistd.h>' \"\$h\"
-        grep -qF '<string.h>' \"\$h\" || sed -i '1i #include <string.h>' \"\$h\"
+        grep -qF '<unistd.h>' \"\$h\" || { echo 'DEBUG: Adding unistd.h to \$h'; sed -i '1i #include <unistd.h>' \"\$h\"; }
+        grep -qF '<string.h>' \"\$h\" || { echo 'DEBUG: Adding string.h to \$h'; sed -i '1i #include <string.h>' \"\$h\"; }
     done
 
-    # Per-source fixes
+    echo 'DEBUG: Patching C files...'
     for f in *.c; do
         [ -f \"\$f\" ] || continue
-
-        # utsname compatibility
+        
         sed -i 's|\.domainname|.__domainname|g' \"\$f\"
 
-        # environ declaration
         if grep -qw environ \"\$f\" && ! grep -qF 'extern char **environ' \"\$f\"; then
+            echo 'DEBUG: Adding environ to \$f'
             sed -i '1i extern char **environ;' \"\$f\"
         fi
         
         # Missing headers
-        grep -qEw 'write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork' \"\$f\" && ! grep -qF '<unistd.h>' \"\$f\" && sed -i '1i #include <unistd.h>' \"\$f\"
-        grep -qEw 'strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset' \"\$f\" && ! grep -qF '<string.h>' \"\$f\" && sed -i '1i #include <string.h>' \"\$f\"
-        grep -qEw 'malloc|calloc|realloc|free|exit|atoi|getenv|strtol' \"\$f\" && ! grep -qF '<stdlib.h>' \"\$f\" && sed -i '1i #include <stdlib.h>' \"\$f\"
-        grep -qEw 'major|minor|makedev' \"\$f\" && ! grep -qF '<sys/sysmacros.h>' \"\$f\" && sed -i '1i #include <sys/sysmacros.h>' \"\$f\"
+        grep -qEw 'write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork' \"\$f\" && ! grep -qF '<unistd.h>' \"\$f\" && { echo 'DEBUG: Adding unistd.h to \$f'; sed -i '1i #include <unistd.h>' \"\$f\"; }
+        grep -qEw 'strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset' \"\$f\" && ! grep -qF '<string.h>' \"\$f\" && { echo 'DEBUG: Adding string.h to \$f'; sed -i '1i #include <string.h>' \"\$f\"; }
+        grep -qEw 'malloc|calloc|realloc|free|exit|atoi|getenv|strtol' \"\$f\" && ! grep -qF '<stdlib.h>' \"\$f\" && { echo 'DEBUG: Adding stdlib.h to \$f'; sed -i '1i #include <stdlib.h>' \"\$f\"; }
+        grep -qEw 'major|minor|makedev' \"\$f\" && ! grep -qF '<sys/sysmacros.h>' \"\$f\" && { echo 'DEBUG: Adding sysmacros.h to \$f'; sed -i '1i #include <sys/sysmacros.h>' \"\$f\"; }
     done
 "
 
 # 3. MD5 stub
 hook_add premake 7 "
+    echo 'DEBUG: Stubbing MD5...'
     sed -i 's|#include <md5\.h>|// #include <md5.h>|g' *.c
 "
 
 # 4. Build and install path fixes
 hook_add premake 8 "
+    echo 'DEBUG: Fixing paths...'
     sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
     sed -i 's|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g' Makefile
 "
