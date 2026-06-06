@@ -34,15 +34,15 @@ hook_add premake 5 '
     # Fix Makefile flags
     sed -i "/^FLAGS=/c FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error" Makefile
 
-    # Fix build directory creation
+    # Fix build directory creation (Fixing the pipe logic)
     sed -i "s|test -d \$(OBJDIR) || mkdir|mkdir -p \$(OBJDIR)|g" Makefile
 
     # Fix write12.h
     for h in write12.h; do
         [ -f "$h" ] || continue
-        for inc in "<unistd.h>" "<string.h>"; do
-            grep -qF "$inc" "$h" || sed -i "1i #include $inc" "$h"
-        done
+        # Use single quotes for sed to avoid shell expansion issues
+        grep -qF "<unistd.h>" "$h" || sed -i "1i #include <unistd.h>" "$h"
+        grep -qF "<string.h>" "$h" || sed -i "1i #include <string.h>" "$h"
     done
 
     # Per-source fixes
@@ -57,15 +57,19 @@ hook_add premake 5 '
             sed -i "1i extern char **environ;" "$f"
         fi
 
-        # Missing headers: Using an associative-style logic
-        # Header -> Pattern list
-        sed -i "1i #include <unistd.h>" "$f" | grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && ! grep -qF "<unistd.h>" "$f"
-        
-        # Refined insertion logic for cleanliness:
-        grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && ! grep -qF "<unistd.h>" "$f" && sed -i "1i #include <unistd.h>" "$f"
-        grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && ! grep -qF "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
-        grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && ! grep -qF "<stdlib.h>" "$f" && sed -i "1i #include <stdlib.h>" "$f"
-        grep -qEw "major|minor|makedev" "$f" && ! grep -qF "<sys/sysmacros.h>" "$f" && sed -i "1i #include <sys/sysmacros.h>" "$f"
+        # Missing headers
+        if grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && ! grep -qF "<unistd.h>" "$f"; then
+            sed -i "1i #include <unistd.h>" "$f"
+        fi
+        if grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && ! grep -qF "<string.h>" "$f"; then
+            sed -i "1i #include <string.h>" "$f"
+        fi
+        if grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && ! grep -qF "<stdlib.h>" "$f"; then
+            sed -i "1i #include <stdlib.h>" "$f"
+        fi
+        if grep -qEw "major|minor|makedev" "$f" && ! grep -qF "<sys/sysmacros.h>" "$f"; then
+            sed -i "1i #include <sys/sysmacros.h>" "$f"
+        fi
     done
 '
 
@@ -79,10 +83,11 @@ hook_add inmake 5 '
     mkdir -p "$root$bindir"
 '
 
-hook_add premake 8 "
-    sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
-    sed -i 's|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)${bindir}|g' Makefile
-"
+# Use single quotes and escape carefully for Makefile variable substitution
+hook_add premake 8 '
+    sed -i "s|prefix=/opt/diet|prefix=/usr|g" Makefile
+    sed -i "s|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)'"$bindir"'|g" Makefile
+'
 
 var_append makeopt       ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin prefix=/usr DESTDIR=$root'
