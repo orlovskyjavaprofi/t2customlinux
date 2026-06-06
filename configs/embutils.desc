@@ -49,7 +49,7 @@ hook_add premake 5 "
     # Per-source header fixes
     for f in *.c; do
         [ -f \"\$f\" ] || continue
-        echo 'DEBUG: Patching source file: \$f'
+        echo 'DEBUG: Patching source file: '"$f"
         sed -i 's|\.domainname|.__domainname|g' \"\$f\"
         
         grep -qEw 'write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork' \"\$f\" && ! grep -qF '<unistd.h>' \"\$f\" && { echo 'DEBUG: Adding unistd.h to \$f'; sed -i '1i #include <unistd.h>' \"\$f\"; }
