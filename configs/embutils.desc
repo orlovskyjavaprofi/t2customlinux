@@ -32,10 +32,10 @@ bindir="${prefix}/embutils"
 # 2. Makefile and Source Patching
 hook_add premake 5 '
     echo "[premake5] Patching Makefile FLAGS"
-    sed -i "/^FLAGS=/c\\FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error" Makefile
+    sed -i '/^FLAGS=/c FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error' Makefile
 
     echo "[premake5] Patching OBJDIR creation"
-    sed -i "s|test -d \$(OBJDIR) || mkdir|mkdir -p|g" Makefile
+    sed -i '/test -d/c mkdir -p $(OBJDIR)' Makefile
 
     echo "[premake5] Checking write12.h"
     for h in write12.h; do
@@ -97,7 +97,7 @@ hook_add premake 5 '
 # 3. MD5 stub
 hook_add premake 7 '
     echo "[premake7] Commenting md5.h includes"
-    sed -i "s|#include <md5\\.h>|// #include <md5.h>|g" *.c
+    sed -i 's|#include <md5\.h>|// #include <md5.h>|g' *.c
 '
 
 # 4. Build and install path fixes
@@ -111,7 +111,7 @@ hook_add premake 8 "
     sed -i \"s|prefix=/opt/diet|prefix=/usr|g\" Makefile
 
     echo '[premake8] Fixing install path'
-    sed -i \"s|\\\$(DESTDIR)\\\$(prefix)/bin|\\\$(DESTDIR)${bindir}|g\" Makefile
+    sed -i 's|$(DESTDIR)$(prefix)/bin|'"$bindir"'|g' Makefile
 "
 
 var_append makeopt     ' ' 'DIET= OBJDIR=bin'
