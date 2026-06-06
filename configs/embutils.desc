@@ -35,8 +35,8 @@ hook_add premake 5 "
     sed -i 's|^FLAGS=.*|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|g' Makefile
 
     echo 'DEBUG: Fixing build directory...'
-    sed -i 's|test -d \$(OBJDIR) || mkdir|mkdir -p \$(OBJDIR)|g' Makefile
-
+    sed -i '/test -d/c mkdir -p $(OBJDIR)' Makefile
+   
     echo 'DEBUG: Checking write12.h...'
     for h in write12.h; do
         [ -f \"\$h\" ] || continue
