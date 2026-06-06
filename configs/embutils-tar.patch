@@ -1,5 +1,5 @@
---- tar.c
-+++ tar.c
+--- src/tar.c
++++ src/tar.c
 @@ -2,6 +2,7 @@
  #ifdef SUPPORT_64BIT_FILESIZE
  #define _FILE_OFFSET_BITS 64

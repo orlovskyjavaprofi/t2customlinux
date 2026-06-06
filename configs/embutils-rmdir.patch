@@ -1,5 +1,5 @@
---- rmdir.c
-+++ rmdir.c
+--- src/rmdir.c
++++ src/rmdir.c
 @@ -1,6 +1,8 @@
  #include <stdio.h>
  #include <string.h>

@@ -1,5 +1,5 @@
---- mkdir.c
-+++ mkdir.c
+--- src/mkdir.c
++++ src/mkdir.c
 @@ -3,6 +3,8 @@
  #include <errno.h>
  #include <fcntl.h>

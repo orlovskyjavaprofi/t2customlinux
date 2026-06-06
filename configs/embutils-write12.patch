@@ -1,5 +1,5 @@
---- write12.h
-+++ write12.h
+--- src/write12.h
++++ src/write12.h
 @@ -1,6 +1,8 @@
  #ifdef __dietlibc__
  #include <write12.h>

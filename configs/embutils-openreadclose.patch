@@ -1,5 +1,5 @@
---- openreadclose.c
-+++ openreadclose.c
+--- src/openreadclose.c
++++ src/openreadclose.c
 @@ -1,6 +1,6 @@
 -#ifndef EMBEDDED
  #include <unistd.h>
