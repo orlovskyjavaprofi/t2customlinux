@@ -29,71 +29,51 @@
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
 
-# 2. Makefile patches
+# 2. Makefile and Source Patching
 hook_add premake 5 '
-    # GCC 16 compat — FLAGS is the Makefile extension point
-    sed -i "|^FLAGS=$|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|" Makefile
+    # Fix Makefile Flags and build directories
+    sed -i "s|^FLAGS=$|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|g" Makefile
+    sed -i "s|test -d \$(OBJDIR) || mkdir|mkdir -p|g" Makefile
 
-    # Fix parallel mkdir race condition
-    sed -i "|test -d \$(OBJDIR) || mkdir|mkdir -p|g" Makefile
-
-    # Fix write12.h — write() and strlen() need headers
-    grep -qF "<unistd.h>" write12.h || sed -i "1i #include <unistd.h>" write12.h
-    grep -qF "<string.h>"  write12.h || sed -i "1i #include <string.h>"  write12.h
+    # Fix write12.h
+    for h in write12.h; do
+        grep -qF "<unistd.h>" "$h" || sed -i "1i #include <unistd.h>" "$h"
+        grep -qF "<string.h>" "$h" || sed -i "1i #include <string.h>" "$h"
+    done
 
     # Per .c file fixes
     for f in *.c; do
         [ -f "$f" ] || continue
 
-        # struct utsname GNU extension
-        sed -i "s/\.domainname/.__domainname/g" "$f"
+        # Fix utsname domainname (use | as delimiter to avoid path issues)
+        sed -i "s|\.domainname|.__domainname|g" "$f"
 
-        # environ declaration
+        # Fix extern environ
         if grep -qw "environ" "$f" && ! grep -qF "extern char **environ" "$f"; then
             sed -i "1i extern char **environ;" "$f"
         fi
 
-        # unistd.h
-        if grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && \
-           ! grep -qF "<unistd.h>" "$f"; then
-            sed -i "1i #include <unistd.h>" "$f"
-        fi
-
-        # string.h
-        if grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && \
-           ! grep -qF "<string.h>" "$f"; then
-            sed -i "1i #include <string.h>" "$f"
-        fi
-
-        # stdlib.h
-        if grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && \
-           ! grep -qF "<stdlib.h>" "$f"; then
-            sed -i "1i #include <stdlib.h>" "$f"
-        fi
-
-        # sys/sysmacros.h
-        if grep -qEw "major|minor|makedev" "$f" && \
-           ! grep -qF "<sys/sysmacros.h>" "$f"; then
-            sed -i "1i #include <sys/sysmacros.h>" "$f"
-        fi
+        # Add missing headers based on function usage
+        grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && ! grep -qF "<unistd.h>" "$f" && sed -i "1i #include <unistd.h>" "$f"
+        grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && ! grep -qF "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
+        grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && ! grep -qF "<stdlib.h>" "$f" && sed -i "1i #include <stdlib.h>" "$f"
+        grep -qEw "major|minor|makedev" "$f" && ! grep -qF "<sys/sysmacros.h>" "$f" && sed -i "1i #include <sys/sysmacros.h>" "$f"
     done
 '
 
 # 3. MD5 stub
 hook_add premake 7 '
-    for f in *.c; do
-        [ -f "$f" ] || continue
-        sed -i "s|#include <md5\.h>|// #include <md5.h>|g" "$f"
-    done
+    sed -i "s|#include <md5\.h>|// #include <md5.h>|g" *.c
 '
 
-# 4. Build
-hook_add inmake 5 "mkdir -p \$root\$bindir"
-var_append makeopt     ' ' 'DIET= OBJDIR=bin'
-var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
+# 4. Build and Install Path Fixes
+hook_add inmake 5 'mkdir -p $root$bindir'
 
-hook_add premake 8 '
-    sed -i "|prefix=/opt/diet|prefix=/usr|g" Makefile
-    sed -i "|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g" Makefile
-'
-var_append makeinstopt ' ' "prefix=/usr DESTDIR=$root"
+# Use simple sed with | as delimiter to avoid "unknown option" errors
+hook_add premake 8 "
+    sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
+    sed -i 's|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g' Makefile
+"
+
+var_append makeopt      ' ' 'DIET= OBJDIR=bin'
+var_append makeinstopt  ' ' 'DIET= OBJDIR=bin prefix=/usr DESTDIR=$root'
