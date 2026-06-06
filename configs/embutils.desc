@@ -30,9 +30,8 @@
 bindir="${prefix}/embutils"
 
 # 2. Hardened Compiler Flags for GCC 16+
-# We inject headers and suppress strict warnings to handle legacy source code
 var_append CFLAGS ' ' '-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L'
-var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h'
+var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h -include fcntl.h'
 var_append CFLAGS ' ' '-Wno-implicit-function-declaration -Wno-implicit-int'
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 
@@ -40,20 +39,27 @@ var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 # Use a consolidated loop for global source repair
 hook_add premake 6 '
     for file in *.c; do
-        # Ensure standard types and prototypes are available
-        sed -i "1i #include <string.h>\n#include <unistd.h>\n#include <stdlib.h>\n#include <stdio.h>\n#include <stdint.h>" "$file"
-        # Fix domainname struct quirk and missing environment pointer
+        # 1. Inject standard headers if they are missing
+        # We add fcntl.h and sys/stat.h for functions like close/makedev/open
+        sed -i "1i #include <string.h>\n#include <unistd.h>\n#include <stdlib.h>\n#include <stdio.h>\n#include <stdint.h>\n#include <fcntl.h>\n#include <sys/stat.h>" "$file"
+        
+        # 2. Fix domainname struct quirk
         sed -i "s/domainname/__domainname/g" "$file"
-        sed -i "/environ/a extern char **environ;" "$file"
+        
+        # 3. Safely add extern char **environ if needed
+        if grep -q "environ" "$file" && ! grep -q "extern char \*\*environ" "$file"; then
+            sed -i "/#include/a extern char **environ;" "$file"
+        fi
     done
 '
-# Remove troublesome MD5 header that causes build crashes
+
+# 4. Remove troublesome MD5 header
 hook_add premake 7 "grep -l '#include <md5.h>' *.c | xargs -r sed -i 's/#include <md5.h>/\/\/#include <md5.h>/'"
 
-# 4. Build and Install Setup
+# 5. Build and Install Setup
 hook_add inmake 5 'mkdir -p $root$bindir'
 var_append makeopt ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
-# 5. Installation wrapper to ensure files reach the expected directory
+# 6. Installation wrapper
 var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
