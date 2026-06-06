@@ -24,6 +24,7 @@
 [P] X -----5---9 102.040
 
 [D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
+
 # 1. Variables
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
@@ -33,7 +34,7 @@ hook_add premake 5 '
     # Fix Makefile flags: Change entire line
     sed -i "/^FLAGS=/c FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error" Makefile
 
-    # Fix build directory creation: Delete line, then append new one
+    # Fix build directory creation: Delete target line, then append new line
     sed -i "/test -d \$(OBJDIR) || mkdir/d" Makefile
     sed -i "/mkdir/a mkdir -p \$(OBJDIR)" Makefile
 
@@ -49,6 +50,7 @@ hook_add premake 5 '
         [ -f "$f" ] || continue
 
         # utsname compatibility: Delete line containing pattern, append fixed line
+        # Note: This replaces the line entirely; ensure the line contains only the pattern
         sed -i "/\.domainname/d" "$f"
         sed -i "/.__domainname/!a .__domainname" "$f"
 
@@ -57,7 +59,11 @@ hook_add premake 5 '
             sed -i "1i extern char **environ;" "$f"
         fi
         
-        # ... (Include header logic uses "i" which is safe as it doesn't use 's')
+        # Missing headers: Using "i" (insert) which is safe and avoids "s"
+        grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" && ! grep -qF "<unistd.h>" "$f" && sed -i "1i #include <unistd.h>" "$f"
+        grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" && ! grep -qF "<string.h>" "$f" && sed -i "1i #include <string.h>" "$f"
+        grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" && ! grep -qF "<stdlib.h>" "$f" && sed -i "1i #include <stdlib.h>" "$f"
+        grep -qEw "major|minor|makedev" "$f" && ! grep -qF "<sys/sysmacros.h>" "$f" && sed -i "1i #include <sys/sysmacros.h>" "$f"
     done
 '
 
@@ -71,3 +77,6 @@ hook_add premake 8 '
     sed -i "/prefix=\/opt\/diet/c prefix=/usr" Makefile
     sed -i "/\$(DESTDIR)\$(prefix)\/bin/c \$(DESTDIR)'"$bindir"'" Makefile
 '
+
+var_append makeopt       ' ' 'DIET= OBJDIR=bin'
+var_append makeinstopt ' ' 'DIET= OBJDIR=bin prefix=/usr DESTDIR=$root'
