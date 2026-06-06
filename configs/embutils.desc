@@ -25,30 +25,35 @@
 
 [D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
 
-# 1. Define variables upfront
+# 1. Define variables
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
 
 # 2. Hardened Compiler Flags for GCC 16+
-# -include forces injection of headers to fix 'implicit declaration' errors
-# -Wno-... suppresses fatal errors caused by strict GCC 16 behavior
+# We inject headers and suppress strict warnings to handle legacy source code
 var_append CFLAGS ' ' '-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L'
 var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h'
 var_append CFLAGS ' ' '-Wno-implicit-function-declaration -Wno-implicit-int'
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 
 # 3. Patching Hooks
-# Use sed to fix specific struct/environ issues globally
-hook_add premake 6 "sed -i '1i extern char **environ;' env.c"
-hook_add premake 7 "sed -i 's/domainname/__domainname/g' domainname.c"
-hook_add premake 9 "grep -l '#include <md5.h>' *.c | xargs -r sed -i 's/#include <md5.h>/\/\/#include <md5.h>/'"
+# Use a consolidated loop for global source repair
+hook_add premake 6 '
+    for file in *.c; do
+        # Ensure standard types and prototypes are available
+        sed -i "1i #include <string.h>\n#include <unistd.h>\n#include <stdlib.h>\n#include <stdio.h>\n#include <stdint.h>" "$file"
+        # Fix domainname struct quirk and missing environment pointer
+        sed -i "s/domainname/__domainname/g" "$file"
+        sed -i "/environ/a extern char **environ;" "$file"
+    done
+'
+# Remove troublesome MD5 header that causes build crashes
+hook_add premake 7 "grep -l '#include <md5.h>' *.c | xargs -r sed -i 's/#include <md5.h>/\/\/#include <md5.h>/'"
 
-# 4. Ensure directory exists for the build system
+# 4. Build and Install Setup
 hook_add inmake 5 'mkdir -p $root$bindir'
-
-# 5. Build options
 var_append makeopt ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
-# 6. Installation wrapper
+# 5. Installation wrapper to ensure files reach the expected directory
 var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
