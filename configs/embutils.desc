@@ -25,12 +25,6 @@
 
 [D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
 
-# --- Cleaned embutils.desc ---
-This is your clean, finalized embutils.desc file. It incorporates the path fixes, the GCC 16+ compatibility flags, and the automated header patching necessary to get you past the 355/355 build barrier.
-
-Bash
-# --- Final embutils.desc ---
-
 # 1. Define variables upfront
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/lib/embutils"
