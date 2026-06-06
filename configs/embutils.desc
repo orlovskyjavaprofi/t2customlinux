@@ -93,6 +93,7 @@ var_append makeopt     ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
 hook_add premake 8 '
-    sed -i "s|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)\$(prefix)/embutils|g" Makefile
+    sed -i "s|prefix=/opt/diet|prefix=/usr|g" Makefile
+    sed -i "s|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g" Makefile
 '
 var_append makeinstopt ' ' "prefix=/usr DESTDIR=$root"
