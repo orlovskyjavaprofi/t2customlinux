@@ -1,9 +1,18 @@
---- main.c.orig
-+++ main.c
+--- domainname.c
++++ domainname.c
 @@ -1,3 +1,6 @@
 +#include <unistd.h>
 +#include <string.h>
 +#include <stdlib.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <fcntl.h>
+ #include <sys/param.h>
+-#define domainname .domainname
++#define domainname .__domainname
+ 
+--- write12.h
++++ write12.h
+@@ -1,2 +1,5 @@
++#include <unistd.h>
++#include <string.h>
++#include <stdlib.h>
+ #ifndef WRITE12_H
+ #define WRITE12_H

@@ -1,6 +1,6 @@
---- Makefile.orig
+--- Makefile
 +++ Makefile
-@@ -1,5 +1,5 @@
+@@ -1,7 +1,7 @@
 -DIET=diet
 -FLAGS=-Os
 +DIET=gcc
