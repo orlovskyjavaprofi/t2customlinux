@@ -25,68 +25,41 @@
 
 [D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
 
-# 1. Variables
+# 1. Define variables
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
 
-# 2. Compiler Flags
-var_append CFLAGS ' ' '-D_GNU_SOURCE'
+# 2. Hardened Compiler Flags for GCC 16+
+# We use -include to force header injection at the compiler level, 
+# which is more reliable than editing files with sed.
+var_append CFLAGS ' ' '-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L'
+var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h -include fcntl.h -include sys/stat.h'
 var_append CFLAGS ' ' '-Wno-implicit-function-declaration -Wno-implicit-int'
+var_append CC_WRAPPER_APPEND ' ' '-std=gnu17'
 
-# 3. Core Patches
-hook_add premake 5 '
-    # PRIMARY FIX: parallel mkdir race - add -p to Makefile
-    sed -i "s/mkdir \$(OBJDIR)/mkdir -p \$(OBJDIR)/g" Makefile
-    sed -i "s/^\tmkdir bin$/\tmkdir -p bin/" Makefile
-
-    # Fix write12.h directly - it includes write() without unistd.h
-    grep -qF "<unistd.h>" write12.h || sed -i "1i #include <unistd.h>" write12.h
-    grep -qF "<string.h>"  write12.h || sed -i "1i #include <string.h>"  write12.h
-
-    # Per-file fixes
-    for f in *.c; do
-        [ -f "$f" ] || continue
-
-        # domainname struct member
-        sed -i "s/\.domainname/.__domainname/g" "$f"
-
-        # environ declaration
-        if grep -qw "environ" "$f" && ! grep -qF "extern char **environ" "$f"; then
-            sed -i "1i extern char **environ;" "$f"
-        fi
-
-        # unistd.h
-        if grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid" "$f" && \
-           ! grep -qF "<unistd.h>" "$f"; then
-            sed -i "1i #include <unistd.h>" "$f"
-        fi
-
-        # string.h
-        if grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup" "$f" && \
-           ! grep -qF "<string.h>" "$f"; then
-            sed -i "1i #include <string.h>" "$f"
-        fi
-
-        # stdlib.h
-        if grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv" "$f" && \
-           ! grep -qF "<stdlib.h>" "$f"; then
-            sed -i "1i #include <stdlib.h>" "$f"
+# 3. Patching Hooks
+# Only perform surgery on the struct member which cannot be solved by headers.
+hook_add premake 6 '
+    for file in *.c; do
+        # Rename struct member access globally
+        sed -i "s/\.domainname/\.__domainname/g" "$file"
+        
+        # Add missing extern declaration for global environment pointer
+        if grep -q "environ" "$file" && ! grep -q "extern char \*\*environ" "$file"; then
+             sed -i "/#include/a extern char **environ;" "$file"
         fi
     done
 '
 
-# 4. MD5 header stub
-hook_add premake 7 '
-    for f in *.c; do
-        [ -f "$f" ] || continue
-        sed -i "s/#include <md5\.h>/\/\/ #include <md5.h>/" "$f"
-    done
-'
+# 4. Remove MD5 and override Makefile behavior
+hook_add premake 7 "sed -i 's/#include <md5.h>/\/\/#include <md5.h>/g' *.c"
 
-# 5. Build
-hook_add inmake 5 "mkdir -p \$root\$bindir"
-var_append makeopt     ' ' 'DIET= OBJDIR=bin'
+# 5. Build and Install Setup
+# We force OBJDIR=bin to align with your build system expectation
+# We force DIET= to empty to bypass the dietlibc wrapper
+hook_add inmake 5 'mkdir -p $root$bindir'
+var_append makeopt ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
-# 6. Install path redirect
-var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,${prefix}/bin/,${bindir}/,'"
+# 6. Installation wrapper
+var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
