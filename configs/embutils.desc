@@ -53,3 +53,5 @@ var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
 # 6. Installation wrapper
 var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
+
+hook_add postinstall 9 "mkdir -p $root/usr/embutils && ln -s $root$bindir/* $root/usr/embutils/"
