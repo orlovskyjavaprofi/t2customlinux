@@ -25,15 +25,20 @@
 
 [D] 3434698388 embutils-0.19.tar.bz2 http://dl.fefe.de/
 
-# 1. Variables
-[ -z "$prefix" ] && prefix="/usr"
-bindir="${prefix}/embutils"
 
-# 3. Build and install path fixes (only if necessary)
-hook_add premake 8 "
-    sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
-    sed -i 's|\$(DESTDIR)\$(prefix)/bin|'"$bindir"'|g' Makefile
-"
+pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
 
-var_append makeopt     ' ' 'DIET=gcc OBJDIR=bin'
-var_append makeinstopt ' ' 'DIET=gcc OBJDIR=bin prefix=/usr DESTDIR=$root'
+var_append CC_WRAPPER_APPEND ' ' -std=gnu17
+
+# non-dietlibc, e.g. glibc/musl system libc?
+[ "$SDECFG_DIETLIBC_embutils" = 1 ] ||
+	var_append patchfiles ' ' $confdir/not-dietlibc.diff
+
+hook_add premake 5 "mkdir -p bin"
+hook_add inmake 5 'mkdir -p $root$bindir'
+
+# we control some stuff ourselves
+var_append makeopt ' ' 'DIET= OBJDIR=bin'
+var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
+
+var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
