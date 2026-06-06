@@ -29,13 +29,6 @@
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
 
-# 2. Patching (T2 automatically applies these)
-# Place your patch files in the package directory
-# e.g., t2/package/base/system/embutils/
-
-patch_file embutils-flags.patch
-patch_file embutils-headers.patch
-
 # 3. Build and install path fixes (only if necessary)
 hook_add premake 8 "
     sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
