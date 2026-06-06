@@ -32,10 +32,10 @@ bindir="${prefix}/embutils"
 # 2. Makefile patches
 hook_add premake 5 '
     # GCC 16 compat — FLAGS is the Makefile extension point
-    sed -i "s|^FLAGS=$|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|" Makefile
+    sed -i "|^FLAGS=$|FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error|" Makefile
 
     # Fix parallel mkdir race condition
-    sed -i "s|test -d \$(OBJDIR) || mkdir|mkdir -p|g" Makefile
+    sed -i "|test -d \$(OBJDIR) || mkdir|mkdir -p|g" Makefile
 
     # Fix write12.h — write() and strlen() need headers
     grep -qF "<unistd.h>" write12.h || sed -i "1i #include <unistd.h>" write12.h
@@ -93,7 +93,7 @@ var_append makeopt     ' ' 'DIET= OBJDIR=bin'
 var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
 hook_add premake 8 '
-    sed -i "s|prefix=/opt/diet|prefix=/usr|g" Makefile
-    sed -i "s|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g" Makefile
+    sed -i "|prefix=/opt/diet|prefix=/usr|g" Makefile
+    sed -i "|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g" Makefile
 '
 var_append makeinstopt ' ' "prefix=/usr DESTDIR=$root"
