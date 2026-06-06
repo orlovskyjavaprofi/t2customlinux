@@ -33,11 +33,11 @@ export OBJDIR="bin"
 # 2. Makefile and Source Patching
 hook_add premake 5 "
     echo 'DEBUG: Patching Makefile...'
-    echo 'DEBUG: Running: sed -i /test -d/c mkdir -p \$(OBJDIR) Makefile'
+    # Use pattern matching /c to replace entire lines safely
     sed -i '/test -d/c mkdir -p \$(OBJDIR)' Makefile
-    
-    echo 'DEBUG: Running: sed -i /^FLAGS=/c ... Makefile'
     sed -i '/^FLAGS=/c FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error' Makefile
+    # Force GCC override inside the Makefile
+    sed -i 's|^DIET=.*|DIET=gcc|g' Makefile
 
     # Fix write12.h
     for h in write12.h; do
@@ -68,9 +68,7 @@ hook_add premake 7 "
 hook_add premake 8 "
     echo 'DEBUG: Fixing prefix and paths in Makefile...'
     sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
-    sed -i 's|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)$bindir|g' Makefile
+    sed -i 's|\$(DESTDIR)\$(prefix)/bin|\$(DESTDIR)'\"\$bindir\"'|g' Makefile
 "
 
-# Critical: Forces GCC to prevent 'diet' error
 var_append makeopt ' ' 'DIET=gcc OBJDIR=bin'
-var_append makeinstopt ' ' 'DIET=gcc OBJDIR=bin prefix=/usr DESTDIR=$root'
