@@ -36,12 +36,15 @@ var_append CFLAGS ' ' '-Wno-implicit-function-declaration -Wno-implicit-int'
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 
 # 3. Patching Hooks
-# Use a consolidated loop for global source repair
+# Use a consolidated loop for global source repair with redundancy checks
 hook_add premake 6 '
     for file in *.c; do
-        # 1. Inject standard headers if they are missing
-        # We add fcntl.h and sys/stat.h for functions like close/makedev/open
-        sed -i "1i #include <string.h>\n#include <unistd.h>\n#include <stdlib.h>\n#include <stdio.h>\n#include <stdint.h>\n#include <fcntl.h>\n#include <sys/stat.h>" "$file"
+        # 1. Safely inject standard headers only if they are missing
+        grep -q "string.h" "$file" || sed -i "1i #include <string.h>" "$file"
+        grep -q "unistd.h" "$file" || sed -i "1i #include <unistd.h>" "$file"
+        grep -q "stdlib.h" "$file" || sed -i "1i #include <stdlib.h>" "$file"
+        grep -q "stdio.h"  "$file" || sed -i "1i #include <stdio.h>"  "$file"
+        grep -q "fcntl.h"  "$file" || sed -i "1i #include <fcntl.h>"  "$file"
         
         # 2. Fix domainname struct quirk
         sed -i "s/domainname/__domainname/g" "$file"
@@ -53,7 +56,7 @@ hook_add premake 6 '
     done
 '
 
-# 4. Remove troublesome MD5 header
+# 4. Remove troublesome MD5 header that causes build crashes
 hook_add premake 7 "grep -l '#include <md5.h>' *.c | xargs -r sed -i 's/#include <md5.h>/\/\/#include <md5.h>/'"
 
 # 5. Build and Install Setup
