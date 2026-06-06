@@ -1,0 +1,12 @@
+--- rmdir.c
++++ rmdir.c
+@@ -1,6 +1,8 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <errno.h>
+ #include <fcntl.h>
++#include <unistd.h>
++#include <stdlib.h>
+ #include "write12.h"
+ 
+ static void error(char *message) {

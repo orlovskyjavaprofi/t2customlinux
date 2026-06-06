@@ -1,0 +1,12 @@
+--- env.c
++++ env.c
+@@ -10,9 +10,7 @@
+ 
+ #include "__puts.c"
+ 
+-#ifdef __OpenBSD__
+ extern char** environ;
+-#endif
+ 
+ int main(int argc,char *argv[]) {
+   int i;

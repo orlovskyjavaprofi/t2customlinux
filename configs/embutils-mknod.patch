@@ -1,0 +1,10 @@
+--- mknod.c
++++ mknod.c
+@@ -3,6 +3,8 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
++#include <unistd.h>
+ #include <stdlib.h>
+ #include "write12.h"

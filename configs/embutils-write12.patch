@@ -1,0 +1,10 @@
+--- write12.h
++++ write12.h
+@@ -1,6 +1,8 @@
+ #ifdef __dietlibc__
+ #include <write12.h>
+ #else
++#include <unistd.h>
+ #include <string.h>
+ static inline int __write1(const char* s) {
+   write(1,s,strlen(s));

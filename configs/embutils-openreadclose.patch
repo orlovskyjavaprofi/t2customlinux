@@ -1,0 +1,10 @@
+--- openreadclose.c
++++ openreadclose.c
+@@ -1,6 +1,6 @@
+-#ifndef EMBEDDED
+ #include <unistd.h>
+ #include <fcntl.h>
+-#endif
++#include <stdlib.h>
+ 
+ int openreadclose(char *fn, char **buf, unsigned long *len) {
