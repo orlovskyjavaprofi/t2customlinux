@@ -27,6 +27,12 @@
 
 pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
 
+# 1. Ensure prefix is defined
+[ -z "$prefix" ] && prefix="/usr"
+
+# 2. Hardcode the bindir relative to the prefix to avoid expansion errors
+bindir="${prefix}/lib/embutils"
+
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 
 # non-dietlibc, e.g. glibc/musl system libc?
