@@ -29,90 +29,18 @@
 [ -z "$prefix" ] && prefix="/usr"
 bindir="${prefix}/embutils"
 
-# 2. Makefile and Source Patching
-hook_add premake 5 '
-    echo "[premake5] Patching Makefile FLAGS"
-    sed -i '/^FLAGS=/c FLAGS=-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-implicit-int -Wno-error' Makefile
+# 2. Patching (T2 automatically applies these)
+# Place your patch files in the package directory
+# e.g., t2/package/base/system/embutils/
 
-    echo "[premake5] Patching OBJDIR creation"
-    sed -i '/test -d/c mkdir -p $(OBJDIR)' Makefile
+patch_file embutils-flags.patch
+patch_file embutils-headers.patch
 
-    echo "[premake5] Checking write12.h"
-    for h in write12.h; do
-        [ -f "$h" ] || continue
-
-        echo "[premake5] Processing $h"
-
-        grep -qF "<unistd.h>" "$h" || {
-            echo "[premake5] Adding <unistd.h> to $h"
-            sed -i "1i #include <unistd.h>" "$h"
-        }
-
-        grep -qF "<string.h>" "$h" || {
-            echo "[premake5] Adding <string.h> to $h"
-            sed -i "1i #include <string.h>" "$h"
-        }
-    done
-
-    for f in *.c; do
-        [ -f "$f" ] || continue
-
-        echo "[premake5] Processing source: $f"
-
-        echo "[premake5] Fixing domainname in $f"
-        sed -i "s|\\.domainname|.__domainname|g" "$f"
-
-        if grep -qw environ "$f" &&
-           ! grep -qF "extern char **environ" "$f"; then
-            echo "[premake5] Adding extern environ to $f"
-            sed -i "1i extern char **environ;" "$f"
-        fi
-
-        if grep -qEw "write|read|close|chdir|fchdir|rmdir|unlink|getpid|fork" "$f" &&
-           ! grep -qF "<unistd.h>" "$f"; then
-            echo "[premake5] Adding <unistd.h> to $f"
-            sed -i "1i #include <unistd.h>" "$f"
-        fi
-
-        if grep -qEw "strlen|strcmp|strcpy|strcat|strncmp|strdup|memcpy|memset" "$f" &&
-           ! grep -qF "<string.h>" "$f"; then
-            echo "[premake5] Adding <string.h> to $f"
-            sed -i "1i #include <string.h>" "$f"
-        fi
-
-        if grep -qEw "malloc|calloc|realloc|free|exit|atoi|getenv|strtol" "$f" &&
-           ! grep -qF "<stdlib.h>" "$f"; then
-            echo "[premake5] Adding <stdlib.h> to $f"
-            sed -i "1i #include <stdlib.h>" "$f"
-        fi
-
-        if grep -qEw "major|minor|makedev" "$f" &&
-           ! grep -qF "<sys/sysmacros.h>" "$f"; then
-            echo "[premake5] Adding <sys/sysmacros.h> to $f"
-            sed -i "1i #include <sys/sysmacros.h>" "$f"
-        fi
-    done
-'
-
-# 3. MD5 stub
-hook_add premake 7 '
-    echo "[premake7] Commenting md5.h includes"
-    sed -i 's|#include <md5\.h>|// #include <md5.h>|g' *.c
-'
-
-# 4. Build and install path fixes
-hook_add inmake 5 '
-    echo "[inmake5] Creating install directory: $root$bindir"
-    mkdir -p "$root$bindir"
-'
-
+# 3. Build and install path fixes (only if necessary)
 hook_add premake 8 "
-    echo '[premake8] Fixing prefix path'
-    sed -i \"s|prefix=/opt/diet|prefix=/usr|g\" Makefile
-
-    echo '[premake8] Fixing install path'
-    sed -i 's|$(DESTDIR)$(prefix)/bin|'"$bindir"'|g' Makefile
+    sed -i 's|prefix=/opt/diet|prefix=/usr|g' Makefile
+    sed -i 's|\$(DESTDIR)\$(prefix)/bin|'"$bindir"'|g' Makefile
 "
 
-var_append makeopt     ' ' 'DIET= OBJDIR=bin'
-var_append makeinstopt ' ' 'DIET= OBJDIR=bin prefix=/usr DESTDIR=$root'
+var_append makeopt     ' ' 'DIET=gcc OBJDIR=bin'
+var_append makeinstopt ' ' 'DIET=gcc OBJDIR=bin prefix=/usr DESTDIR=$root'
