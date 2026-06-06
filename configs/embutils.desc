@@ -27,24 +27,23 @@
 
 # 1. Define variables upfront
 [ -z "$prefix" ] && prefix="/usr"
-bindir="${prefix}/lib/embutils"
+bindir="${prefix}/embutils"
 
 # 2. Hardened Compiler Flags for GCC 16+
-# -include injects missing headers; -Wno suppresses fatal implicit declaration errors
+# -include forces injection of headers to fix 'implicit declaration' errors
+# -Wno-... suppresses fatal errors caused by strict GCC 16 behavior
 var_append CFLAGS ' ' '-D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L'
-var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h'
+var_append CFLAGS ' ' '-include string.h -include unistd.h -include stdlib.h -include stdio.h -include stdint.h'
 var_append CFLAGS ' ' '-Wno-implicit-function-declaration -Wno-implicit-int'
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 
-# 3. Handle non-dietlibc
-[ "$SDECFG_DIETLIBC_embutils" = 1 ] || var_append patchfiles ' ' $confdir/not-dietlibc.diff
-
-# 4. Hooks - Consolidated for stability
-hook_add premake 5 "mkdir -p bin"
-hook_add premake 6 "sed -i '1i #include <unistd.h>\nextern char **environ;' env.c"
+# 3. Patching Hooks
+# Use sed to fix specific struct/environ issues globally
+hook_add premake 6 "sed -i '1i extern char **environ;' env.c"
 hook_add premake 7 "sed -i 's/domainname/__domainname/g' domainname.c"
-hook_add premake 8 "grep -L '#include <string.h>' *.c | xargs -r sed -i '1i #include <string.h>'"
 hook_add premake 9 "grep -l '#include <md5.h>' *.c | xargs -r sed -i 's/#include <md5.h>/\/\/#include <md5.h>/'"
+
+# 4. Ensure directory exists for the build system
 hook_add inmake 5 'mkdir -p $root$bindir'
 
 # 5. Build options
@@ -53,5 +52,3 @@ var_append makeinstopt ' ' 'DIET= OBJDIR=bin'
 
 # 6. Installation wrapper
 var_append INSTALL_WRAPPER_FILTER '|' "sed -e 's,$prefix/bin/,$bindir/,'"
-
-hook_add postinstall 9 "mkdir -p $root/usr/embutils && ln -s $root$bindir/* $root/usr/embutils/"
