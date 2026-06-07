@@ -3,7 +3,6 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <errno.h>
-#include <stdio.h>
 #include "write12.h"
 
 int main(int argc, char *argv[]) {
@@ -12,7 +11,7 @@ int main(int argc, char *argv[]) {
             switch (errno) {
                 case EINVAL: __write2("name too long\n"); return 1;
                 case EPERM:  __write2("must be superuser\n"); return 1;
-                default:     __write2("unknown error\n"); return 1;
+                default:     return 1;
             }
         }
     } else {
@@ -20,10 +19,10 @@ int main(int argc, char *argv[]) {
         struct utsname un;
         size_t len;
         if (uname(&un) == 0) {
-            // Use __domainname which is the standard field name in modern glibc
+            // Modern glibc names the domain name field __domainname
             len = strlen(un.__domainname);
-            write(1, un.__domainname, len);
-            write(1, "\n", 1);
+            un.__domainname[len] = '\n';
+            write(1, un.__domainname, len + 1);
         }
 #else
         char buf[1024];
