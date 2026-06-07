@@ -17,12 +17,11 @@ int main(int argc, char *argv[]) {
     } else {
 #ifdef __linux__
         struct utsname un;
-        size_t len;
         if (uname(&un) == 0) {
-            // Modern glibc names the domain name field __domainname
-            len = strlen(un.__domainname);
-            un.__domainname[len] = '\n';
-            write(1, un.__domainname, len + 1);
+            // Use 'domainname' as it is the standard member name in struct utsname
+            size_t len = strlen(un.domainname);
+            un.domainname[len] = '\n';
+            write(1, un.domainname, len + 1);
         }
 #else
         char buf[1024];

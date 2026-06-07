@@ -72,6 +72,11 @@
 char filename[MAXNAME+1];
 char linkname[MAXNAME+1];
 
+static char *prefix;
+static int prefixlen;
+
+int tarcreate(const char *fpath, const struct stat *sb, int tflag);
+
 #ifdef UIDCACHE
 struct uid {
     char* name;
