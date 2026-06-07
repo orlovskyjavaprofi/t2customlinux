@@ -1,8 +1,22 @@
 --- embutils-0.19/domainname.c
 +++ embutils-0.19/domainname.c
-@@ -1,5 +1,6 @@
+@@ -1,5 +1,8 @@
++#define _GNU_SOURCE
  #include <unistd.h>
 +#include <string.h>
  #include <sys/utsname.h>
  #include <errno.h>
  #include "write12.h"
+ 
+@@ -17,9 +20,9 @@
+     struct utsname un;
+     int len;
+     uname(&un);
+-    len=strlen(un.domainname);
+-    un.domainname[len]='\n';
+-    write(1,un.domainname,len+1);
++    len=strlen(un.__domainname);
++    un.__domainname[len]='\n';
++    write(1,un.__domainname,len+1);
+ #else
+     char buf[1024];
