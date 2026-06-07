@@ -8,5 +8,3 @@
 +#include <stdlib.h>
 +#include <unistd.h>
 +#include <fcntl.h>
- 
- int openreadclose(char *fn, char **buf, unsigned long *len) {
