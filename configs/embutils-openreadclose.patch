@@ -5,6 +5,5 @@
  #include <unistd.h>
  #include <fcntl.h>
 -#endif
-+#include <stdlib.h>
- 
++#include <stdlib.h> 
  int openreadclose(char *fn, char **buf, unsigned long *len) {
