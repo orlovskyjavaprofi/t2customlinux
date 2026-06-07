@@ -1,8 +1,0 @@
---- embutils-0.19/chown.c
-+++ embutils-0.19/chown.c
-@@ -10,6 +10,7 @@
- #include <dirent.h>
- #include <sys/stat.h>
-+#include <unistd.h>
- #include "write12.h"
- #include "error.c"
