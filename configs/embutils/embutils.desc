@@ -30,6 +30,8 @@ pkginstalled coreutils && [ $prefix_auto = 1 ] && bindir=/$prefix/embutils
 
 var_append CC_WRAPPER_APPEND ' ' -std=gnu17
 
+var_append CONFIGURE_ARGS ' ' "--with-md5-inc=$root/usr/include"
+
 hook_add premake 5 "mkdir -p bin"
 hook_add inmake 5 'mkdir -p $root$bindir'
 
