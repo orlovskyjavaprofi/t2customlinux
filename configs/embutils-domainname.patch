@@ -1,5 +1,5 @@
---- embutils-0.19/domainname.c
-+++ embutils-0.19/domainname.c
+--- domainname.c
++++ domainname.c
 @@ -1,5 +1,8 @@
 +#define _GNU_SOURCE
  #include <unistd.h>
