@@ -2,7 +2,11 @@
 +++ embutils-0.19/openreadclose.c
 @@ -1,6 +1,6 @@
 -#ifndef EMBEDDED
- #include <unistd.h>
- #include <fcntl.h>
+-#include <unistd.h>
+-#include <fcntl.h>
 -#endif
-+#include <stdlib.h> 
++#include <stdlib.h>
++#include <unistd.h>
++#include <fcntl.h>
+ 
+ int openreadclose(char *fn, char **buf, unsigned long *len) {
