@@ -1,6 +1,6 @@
---- embutils-0.19/mkdir.c
-+++ embutils-0.19/mkdir.c
-@@ -3,6 +3,8 @@
+--- mkdir.c
++++ mkdir.c
+@@ -3,6 +3,7 @@
  #include <errno.h>
  #include <fcntl.h>
  #include <sys/stat.h>
