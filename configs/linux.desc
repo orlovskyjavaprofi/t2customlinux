@@ -216,20 +216,21 @@ linux_install() {
 		ln -sfv minird-${lx_kernelrelease} $root/boot/minird
 				
 	fi
-	echo "Ensuring required system binaries exist in /usr/embutils/ ..."
-	mkdir -p $root/usr/embutils
+
+echo "Ensuring required system binaries exist in /usr/embutils/ ..."
+	mkdir -p "$root/usr/embutils"
 	for bin in mount umount rm mv mkdir ln ls switch_root pivot_root chroot sleep losetup chmod cat mknod; do
-			# Check /bin, /usr/bin, /sbin, AND /usr/sbin
-			if [ -f $root/bin/$bin ]; then
-				ln -sf /bin/$bin $root/usr/embutils/$bin
-			elif [ -f $root/usr/bin/$bin ]; then
-				ln -sf /usr/bin/$bin $root/usr/embutils/$bin
-			elif [ -f $root/sbin/$bin ]; then
-				ln -sf /sbin/$bin $root/usr/embutils/$bin
-			elif [ -f $root/usr/sbin/$bin ]; then
-				ln -sf /usr/sbin/$bin $root/usr/embutils/$bin
-			fi
+		# Find the binary anywhere in the current build tree
+		target=$(find . -name "$bin" -type f -perm -u+x | head -n 1)
+		
+		# If found, create a relative symlink
+		if [ -n "$target" ]; then
+			# Create a symlink pointing to the found file
+			# We use the full path of the target relative to root
+			ln -sf "$(realpath "$target")" "$root/usr/embutils/$bin"
+		fi
 	done
+
 }
 hook_add postmake 5 linux_install
 hook_add postmake 7 "cp -arv Documentation/{*.txt,fb,networking,power} $root$docdir/"
