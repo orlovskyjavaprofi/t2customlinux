@@ -101,6 +101,19 @@ linux_premake() {
 }
 hook_add premake 5 linux_premake
 
+prep_embutils_shim() {
+    echo "--- PRE-EMPTIVELY FIXING /usr/embutils/ ---"
+    mkdir -p "$root/usr/embutils"
+    # Added tar, readlink, rmdir to the list based on your grep results
+    for bin in mount umount rm mv mkdir ln ls switch_root pivot_root chroot sleep losetup chmod cat mknod tar readlink rmdir; do
+        target=$(find . -type f -perm -u+x \( -path "*/bin/$bin" -o -path "*/sbin/$bin" \) | head -n 1)
+        if [ -n "$target" ]; then
+            ln -sf "$(realpath "$target")" "$root/usr/embutils/$bin"
+        fi
+    done
+}
+hook_add postmake 4 prep_embutils_shim
+
 linux_install() {
 	echo "Installing the kernel ..."
 	cp -vf System.map $root/boot/System.map-${lx_kernelrelease}
@@ -216,20 +229,6 @@ linux_install() {
 		ln -sfv minird-${lx_kernelrelease} $root/boot/minird
 				
 	fi
-
-echo "Ensuring required system binaries exist in /usr/embutils/ ..."
-	mkdir -p "$root/usr/embutils"
-	for bin in mount umount rm mv mkdir ln ls switch_root pivot_root chroot sleep losetup chmod cat mknod; do
-		# Find the binary anywhere in the current build tree
-		target=$(find . -name "$bin" -type f -perm -u+x | head -n 1)
-		
-		# If found, create a relative symlink
-		if [ -n "$target" ]; then
-			# Create a symlink pointing to the found file
-			# We use the full path of the target relative to root
-			ln -sf "$(realpath "$target")" "$root/usr/embutils/$bin"
-		fi
-	done
 
 }
 hook_add postmake 5 linux_install
