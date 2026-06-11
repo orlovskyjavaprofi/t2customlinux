@@ -102,7 +102,10 @@ linux_premake() {
 hook_add premake 5 linux_premake
 
 prep_embutils_shim() {
-    echo "--- PRE-EMPTIVELY FIXING /usr/embutils/ ---"
+    echo "--- DEBUG: ROOT IS $root ---"
+    echo "--- DEBUG: CONTENT OF $root/usr/embutils/ BEFORE SHIM ---"
+    ls -la "$root/usr/embutils/" 2>/dev/null || echo "Directory does not exist yet."
+    
     mkdir -p "$root/usr/embutils"
     # Added tar, readlink, rmdir to the list based on your grep results
     for bin in mount umount rm mv mkdir ln ls switch_root pivot_root chroot sleep losetup chmod cat mknod tar readlink rmdir; do
