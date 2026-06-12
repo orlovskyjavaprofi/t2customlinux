@@ -102,16 +102,17 @@ linux_premake() {
 hook_add premake 5 linux_premake
 
 prep_embutils_shim() {
-    echo "--- DEBUG: ROOT IS $root ---"
-    echo "--- DEBUG: CONTENT OF $root/usr/embutils/ BEFORE SHIM ---"
-    ls -la "$root/usr/embutils/" 2>/dev/null || echo "Directory does not exist yet."
+    # If $root is empty, try to use the current working directory, 
+    # as T2 build stages often run from the package build directory
+    local target_root="${root:-$PWD/build_root}"
     
-    mkdir -p "$root/usr/embutils"
-    # Added tar, readlink, rmdir to the list based on your grep results
+    echo "--- DEBUG: Using root path: $target_root ---"
+    mkdir -p "$target_root/usr/embutils"
+    
     for bin in mount umount rm mv mkdir ln ls switch_root pivot_root chroot sleep losetup chmod cat mknod tar readlink rmdir; do
-        target=$(find . -type f -perm -u+x \( -path "*/bin/$bin" -o -path "*/sbin/$bin" \) | head -n 1)
+        target=$(find . -name "$bin" -type f -perm -u+x | head -n 1)
         if [ -n "$target" ]; then
-            ln -sf "$(realpath "$target")" "$root/usr/embutils/$bin"
+            cp -f "$target" "$target_root/usr/embutils/$bin"
         fi
     done
 }
