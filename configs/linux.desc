@@ -101,24 +101,6 @@ linux_premake() {
 }
 hook_add premake 5 linux_premake
 
-prep_embutils_shim() {
-    # T2 runs build hooks inside the package's build directory.
-    # We use $PWD to ensure we are targeting the sandbox, not the host root.
-    local target_dir="$PWD/usr/embutils"
-    
-    echo "--- PATCHING: Creating embutils in $target_dir ---"
-    mkdir -p "$target_dir"
-    
-    for bin in mount umount rm mv mkdir ln ls switch_root pivot_root chroot sleep losetup chmod cat mknod tar readlink rmdir; do
-        # We search for binaries specifically within the current build sandbox
-        target=$(find . -name "$bin" -type f -perm -u+x | head -n 1)
-        if [ -n "$target" ]; then
-            cp -f "$target" "$target_dir/$bin"
-        fi
-    done
-}
-hook_add postmake 4 prep_embutils_shim
-
 linux_install() {
 	echo "Installing the kernel ..."
 	cp -vf System.map $root/boot/System.map-${lx_kernelrelease}
