@@ -102,17 +102,18 @@ linux_premake() {
 hook_add premake 5 linux_premake
 
 prep_embutils_shim() {
-    # If $root is empty, try to use the current working directory, 
-    # as T2 build stages often run from the package build directory
-    local target_root="${root:-$PWD/build_root}"
+    # T2 runs build hooks inside the package's build directory.
+    # We use $PWD to ensure we are targeting the sandbox, not the host root.
+    local target_dir="$PWD/usr/embutils"
     
-    echo "--- DEBUG: Using root path: $target_root ---"
-    mkdir -p "$target_root/usr/embutils"
+    echo "--- PATCHING: Creating embutils in $target_dir ---"
+    mkdir -p "$target_dir"
     
     for bin in mount umount rm mv mkdir ln ls switch_root pivot_root chroot sleep losetup chmod cat mknod tar readlink rmdir; do
+        # We search for binaries specifically within the current build sandbox
         target=$(find . -name "$bin" -type f -perm -u+x | head -n 1)
         if [ -n "$target" ]; then
-            cp -f "$target" "$target_root/usr/embutils/$bin"
+            cp -f "$target" "$target_dir/$bin"
         fi
     done
 }
