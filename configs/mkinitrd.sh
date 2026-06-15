@@ -348,7 +348,7 @@ done
 
 # static, tiny embutils and friends
 #
-cp $root/bin/{mount,umount,rm,mv,mkdir,ln,ls,chrootsleep,chmod,cat,sed,mknod} \
+cp $root/bin/{mount,umount,rm,mv,mkdir,ln,ls,chmod,cat,sed,mknod} \
    $tmpdir/bin/ 
 cp $root/sbin/{switch_root,pivot_root,losetup} \
    $tmpdir/sbin/
