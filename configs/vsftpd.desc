@@ -1,0 +1,45 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/vsftpd/vsftpd.desc
+[COPY] Copyright (C) 2004 - 2026 The T2 SDE Project
+[COPY] Copyright (C) 1998 - 2003 ROCK Linux Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] A secure, extremely fast and stable FTP server
+
+[T] vsftpd is a GPL licensed FTP server for UNIX systems, including Linux.
+[T] It is secure and extremely fast. It is stable.
+[T] The only reason you might prefer a different FTP server to vsftpd is
+[T] if you really need the configurability of one of the more bloated FTP
+[T] servers. Having said this, note that vsftpd caters for the vast
+[T] majority of use cases. Even if vsftpd appears to be missing a feature,
+[T] it is often satisfied by an external component such as PAM or xinetd /
+[T] tcp_wrappers. In this regard, vsftpd is being a small modular
+[T] component in the proper spirit of UNIX. Finally, consider moving to
+[T] vsftpd even if it means sacrificing some whacky feature of your
+[T] current FTP server. The security, performance and stability gains are
+[T] waiting for you.
+
+[U] http://vsftpd.beasts.org/
+
+[A] Chris Evans <chris@scary.beasts.org>
+[M] RenÃ© Rebe <rene@exactco.de>
+
+[C] extra/server
+[F] CROSS NO-PIE NO-LTO
+
+[L] GPL
+[V] 3.0.5
+
+[D] 8dea621b39c02240a10d7ab64462ddc1e7aef73a4806f2e725a39bc2 vsftpd-3.0.5.tar.gz https://security.appspot.com/downloads/
+
+runconf=0
+hook_add premake 5 "sed -i 's, /lib, $root/lib,g' vsf_findlibs.sh"
+hook_add premake 5 "sed -i 's,/usr/lib/,$root/usr/lib/,g' vsf_findlibs.sh"
+hook_add premake 5 "sed -i 's,/lib/,/${libdir##*/}/,g' vsf_findlibs.sh"
+hook_add premake 5 "sed -i 's,/usr,$root/usr,' Makefile"
+hook_add premake 5 "sed -i 's,/usr/local,/usr,' Makefile"
+hook_add premake 5 "sed -i 's,/etc/,$root/etc/,g' Makefile"
+hook_add postmake 5 'cp vsftpd.conf $root$docdir/'
+
+pkginstalled tcp_wrappers && hook_add premake 3 "sed -i -e 's/^#undef VSF_BUILD_TCPWRAPPERS/#define VSF_BUILD_TCPWRAPPERS/' builddefs.h"
