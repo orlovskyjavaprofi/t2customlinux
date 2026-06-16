@@ -202,7 +202,7 @@ done
 
 echo_status "Ensuring libcap is discoverable..."
 mkdir -p usr/lib
-ln -sf /usr/lib64/libcap.so.2 usr/lib/libcap.so.2
+ln -sf ../lib64/libcap.so.2 usr/lib/libcap.so.2
 
 cd $disksdir/
 
