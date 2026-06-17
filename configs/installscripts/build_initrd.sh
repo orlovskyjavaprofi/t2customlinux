@@ -31,7 +31,7 @@ copy_with_libs() {
     fi
 }
 
-[ "$boot_title" ] || boot_title="T2 Installation"
+[ "$boot_title" ] || boot_title="Custom T2 Linux Installation - build by Orlovsky Consulting GbR"
 
 . $base/misc/target/initrd.in
 . $base/misc/target/boot.in
