@@ -200,11 +200,30 @@ for x in `egrep 'X .* KERNEL .*' $base/config/$config/packages |
   done
 done
 
-echo_status "Ensuring libcap is discoverable..."
-mkdir -p usr/lib
-ln -sf ../lib64/libcap.so.2 usr/lib/libcap.so.2
+check_libcap_availability() {
+    echo_status "Validating libcap presence..."
+    
+    # Define locations to check
+    local search_paths=("./lib" "./lib64" "./usr/lib" "./usr/lib64")
+    local found=0
 
-cd $disksdir/
+    for path in "${search_paths[@]}"; do
+        if [ -f "$path/libcap.so.2" ] || [ -L "$path/libcap.so.2" ]; then
+            echo_status "Found libcap.so.2 in $path"
+            found=1
+            break
+        fi
+    done
+
+    if [ "$found" -eq 0 ]; then
+        echo_error "CRITICAL: libcap.so.2 not found in any standard library path!"
+        echo_error "Build stopped. Check build logs for libcap compilation errors."
+        exit 1
+    fi
+}
+
+# Call the function here
+check_libcap_availability
 
 echo_status "Creating stage2 archives"
 (cd 2nd_stage_small; find ! -type d |
