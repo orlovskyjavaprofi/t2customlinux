@@ -40,11 +40,10 @@ copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
 mkdir -p initramfs/lib64 initramfs/lib
-ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
-ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
-
 mkdir -p initramfs/usr/lib64/
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
+ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
+ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
 
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
