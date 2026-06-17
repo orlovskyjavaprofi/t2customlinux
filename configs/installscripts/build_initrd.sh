@@ -50,14 +50,19 @@ copy_with_libs "$build_root/bin/rmdir" "initramfs/bin/"
 copy_with_libs "$build_root/bin/lsblk" "initramfs/bin/"
 copy_with_libs "$build_root/bin/dmesg" "initramfs/bin/"
 copy_with_libs "$build_root/usr/bin/du" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/curl" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/zstd" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/unzstd" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/fget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/wget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/tmux" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/man" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/ifconfig" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/sbin/ifconfig" "initramfs/usr/sbin/"
 copy_with_libs "$build_root/usr/man" "initramfs/usr/"
 copy_with_libs "$build_root/usr/share/man" "initramfs/usr/share"
+copy_with_libs "$build_root/usr/share/man/man1/ifconfig.1" "initramfs/usr/share/man/man1/"
+copy_with_libs "$build_root/usr/share/man/man8/ifconfig.8" "initramfs/usr/share/man/man8/"
 copy_with_libs "$build_root/usr/doc/man" "initramfs/usr/doc/"
 copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/sbin/parted" "initramfs/usr/sbin/"
@@ -95,14 +100,22 @@ copy_with_libs "$build_root/usr/lib64/libelf.a" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libelf-0.195.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libelf.so.1" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libelf.so" "initramfs/usr/lib64"
-
-#tools
-copy_with_libs "$build_root/usr/bin/systemctl" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/lib64/libgdbm.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libgdbm.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libgdbm.so.6" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libgdbm.so.6.0.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libnghttp2.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libnghttp2.so" "initramfs/usr/lib64"		                              
+copy_with_libs "$build_root/usr/lib64/libnghttp2.so.14" "initramfs/usr/lib64"		                              								  
+copy_with_libs "$build_root/usr/lib64/libnghttp2.so.14.29.4" "initramfs/usr/lib64"
 
 # These allow systemctl to know it is acting as 'reboot' or 'poweroff'
-ln -sf /bin/systemctl "initramfs/usr/sbin/reboot"
-ln -sf /bin/systemctl "initramfs/usr/sbin/poweroff"
-ln -sf /bin/systemctl "initramfs/usr/sbin/halt"
+echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
+echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
+echo "echo h > /proc/sysrq-trigger" > "initramfs/bin/halt"
+chmod +x initramfs/bin/reboot
+chmod +x initramfs/bin/poweroff
+chmod +x initramfs/bin/halt
 
 # Copy essential stuff 
 cp -a $build_root/bin/tar initramfs/bin/
@@ -113,6 +126,10 @@ cp -a initramfs/init initramfs/sbin/init
 chmod +x initramfs/init
 chmod +x initramfs/sbin/init
 chmod +x initramfs/bin/tar
+
+mkdir -p "initramfs/etc/"
+echo "export LANG=C.UTF-8" > "initramfs/etc/profile"
+echo "export LC_ALL=C.UTF-8" >> "initramfs/etc/profile"
 
 # For each available kernel, version extracted from kconfig-...
 #
