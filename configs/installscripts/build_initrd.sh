@@ -7,6 +7,18 @@
 
 set -e
 
+copy_with_libs() {
+    local src=$1
+    local dest=$2
+    # Copy the main binary
+    cp -a "$src" "$dest/"
+    # Crawl and copy dependencies
+    for lib in $(ldd "$src" | grep "=> /" | awk '{print $3}'); do
+        mkdir -p "initramfs/$(dirname "$lib")"
+        cp -an "$lib" "initramfs/$(dirname "$lib")"
+    done
+}
+
 [ "$boot_title" ] || boot_title="T2 Installation"
 
 . $base/misc/target/initrd.in
@@ -18,17 +30,21 @@ cd $build_toolchain
 #
 rm -rf initramfs
 mkdir -p initramfs/{,usr/}{,s}bin
-# TODO: add gzip ip
-cp $build_root/bin/{tar,readlink,rmdir} initramfs/bin/
-cp -a $build_root/usr/bin/{,un}zstd initramfs/usr/bin/
-cp $build_root/usr/bin/fget initramfs/bin/
 
-mkdir -p initramfs/usr/lib64/
-cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
+copy_with_libs "$build_root/usr/embutils/tar" "initramfs/bin/"
+copy_with_libs "$build_root/usr/embutils/readlink" "initramfs/bin/"
+copy_with_libs "$build_root/usr/embutils/rmdir" "initramfs/bin/"
+copy_with_libs "$build_root/usr/bin/zstd" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/fget" "initramfs/bin/"
+copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
+copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
 mkdir -p initramfs/lib64 initramfs/lib
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
+
+mkdir -p initramfs/usr/lib64/
+cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
