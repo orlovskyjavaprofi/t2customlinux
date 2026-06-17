@@ -65,6 +65,7 @@ copy_with_libs "$build_root/usr/sbin/reboot" "initramfs/usr/sbin/"
 copy_with_libs "$build_root/usr/sbin/shutdown" "initramfs/usr/sbin/"
 copy_with_libs "$build_root/usr/bin/svn" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/git" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/killall" "initramfs/usr/bin/"
 copy_with_libs "$build_root/sbin/fdisk" "initramfs/sbin/"
 copy_with_libs "$build_root/sbin/cfdisk" "initramfs/sbin/"
 copy_with_libs "$build_root/sbin/ip" "initramfs/sbin/"
@@ -78,9 +79,31 @@ cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
 
+#Add here missing libs if one of packages requires a lib
 copy_with_libs "$build_root/usr/lib64/libmagic.so.1" "initramfs/usr/lib64/"
 copy_with_libs "$build_root/usr/lib64/libmagic.so.1.0.0" "initramfs/usr/lib64/"
 copy_with_libs "$build_root/usr/lib64/libmagic.so" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/usr/lib64/libevent_core-2.1.so.7.0.1" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/usr/lib64/libevent_core-2.1.so.7" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/usr/lib64/libpipeline.so.1" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libpipeline.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libpipeline.so.1.5.8" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libwget.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libwget.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libwget.so.4" "initramfs/usr/lib64"                                      
+copy_with_libs "$build_root/usr/lib64/libwget.so.4.0.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libelf.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libelf-0.195.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libelf.so.1" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libelf.so" "initramfs/usr/lib64"
+
+#tools
+copy_with_libs "$build_root/bin/systemctl" "initramfs/bin/"
+
+# These allow systemctl to know it is acting as 'reboot' or 'poweroff'
+ln -sf /bin/systemctl "initramfs/usr/sbin/reboot"
+ln -sf /bin/systemctl "initramfs/usr/sbin/poweroff"
+ln -sf /bin/systemctl "initramfs/usr/sbin/halt"
 
 # Copy essential stuff 
 cp -a $build_root/bin/tar initramfs/bin/
