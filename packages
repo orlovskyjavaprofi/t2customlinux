@@ -566,7 +566,7 @@ O -----5---- 127.000 contrib libmbim 1.34.0 / extra/base CROSS 0
 O -----5---- 127.000 contrib libqrtr 1.4.0 / extra/base CROSS 0
 X -----5---- 127.000 develop libevent 2.1.12 / extra/development CROSS 0
 O -----5---- 127.000 filesystem eudev 3.2.14 / extra/base CROSS 0
-X --2--5---- 127.000 filesystem udev 258.3 / base/system base/kernel CROSS DIETLIBC NO-LTO.gcc NO-PIE NO-SSP LATOMIC.sparc 0
+X --2--5---- 127.000 filesystem udev 260.2 / base/system base/kernel CROSS DIETLIBC NO-LTO.gcc NO-PIE NO-SSP LATOMIC.sparc 0
 O -----5---- 127.000 init minit 0.10 / base/system CROSS DIETLIBC INIT 0
 O -----5---- 127.000 multimedia libv4l 1.32.0 / extra/development CROSS 0
 O -----5---- 127.040 x11 cairomm 1.19.0 / extra/x11 CROSS 0
