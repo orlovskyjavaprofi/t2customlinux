@@ -31,9 +31,9 @@ cd $build_toolchain
 rm -rf initramfs
 mkdir -p initramfs/{,usr/}{,s}bin
 
-copy_with_libs "$build_root/usr/embutils/tar" "initramfs/bin/"
-copy_with_libs "$build_root/usr/embutils/readlink" "initramfs/bin/"
-copy_with_libs "$build_root/usr/embutils/rmdir" "initramfs/bin/"
+copy_with_libs "$build_root/bin/tar" "initramfs/bin/"
+copy_with_libs "$build_root/bin/readlink" "initramfs/bin/"
+copy_with_libs "$build_root/bin/rmdir" "initramfs/bin/"
 copy_with_libs "$build_root/usr/bin/zstd" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/fget" "initramfs/bin/"
 copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
