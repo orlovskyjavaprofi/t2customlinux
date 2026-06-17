@@ -248,6 +248,17 @@ elf_magic () {
 	readelf -h "$1" 2>/dev/null | grep 'Machine\|Class'
 }
 
+# Add this function to mkinitrd.sh
+copy_libs() {
+    local bin_path=$1
+    local target_dir=$2
+    # Find all shared libraries for the binary
+    for lib in $(ldd "$bin_path" | grep -o '/lib.*\.[0-9]' | sort -u); do
+        mkdir -p "$target_dir/$(dirname "$lib")"
+        cp -a "$lib" "$target_dir/$(dirname "$lib")"
+    done
+}
+
 # copy dynamic libraries, and optional plugins, if any.
 #
 extralibs="`ls $root/lib*/libkmod.so* 2>/dev/null || true`"
@@ -318,7 +329,9 @@ copy_dyn_libs () {
 for x in $root/sbin/{udevd,udevadm,kmod,modprobe} $root/usr/sbin/{disktype,ipconfig}
 do
 	cp -av $x $tmpdir/sbin/
-	copy_dyn_libs $x
+	# Call your new function here:
+    copy_libs "$x" "$tmpdir"
+    copy_dyn_libs $x
 done
 
 # setup optional programs
