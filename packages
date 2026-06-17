@@ -1,4 +1,4 @@
-X 01-------- 025.300 kernel linux-header 6.6 / base/system CROSS DIETLIBC 0
+X 01-------- 025.300 kernel linux-header 6.10 / base/system CROSS DIETLIBC 0
 O -----5---- 100.000 archiver libzip 1.11.4 / extra/archive CROSS 0
 X --2------- 100.000 base mkinitrd 2026-04-26 / base/system CROSS 0
 X -----5---- 100.000 develop duktape 2.7.0 / extra/development CROSS 0
@@ -32,7 +32,7 @@ X 0-2--5---- 102.080 develop flex 2.6.4 / base/tool CROSS DIETLIBC 0
 X 0-2--5---- 102.100 develop binutils 2.46 / base/development OBJDIR CROSS DIETLIBC NO-LTO FPIC.microblaze FPIC.mips FPIC.mips64 0
 O 0-2--5---- 102.100 develop binutils-spe 2.41 / base/development OBJDIR CROSS DIETLIBC 0
 X 0-2--5---- 102.100 scientific gmp 6.3.0 / base/library CROSS DIETLIBC 0
-X ---3-5---- 102.200 develop cmake 4.3.2 / base/development CROSS NO-LTO.gcc LATOMIC.arch32 0
+X ---3-5---- 102.200 develop cmake 4.3.3 / base/development CROSS NO-LTO.gcc LATOMIC.arch32 0
 X 0-2--5---- 102.200 scientific mpfr 4.2.2 / base/library CROSS DIETLIBC 0
 X 0-2--5---- 102.250 develop isl 0.27 / base/development CROSS 0
 X 0-2--5---- 102.250 scientific mpc 1.4.1 / base/library CROSS DIETLIBC 0
@@ -44,7 +44,7 @@ O ?----5---- 102.305 develop spirv-tools 1.4.328.1 / base/x11 CROSS OBJDIR 0
 O ?----5---- 102.310 develop glslang 16.2.0 / base/x11 CROSS OBJDIR NO-LTO.ia64 LATOMIC.sparc 0
 O -1---5---- 102.350 develop libunwind 22.1.4 / extra/development OBJDIR CROSS 0
 O -1---5---- 102.390 develop compiler-rt 22.1.4 / extra/development OBJDIR CROSS 0
-X -----5---- 102.390 develop doxygen 1.16.1 / extra/development CROSS NO-LTO.gcc 0
+X -----5---- 102.390 develop doxygen 1.17.0 / extra/development CROSS NO-LTO.gcc 0
 O -----5---- 102.400 archiver libdeflate 1.25 / base/library CROSS 0
 X 01---5---- 102.400 archiver zlib 1.3.2 / base/library CROSS DIETLIBC FPIC NO-LTO.clang 0
 O 01---5---- 102.400 archiver zlib-ng 2.3.3 / base/library CROSS DIETLIBC NO-LTO.gcc 0
@@ -79,12 +79,12 @@ O 0----5---- 104.550 perl perl-xml-parser 2.47 / extra/multimedia CROSS NO-LTO.c
 O --2--5---- 104.600 security libressl 4.2.1 / base/library CROSS DIETLIBC 0
 X --2--5---- 104.800 database gdbm 1.26 / base/library CROSS 0
 O --2--5---- 105.000 base libiconv 1.19 / base/tool CROSS 0
-X 01---5---- 105.000 develop clang 22.1.4 / base/system OBJDIR CROSS CC CXX KCC NO-LTO.gcc LATOMIC.arch32 0
+X 01---5---- 105.000 develop clang 22.1.7 / base/system OBJDIR CROSS CC CXX KCC NO-LTO.gcc LATOMIC.arch32 0
 O -----5---- 105.000 develop gnupth 2.0.7 / extra/development CROSS NOPARALLEL FPIC NO-LTO.gcc 0
 X -----5---- 105.000 filesystem sysfsutils 2.1.1 / base/system extra/filesystem CROSS FPIC 0
 O --2--5---- 105.299 filesystem attr 2.5.2 / base/system CROSS 0
 O --2--5---- 105.300 filesystem acl 2.3.2 / base/tool CROSS 0
-X 0-2--5---- 105.400 develop ccache 4.13.5 / base/development CROSS DIETLIBC NO-LTO.gcc 0
+X 0-2--5---- 105.400 develop ccache 4.13.6 / base/development CROSS DIETLIBC NO-LTO.gcc 0
 O 0-2--5---- 105.400 develop distcc 3.4 / base/development CROSS DIETLIBC 0
 O -----5---- 105.600 scientific gsl 2.8 / base/library CROSS 0
 X --2--5---- 105.700 base time 1.10 / base/development CROSS DIETLIBC 0
