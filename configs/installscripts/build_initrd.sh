@@ -97,7 +97,7 @@ copy_with_libs "$build_root/usr/lib64/libelf.so.1" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libelf.so" "initramfs/usr/lib64"
 
 #tools
-copy_with_libs "$build_root/bin/systemctl" "initramfs/bin/"
+copy_with_libs "$build_root/usr/bin/systemctl" "initramfs/usr/bin/"
 
 # These allow systemctl to know it is acting as 'reboot' or 'poweroff'
 ln -sf /bin/systemctl "initramfs/usr/sbin/reboot"
