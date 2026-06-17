@@ -350,6 +350,15 @@ do
   fi
 done
 
+echo "Verifying shared library inclusion..."
+if [ -d "$tmpdir/usr/lib" ] || [ -d "$tmpdir/lib" ] || [ -d "$tmpdir/usr/lib64" ] || [ -d "$tmpdir/lib64" ]; then
+    find "$tmpdir" -name "libcap.so*" | while read -r libpath; do
+        echo "SUCCESS: Located libcap at: $libpath"
+    done
+else
+    echo "WARNING: Could not locate libcap in the initrd staging area."
+fi
+
 # copy a small shell
 for sh in $root/bin/{mksh,pdksh,bash}; do
     if [ -e "$sh" ]; then
