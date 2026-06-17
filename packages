@@ -6356,5 +6356,5 @@ O -----5---- 800.000 zope verbosesecurity 0.6 / extra/tool 0
 O -----5---- 800.000 zope zope3 3.4.1 / extra/server 0
 O -----5---- 800.000 zope zwiki 0.61.0 / extra/server 0
 O -----5---- 990.500 kernel hedron c8aaf76 / base/kernel CROSS NO-LTO.gcc OBJDIR 0
-X -?2--5---- 999.000 firmware linux-firmware 20260410 / base/firmware CROSS NOPARALLEL 0
+X -?2--5---- 999.000 firmware linux-firmware 20260519 / base/firmware CROSS NOPARALLEL 0
 O -----5---- 999.999 base 99-final 0000 / base/system CROSS 0
