@@ -166,7 +166,7 @@ O -----5---- 109.100 python python-annotated-types 0.7.0 / extra/development 0
 O -----5---- 109.100 python python-jsonschema-specifications 2025.9.1 / extra/development 0
 O -----5---- 109.101 python charset_normalizer 3.4.7 / base/development CROSS 0
 O -----5---- 109.290 python typogrify 2.1.0 / extra/development CROSS 0
-X -----5---- 109.300 develop protobuf 34.1 / extra/development CROSS 0
+X -----5---- 109.300 develop protobuf 35 / extra/development CROSS 0
 X -----5---- 109.300 develop xxhash 0.8.3 / base/system CROSS 0
 O -----5---- 109.300 gnome libportal 0.9.1 / extra/development CROSS 0
 O ?----5---- 109.300 zig zig 0.16.0 / extra/development CROSS OBJDIR NO-LTO 0
