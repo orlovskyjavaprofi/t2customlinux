@@ -183,7 +183,7 @@ for x in `egrep 'X .* KERNEL .*' $base/config/$config/packages |
     rm -rf $disksdir/2nd_stage_initrd; mkdir -p $disksdir/2nd_stage_initrd
     zstd -d < $isofsdir/boot/$initrd |
 	cpio -iv -D $disksdir/2nd_stage_initrd 2> $disksdir/2nd_stage_initrd.files
-    grep -e "lib.*\.so" -e bin/ $disksdir/2nd_stage_initrd.files |
+    grep -e "lib.*\.so" -e bin/ $disksdir/2nd_stage_initrd.files | grep -v "libcap" |
     while read exe; do
       for fn in ../2nd_stage{,_small}/$exe; do
         if [ -e $fn -o -L $fn ]; then
