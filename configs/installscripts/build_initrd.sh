@@ -44,11 +44,28 @@ rm -rf initramfs
 mkdir -p initramfs/{,usr/}{,s}bin
 
 copy_with_libs "$build_root/bin/tar" "initramfs/bin/"
+copy_with_libs "$build_root/bin/df" "initramfs/bin/"
 copy_with_libs "$build_root/bin/readlink" "initramfs/bin/"
 copy_with_libs "$build_root/bin/rmdir" "initramfs/bin/"
+copy_with_libs "$build_root/bin/lsblk" "initramfs/bin/"
+copy_with_libs "$build_root/bin/dmesg" "initramfs/bin/"
+copy_with_libs "$build_root/usr/bin/du" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/zstd" "initramfs/usr/bin/"
-copy_with_libs "$build_root/usr/bin/fget" "initramfs/bin/"
+copy_with_libs "$build_root/usr/bin/unzstd" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/fget" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/wget" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/tmux" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/sbin/parted" "initramfs/usr/sbin/"
+copy_with_libs "$build_root/usr/sbin/reboot" "initramfs/usr/sbin/"
+copy_with_libs "$build_root/usr/sbin/shutdown" "initramfs/usr/sbin/"
+copy_with_libs "$build_root/usr/bin/svn" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/git" "initramfs/usr/bin/"
+copy_with_libs "$build_root/sbin/fdisk" "initramfs/sbin/"
+copy_with_libs "$build_root/sbin/cfdisk" "initramfs/sbin/"
+copy_with_libs "$build_root/sbin/ip" "initramfs/sbin/"
+copy_with_libs "$build_root/sbin/ping" "initramfs/sbin/"
+copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
 mkdir -p initramfs/lib64 initramfs/lib
@@ -59,11 +76,13 @@ ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
 
 # Copy essential stuff 
 cp -a $build_root/bin/tar initramfs/bin/
-cp -a $build_root/sbin/init initramfs/sbin/
 
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
+cp -a initramfs/init initramfs/sbin/init
 chmod +x initramfs/init
+chmod +x initramfs/sbin/init
+chmod +x initramfs/bin/tar
 
 # For each available kernel, version extracted from kconfig-...
 #
