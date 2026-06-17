@@ -22,6 +22,7 @@ mkdir -p initramfs/{,usr/}{,s}bin
 cp $build_root/bin/{tar,readlink,rmdir} initramfs/bin/
 cp -a $build_root/usr/bin/{,un}zstd initramfs/usr/bin/
 cp $build_root/usr/bin/fget initramfs/bin/
+cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
