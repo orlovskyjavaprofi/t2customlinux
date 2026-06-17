@@ -160,7 +160,7 @@ O -----5---- 109.060 python python-pyopenssl 26.1.0 / extra/development CROSS 0
 O -----5---- 109.060 python python-pytesseract 0.3.13 / extra/development CROSS 0
 O -----5---- 109.060 python python-userpath 1.9.2 / extra/development 0
 O -----5---- 109.100 contrib smartypants 2.0.2 / extra/base 0
-X -----5---- 109.100 python pip 26.1 / extra/development 0
+X -----5---- 109.100 python pip 26.1.2 / extra/development 0
 O -----5---- 109.100 python pipx 1.11.1 / extra/development 0
 O -----5---- 109.100 python python-annotated-types 0.7.0 / extra/development 0
 O -----5---- 109.100 python python-jsonschema-specifications 2025.9.1 / extra/development 0
