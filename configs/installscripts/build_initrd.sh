@@ -55,6 +55,10 @@ copy_with_libs "$build_root/usr/bin/unzstd" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/fget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/wget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/tmux" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/man" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/man" "initramfs/usr/"
+copy_with_libs "$build_root/usr/share/man" "initramfs/usr/share"
+copy_with_libs "$build_root/usr/doc/man" "initramfs/usr/doc/"
 copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/sbin/parted" "initramfs/usr/sbin/"
 copy_with_libs "$build_root/usr/sbin/reboot" "initramfs/usr/sbin/"
@@ -73,6 +77,10 @@ mkdir -p initramfs/usr/lib64/
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
+
+copy_with_libs "$build_root/usr/lib64/libmagic.so.1" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/usr/lib64/libmagic.so.1.0.0" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/usr/lib64/libmagic.so" "initramfs/usr/lib64/"
 
 # Copy essential stuff 
 cp -a $build_root/bin/tar initramfs/bin/
