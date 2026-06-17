@@ -226,8 +226,22 @@ check_libcap_availability() {
 check_libcap_availability
 
 echo_status "Creating stage2 archives"
-(cd 2nd_stage_small; find ! -type d |
-	tar -cf- --no-recursion --files-from=-) | zstd -14 -T0 > $isofsdir/stage2.tar.zst
 
-(cd 2nd_stage; find ! -type d |
-	tar -cf- --no-recursion --files-from=-) | zstd -18 -T0 > $isofsdir/stage2ext.tar.zst
+# Define the absolute paths to your staging directories
+STAGING_SMALL="$disksdir/2nd_stage_small"
+STAGING_EXT="$disksdir/2nd_stage"
+
+# Create archives using absolute paths, ensuring we are in the right place
+if [ -d "$STAGING_SMALL" ]; then
+    (cd "$STAGING_SMALL" && find . -type f | tar -cf- --no-recursion --files-from=-) | zstd -14 -T0 > "$isofsdir/stage2.tar.zst"
+else
+    echo_error "Directory $STAGING_SMALL not found! Archive creation failed."
+    exit 1
+fi
+
+if [ -d "$STAGING_EXT" ]; then
+    (cd "$STAGING_EXT" && find . -type f | tar -cf- --no-recursion --files-from=-) | zstd -18 -T0 > "$isofsdir/stage2ext.tar.zst"
+else
+    echo_error "Directory $STAGING_EXT not found! Archive creation failed."
+    exit 1
+fi
