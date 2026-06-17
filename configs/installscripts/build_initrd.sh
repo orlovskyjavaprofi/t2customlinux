@@ -23,11 +23,9 @@ cp $build_root/bin/{tar,readlink,rmdir} initramfs/bin/
 cp -a $build_root/usr/bin/{,un}zstd initramfs/usr/bin/
 cp $build_root/usr/bin/fget initramfs/bin/
 
-# Ensure directory exists and copy the actual library
 mkdir -p initramfs/usr/lib64/
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 
-# Create symlinks in root /lib and /lib64 for maximum compatibility
 mkdir -p initramfs/lib64 initramfs/lib
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
