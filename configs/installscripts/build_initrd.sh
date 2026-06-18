@@ -7,6 +7,11 @@
 
 set -e
 
+echo '#!/bin/sh' > "initramfs/bin/setlocale"
+echo 'export LANG=C.UTF-8' >> "initramfs/bin/setlocale"
+echo 'export LC_ALL=C.UTF-8' >> "initramfs/bin/setlocale"
+chmod +x "initramfs/bin/setlocale"
+
 copy_with_libs() {
     local src=$1
     local dest=$2
@@ -59,6 +64,7 @@ copy_with_libs "$build_root/usr/bin/tmux" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/man" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/ifconfig" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/man" "initramfs/usr/"
+copy_with_libs "$build_root/etc/man_db_conf" "initramfs/etc/"
 copy_with_libs "$build_root/usr/share/man" "initramfs/usr/share"
 copy_with_libs "$build_root/usr/doc/man" "initramfs/usr/doc/"
 copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
@@ -105,6 +111,80 @@ copy_with_libs "$build_root/usr/lib64/libnghttp2.a" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libnghttp2.so" "initramfs/usr/lib64"		                              
 copy_with_libs "$build_root/usr/lib64/libnghttp2.so.14" "initramfs/usr/lib64"		                              								  
 copy_with_libs "$build_root/usr/lib64/libnghttp2.so.14.29.4" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libcurl.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libcurl.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libcurl.so.4" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libcurl.so.4.8.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_client-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_client-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_client-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_client-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_wc-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_wc-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_wc-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_wc-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_ra-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_diff-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_diff-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_diff-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_diff-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_serf-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_serf-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_serf-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_serf-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_local-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_local-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_local-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_local-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_repos-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_repos-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_repos-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_repos-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_svn-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_svn-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_svn-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_ra_svn-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_fs-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_x-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_x-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_x-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_x-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_fs-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_fs-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_fs-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_fs-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_util-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_util-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_util-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_fs_util-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_delta-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_delta-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_delta-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_delta-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so.0.0.0" "initramfs/usr/lib64"
 
 # These allow systemctl to know it is acting as 'reboot' or 'poweroff'
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
@@ -119,6 +199,7 @@ cp -a $build_root/bin/tar initramfs/bin/
 
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
+sed -i '1i . /bin/setlocale' "initramfs/init"
 cp -a initramfs/init initramfs/sbin/init
 chmod +x initramfs/init
 chmod +x initramfs/sbin/init
@@ -127,6 +208,8 @@ chmod +x initramfs/bin/tar
 mkdir -p "initramfs/etc/"
 echo "export LANG=C.UTF-8" > "initramfs/etc/profile"
 echo "export LC_ALL=C.UTF-8" >> "initramfs/etc/profile"
+
+
 
 # For each available kernel, version extracted from kconfig-...
 #
