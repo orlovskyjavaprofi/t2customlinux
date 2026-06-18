@@ -71,7 +71,14 @@ echo "
 
 for x in $ttydevs; do
    [[ "$x" != /dev/tty[0-9]* ]] && TERM=linux
-   ( ( while : ; do agetty -i -J -n -N -l /sbin/login-shell $x $TERM; done ) & )
+   ( while : ; do agetty -i -J -n -N -l /sbin/login-shell $x $TERM; done ) &
+done
+
+# DO NOT redirect output for the whole script here.
+# Just keep the process alive so the init PID doesn't exit.
+# This prevents the kernel from panicking because init died.
+while : ; do
+    sleep 3600
 done
 
 exec < /dev/null > /dev/null 2>&1
