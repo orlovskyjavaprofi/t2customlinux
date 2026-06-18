@@ -86,7 +86,7 @@ cp -a $build_root/usr/lib64/locale/* initramfs/usr/lib64/locale/
 
 #Locale message catalogs (Data)
 mkdir -p initramfs/usr/share/locale
-cp -a $build_root/usr/share/locale/* initramfs/usr/share/locale/
+cp -a $build_root/usr/share/locale/ initramfs/usr/share/locale/
 
 #Locale binary (Use your function for the executable)
 copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
