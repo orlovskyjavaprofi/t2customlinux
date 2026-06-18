@@ -71,7 +71,6 @@ copy_with_libs "$build_root/usr/share/man" "initramfs/usr/share"
 copy_with_libs "$build_root/usr/doc/man" "initramfs/usr/doc/"
 copy_with_libs "$build_root/usr/bin/install" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/sbin/parted" "initramfs/usr/sbin/"
-copy_with_libs "$build_root/usr/sbin/shutdown" "initramfs/usr/sbin/"
 copy_with_libs "$build_root/usr/bin/svn" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/git" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/killall" "initramfs/usr/bin/"
@@ -191,6 +190,7 @@ copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so.0.0.0" "initramfs/usr/lib
 # These allow systemctl to know it is acting as 'reboot' or 'poweroff'
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
+echo "echo o > /proc/sysrq-trigger" > "initramfs/sbin/shutdown"
 echo "echo h > /proc/sysrq-trigger" > "initramfs/bin/halt"
 chmod +x initramfs/bin/reboot
 chmod +x initramfs/bin/poweroff
