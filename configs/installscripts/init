@@ -20,7 +20,7 @@ mkdir -p /mnt
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
-echo "Welcome to custom build of T2 Linux!"
+echo "\nWelcome to custom build of T2 Linux!\n"
 echo "Build by Orlovsky Consulting GbR - https://orlovskyconsulting.de"
 
 echo "
@@ -28,7 +28,7 @@ Custom build T2 Linux - Installer in second stage.
 
 Second stage is small Linux image.
 It has almost everything what you need for the install of T2 Linux.
-Thi customs version of T2 Linux you can use even for restore of previous
+This custom version of T2 Linux you can use even for restore of previous
 installation, or perform maintenance and or etc."
 
 for x in /etc/setup-*.sh /setup/setup.sh; do
@@ -61,13 +61,13 @@ Proceed with installation and hit enter. (default: $ttydevs): "
 done
 
 echo "
-If you not sure how to proceed with install, please read the official T2 documentation or read online docu on wiki https://github.com/orlovskyjavaprofi/t2customlinux/wiki .
-To start an installation, simply run: 'stone'"
-
-echo "
 	T2 Linux original developers/maintainers: https://t2sde.org/support .
 	This T2 Linux custom build version was build by Orlovsky Consulting GbR https://orlovskyconsulting.de
 	Any related bug/s for this build should be submitted to https://github.com/orlovskyjavaprofi/t2customlinux"
+	
+echo "
+If you not sure how to proceed with install, please read the official T2 documentation or read online docu on wiki https://github.com/orlovskyjavaprofi/t2customlinux/wiki .
+To start an installation, simply run: 'stone'"
 
 for x in $ttydevs; do
    [[ "$x" != /dev/tty[0-9]* ]] && TERM=linux
