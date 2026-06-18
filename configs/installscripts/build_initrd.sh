@@ -194,6 +194,7 @@ echo "echo o > /proc/sysrq-trigger" > "initramfs/sbin/shutdown"
 echo "echo h > /proc/sysrq-trigger" > "initramfs/bin/halt"
 chmod +x initramfs/bin/reboot
 chmod +x initramfs/bin/poweroff
+chmod +x initramfs/bin/shutdown
 chmod +x initramfs/bin/halt
 
 # Copy essential stuff 
