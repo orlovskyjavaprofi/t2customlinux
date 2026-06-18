@@ -79,6 +79,20 @@ copy_with_libs "$build_root/sbin/ping" "initramfs/sbin/"
 copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
+#Add every possible locale
+#Locale binary data (Files, not libraries)
+mkdir -p initramfs/usr/lib64/locale
+cp -a $build_root/usr/lib64/locale/* initramfs/usr/lib64/locale/
+
+#Locale message catalogs (Data)
+mkdir -p initramfs/usr/share/locale
+cp -a $build_root/usr/share/locale/* initramfs/usr/share/locale/
+
+#Locale binary (Use your function for the executable)
+copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/lib64/locale" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/opt/gnome/share/locale" "initramfs/opt/gnome/share/"
+
 mkdir -p "initramfs/etc"
 cp -a $build_root/etc/man_db.conf initramfs/etc/
 
