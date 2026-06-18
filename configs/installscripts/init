@@ -21,16 +21,17 @@ export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
 echo "
-T2 SDE installer second stage.
+Custom build T2 Linux - Installer in second stage.
 
-The second stage is a small Linux distribution, loaded into your system's
-memory. It has everything needed to install T2 Linux, restore a previous
-installation, or perform maintenance, rescue and backup tasks."
+Second stage is small Linux image.
+It has almost everything what you need for the install of T2 Linux.
+Thi custome version of T2 Linux you can use even for restore of previous
+installation, or perform maintenance and or etc."
 
 for x in /etc/setup-*.sh /setup/setup.sh; do
    if [ -f "$x" ]; then
       echo; echo "Running $x ..."; sh $x
-      echo "Setup script $x finished."
+      echo "Ready in $x for further interactions."
    fi
 done
 
@@ -43,9 +44,8 @@ fi
 ttydevs="${ttydevs:-tty1 tty2 tty3 tty4 tty5 tty6}"
 while true; do
 	echo -n "
-If you use a serial terminal, enter the names of terminal devices to use,
-for example 'ttyS0' or 'ttyUSB0' for the first serial port or just 'console',
-just hit enter otherwise. (default: $ttydevs): "
+You can use following terminal types: for example 'ttyS0' or 'ttyUSB0' for the first serial port or just 'console',
+Proceed with installation and hit enter. (default: $ttydevs): "
 	read _ttydevs
 	if [ "$_ttydevs" ]; then # check
 		for x in $_ttydevs; do
@@ -58,12 +58,13 @@ just hit enter otherwise. (default: $ttydevs): "
 done
 
 echo "
-If you don't know what to do, it's a good time to read the T2 documentation.
+If you not sure how to proceed with install, please read the official T2 documentation or read online docu on wiki https://github.com/orlovskyjavaprofi/t2customlinux/wiki .
 To start an installation, simply run: 'stone'"
 
 echo "
-	T2 Linux original developers https://t2sde.org/support .
-	This T2 Linux custom build version was build by Orlovsky Consulting GbR https://orlovskyconsulting.de"
+	T2 Linux original developers/maintainers: https://t2sde.org/support .
+	This T2 Linux custom build version was build by Orlovsky Consulting GbR https://orlovskyconsulting.de
+	Any related bug/s for this build should be submitted to https://github.com/orlovskyjavaprofi/t2customlinux"
 
 for x in $ttydevs; do
    [[ "$x" != /dev/tty[0-9]* ]] && TERM=linux
