@@ -186,7 +186,7 @@ copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so.0" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so.0.0.0" "initramfs/usr/lib64"
 
-# These allow systemctl to know it is acting as 'reboot' or 'poweroff'
+# Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/shutdown"
