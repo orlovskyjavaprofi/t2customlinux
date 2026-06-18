@@ -28,7 +28,7 @@ Custom build T2 Linux - Installer in second stage.
 
 Second stage is small Linux image.
 It has almost everything what you need for the install of T2 Linux.
-Thi custome version of T2 Linux you can use even for restore of previous
+Thi customs version of T2 Linux you can use even for restore of previous
 installation, or perform maintenance and or etc."
 
 for x in /etc/setup-*.sh /setup/setup.sh; do
