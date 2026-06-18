@@ -586,7 +586,7 @@ O -----5---- 127.300 security gnutls 3.8.12 / extra/security extra/development C
 O -----5---- 127.300 textproc fribidi 1.0.16 / base/library CROSS NO-LTO.clang 0
 O -----5---- 127.301 multimedia libass 0.17.4 / extra/x11 CROSS 0
 O -----5---- 127.350 gnome gsettings-desktop-schemas 50.1 / extra/base extra/desktop/gnome CROSS 0
-X -12------- 127.350 rust rustc 1.95.0 / base/tool CROSS NO-LTO LATOMIC.mips LATOMIC.sparc LATOMIC.x86 0
+X -12------- 127.350 rust rustc 1.96.0 / base/tool CROSS NO-LTO LATOMIC.mips LATOMIC.sparc LATOMIC.x86 0
 O -----5---- 127.390 develop cpufeatures 0.10.1 / extra/development 0
 O -----5---- 127.390 develop libproxy 0.5.12 / extra/development CROSS 0
 O ?----5---- 127.400 develop directx-headers 1.619.1 / extra/development CROSS OBJDIR NO-LTO 0
