@@ -17,6 +17,9 @@ ln -sf fd/2             stderr
 cd /
 mkdir -p /mnt
 
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
 echo "
 T2 SDE installer second stage.
 

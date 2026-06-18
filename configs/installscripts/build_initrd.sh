@@ -7,6 +7,10 @@
 
 set -e
 
+# Prepare the structure
+rm -rf initramfs
+mkdir -p initramfs/{bin,sbin,usr/bin,usr/sbin,etc,proc,sys,dev,mnt,lib,lib64}
+
 copy_with_libs() {
     local src=$1
     local dest=$2
