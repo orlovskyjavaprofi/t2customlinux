@@ -7,11 +7,6 @@
 
 set -e
 
-echo '#!/bin/sh' > "initramfs/bin/setlocale"
-echo 'export LANG=C.UTF-8' >> "initramfs/bin/setlocale"
-echo 'export LC_ALL=C.UTF-8' >> "initramfs/bin/setlocale"
-chmod +x "initramfs/bin/setlocale"
-
 copy_with_libs() {
     local src=$1
     local dest=$2
@@ -47,6 +42,13 @@ cd $build_toolchain
 #
 rm -rf initramfs
 mkdir -p initramfs/{,usr/}{,s}bin
+
+echo '#!/bin/sh' > "initramfs/bin/setlocale"
+echo 'export LANG=C.UTF-8' >> "initramfs/bin/setlocale"
+echo 'export LC_ALL=C.UTF-8' >> "initramfs/bin/setlocale"
+chmod +x "initramfs/bin/setlocale"
+
+echo ". /bin/setlocale" >> initramfs/init
 
 copy_with_libs "$build_root/bin/tar" "initramfs/bin/"
 copy_with_libs "$build_root/bin/df" "initramfs/bin/"
@@ -208,8 +210,6 @@ chmod +x initramfs/bin/tar
 mkdir -p "initramfs/etc/"
 echo "export LANG=C.UTF-8" > "initramfs/etc/profile"
 echo "export LC_ALL=C.UTF-8" >> "initramfs/etc/profile"
-
-
 
 # For each available kernel, version extracted from kconfig-...
 #
