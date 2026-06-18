@@ -43,13 +43,6 @@ cd $build_toolchain
 rm -rf initramfs
 mkdir -p initramfs/{,usr/}{,s}bin
 
-echo '#!/bin/sh' > "initramfs/bin/setlocale"
-echo 'export LANG=C.UTF-8' >> "initramfs/bin/setlocale"
-echo 'export LC_ALL=C.UTF-8' >> "initramfs/bin/setlocale"
-chmod +x "initramfs/bin/setlocale"
-
-echo ". /bin/setlocale" >> initramfs/init
-
 copy_with_libs "$build_root/bin/tar" "initramfs/bin/"
 copy_with_libs "$build_root/bin/df" "initramfs/bin/"
 copy_with_libs "$build_root/bin/readlink" "initramfs/bin/"
@@ -204,15 +197,10 @@ cp -a $build_root/bin/tar initramfs/bin/
 
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
-sed -i '1i . /bin/setlocale' "initramfs/init"
 cp -a initramfs/init initramfs/sbin/init
 chmod +x initramfs/init
 chmod +x initramfs/sbin/init
 chmod +x initramfs/bin/tar
-
-mkdir -p "initramfs/etc/"
-echo "export LANG=C.UTF-8" > "initramfs/etc/profile"
-echo "export LC_ALL=C.UTF-8" >> "initramfs/etc/profile"
 
 # For each available kernel, version extracted from kconfig-...
 #
