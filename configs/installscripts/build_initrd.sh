@@ -82,7 +82,7 @@ copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 #Add every possible locale
 #Locale binary data (Files, not libraries)
 mkdir -p initramfs/usr/lib64/locale
-cp -a $build_root/usr/lib64/locale/* initramfs/usr/lib64/locale/
+cp -a $build_root/usr/lib64/locale/ initramfs/usr/lib64/locale/
 
 #Locale message catalogs (Data)
 mkdir -p initramfs/usr/share/locale
