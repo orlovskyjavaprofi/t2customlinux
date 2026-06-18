@@ -64,7 +64,6 @@ copy_with_libs "$build_root/usr/bin/fget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/wget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/tmux" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/man" "initramfs/usr/bin/"
-cp -a $build_root/etc/man_db.conf initramfs/etc/
 copy_with_libs "$build_root/usr/bin/ifconfig" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/man" "initramfs/usr/"
 copy_with_libs "$build_root/usr/share/man" "initramfs/usr/share"
@@ -80,6 +79,9 @@ copy_with_libs "$build_root/sbin/ip" "initramfs/sbin/"
 copy_with_libs "$build_root/sbin/ping" "initramfs/sbin/"
 copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
+
+mkdir -p "initramfs/etc"
+cp -a $build_root/etc/man_db.conf initramfs/etc/
 
 mkdir -p initramfs/lib64 initramfs/lib
 mkdir -p initramfs/usr/lib64/
