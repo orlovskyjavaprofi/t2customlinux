@@ -1,0 +1,354 @@
+#!/bin/sh
+
+# T2 SDE: target/share/install/init
+# Partially based on linuxrc.c, Copyright (C) 2003, 2004 Clifford Wolf and Rene Rebe
+# Converted from C to shell, heavily cleaned and improved for the T2 SDE by:
+# (C)2005-2023 Rene Rebe, ExactCODE GmbH; Germany.
+
+doboot() {
+	if [ ! -e /sbin/init ]; then
+	 	echo "Can't find /sbin/init."
+		exit_linuxrc=0
+	fi
+
+	if [ $exit_linuxrc = 1 ]; then
+		echo "finished."
+		# we re-use all stage1 stuff, mounts, udev, you name it!
+		exec /sbin/init
+	fi
+}
+
+trymount() {
+	# try best match / detected rootfs first, all the others thereafter
+	local filesystems=`disktype $1 2>/dev/null |
+	      sed -e '/file system/!d' -e 's/file system.*//' -e 's/ //g' \
+	          -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' \
+	          -e 's/fat32/vfat/'
+	      sed '1!G ; $p ; h ; d' /proc/filesystems | sed /^nodev/d`
+	for fs in $filesystems; do
+		mount -t $fs -o ro $1 $2 && return
+	done
+
+	return 1
+}
+
+filter_for() {
+	case "$1" in
+		*.bz2)	echo bunzip2 ;;
+		*.zst)	echo unzstd ;;
+		*.gz)	echo gunzip ;;
+		*) echo cat ;;
+	esac
+}
+
+select_stage2() {
+	# choices
+	case $1 in
+	  http://*|ftp://*)
+		# the last sed is a uniq
+		images=`fget $1/ | sed 's/[<>"]/\n/g' | sed -n '/stage2/p' |
+sed 'h;:b
+$b
+N; /^\(.*\)\n\1$/ {g; bb
+}
+$b
+P; D'`
+		;;
+	  *)
+		mkdir -p /media
+		if trymount $1 /media; then
+			images=`cd /media; ls stage2*.tar*`
+			umount /media
+		fi
+		;;
+	esac
+
+	[ "$images" ] || return 1
+
+	mem=`sed -n '/MemFree/{s/.* \([[:digit:]]*\) .*/\1/p}' /proc/meminfo`
+	swap=`sed -n '/SwapFree/{s/.* \([[:digit:]]*\) .*/\1/p}' /proc/meminfo`
+	if [ $((mem + swap)) -le 512000 ]; then
+		echo "Deleting /lib/firmware to save memory"
+		rm -rf /lib/firmware
+	fi
+
+	echo "Select a second stage image file:"
+	i=1 default=$i
+	for x in $images; do
+		if [[ "$x" = *ext* ]]; then
+			[ $((mem + swap)) -gt 200000 ] && default=$i
+		else
+			[ $((mem + swap)) -le 200000 ] && default=$i
+		fi
+		echo "     $((i++)). $x"
+	done
+	[ $((mem + swap)) -le 64000 ] && autoload=0
+	echo -n "Enter number or image file names (default: $default): "
+
+	in=; [ $autoload = 0 ] && read in || echo
+	[ "$in" ] || in=$default
+
+	i=1
+	for x in $images; do
+		if [ "$((i++))" = "$in" ]; then
+			i=${x%.tar.*} # add base "stage2.tar.*"?
+			if [ "$i" != "stage2" ]; then
+				x="stage2.${x#stage2*.} $x"
+			fi
+			eval $2=\"$x\"
+			return
+		fi
+	done
+	eval $2=\"$in\"
+}
+
+httpload() {
+	baseurl=
+	filename=
+	url="$(net_gateway)"
+	url="http://${url:-server/path}/"
+	echo -en "\nEnter base URL (e.g. $url): "
+
+	read baseurl
+	baseurl="${baseurl:-$url}"
+
+	select_stage2 "$baseurl" filename
+	if [ -z "$filename" ]; then
+		echo "Failure retrieving the second stage image."
+		return
+	fi
+
+	exit_init=1
+	export ROCK_INSTALL_SOURCE_URL=$baseurl
+	exit_linuxrc=1
+
+	echo "Extracting second stage filesystem ..."
+	filter=`filter_for "$filename"`
+	mv /bin/{,.}tar
+	for f in $filename; do
+		url=$baseurl/$f
+		if ! fget $url | $filter | (cd /; .tar x); then
+			echo "ERROR EXTRacting $f."
+			mv /bin/{.,}tar
+			exit_linuxrc=0
+		fi
+	done
+	rm /bin/.tar
+
+	doboot
+}
+
+getdevice() {
+	devicelist=
+
+	# if no dev, wait for devices to appear, default Linux USB settle delay is 5s
+	local i=0 default=
+	while [ -z "$devicelist" -a $i -le 6 ]; do
+		# with udev the above links are not created yet, so try to find
+		# device based on sysfs
+		local j=1
+		default="$(readlink /dev/disk/by-label/T2)"
+		default="${default:+/dev/}${default##*/}"
+		for x in /sys/block/*/device; do
+			[ -e "$x" ] || continue
+			x=${x#/sys/block/} x=${x%/device}
+			[[ "$x" = fd* ]] && continue
+			local dev=/dev/$x; [ -L "$dev" ] && dev=$(readlink "$dev")
+
+			x=${x#/dev/}
+			local vendor="$(cat /sys/block/$x/device/vendor 2>/dev/null)"
+			local model="$(cat /sys/block/$x/device/model 2>/dev/null)"
+
+			# all partitions
+			local devs=`echo ${dev}*`
+			local parts=""
+			if [ "$devs" != "$dev" ]; then
+				parts=1
+				echo "        $dev     $vendor $model" # header
+				vendor=""
+				model=""
+			fi
+			for d in $devs; do
+				if [ -z "$parts" -o "$d" != "$dev" ]; then
+					echo "     $j. $d${vendor:+     $vendor $model}"
+					devicelist="$devicelist $d"
+					[ -z "$default" -a "$(< /sys/block/$x/removable)" == 1 ] && default=$j
+					: $((j++))
+				fi
+			done
+		done
+
+		if [ -z "$devicelist" ]; then
+			echo "Waiting for devices to appear."
+	 	 	sleep 1
+		fi
+
+		: $((i++))
+	done
+
+	if [ -z "$devicelist" ]; then
+		echo "No device found."
+		return
+	fi
+
+	[ "$default" ] || default=1
+	echo -en "\nEnter number or device file name (default=$default): "
+
+	device= in=
+	[ $autoload = 0 ] && read in || echo
+	[ "$in" ] || in="$default"
+	while [ -z "$device" ]; do
+		[ -z "$in" ] && return
+		if [ -e "$in" ]; then
+			device="$in"
+		else
+			local i=1
+			for x in $devicelist; do
+				[ "$in" = $i ] && device=$x && break
+				: $((i++))
+			done
+		fi
+
+		if [ -z "$device" ]; then
+			echo -n "No such device found. Number or device file name (enter=back): "
+			read in
+		fi
+	done
+
+	eval $1=$device
+}
+
+load_ramdisk_file() {
+	devicefile=
+	filename=
+
+	echo -e "\nSelect a device for loading the second stage system from:\n"
+
+	getdevice devicefile
+	if [ -z "$devicefile" ]; then
+		echo "No device detected."
+		return
+	fi
+
+	select_stage2 $devicefile filename
+	if [ -z "$filename" ]; then
+		echo "No image found."
+		return
+	fi
+
+	exit_linuxrc=1
+	echo "Using $devicefile:$filename"
+
+	mkdir -p /media || exit_linuxrc=0
+	trymount $devicefile /media || exit_linuxrc=0
+
+	echo "Extracting second stage filesystem ..."
+	filter=`filter_for "$filename"`
+	mv /bin/{,.}tar
+	for f in $filename; do
+		if ! $filter < /media/$f | (cd /; .tar x); then
+			echo "Error extracting $f."
+			mv /bin/{.,}tar
+			exit_linuxrc=0
+		fi
+	done
+
+	umount /media || exit_linuxrc=0
+
+	export ROCK_INSTALL_SOURCE_DEV=$devicefile
+	export ROCK_INSTALL_SOURCE_FILE=$filename
+	doboot
+}
+
+activate_swap() {
+	echo -ne "\nEnter file name of swap device: "
+
+	read in
+	[ "$in" ] && swapon $in
+}
+
+net_config() {
+	echo -n "Interfaces:"
+	# serial consoles often have no terminal size, force combine in one line
+	ls -A /sys/class/net/ | sed -n 'H; ${x; s/\n/ /g; s/ lo//; p}' 
+
+	echo -n "Enter interface name (eth0): "
+	read dev; [ "$dev" ] || dev="eth0"
+
+	echo -n "Enter IP address (auto): "
+	read ip
+	if [ "$ip" ]; then
+		echo -n "Enter default gateway (none): "
+		read gw
+		ipconfig $ip::$gw:::$dev:none 
+	else
+		# let the link autoneg.
+		ipconfig :::::$dev:none > /dev/null 2>&1 ; sleep 4
+		echo "Auto configuration via DHCP, BOOTP, RARP ..."
+		ipconfig -d $dev -t 10
+	fi
+}
+
+hex_to_ip() {
+	ip=
+	for i in $(echo "$1" | sed 's/\(..\)\(..\)\(..\)\(..\)/\4 \3 \2 \1/'); do
+		# pre- or append based on endianness
+		[ "$2" ] && ip="$((16#$i)).$ip" || ip="$ip$((16#$i))."
+	done
+	echo ${ip%.}
+}
+
+net_gateway() {
+	local gateway=
+	local endian=
+	while read if dst gw _ _ _ _ mask _; do
+		[ "$dst" = "00000000" ] && gateway=$gw
+		[[ $mask = FF*00 ]] && endian=big # guess little vs. big from mask
+	done < /proc/net/route
+
+	[ "$gateway" ] && hex_to_ip "$gateway" "$endian"
+}
+
+exec_sh() {
+	echo "Exit the shell to return to the first stage loader."
+	sh
+}
+
+# try to auto-load from a disc, first
+autoload=1
+
+echo "
+T2 SDE installer first stage loader.
+
+The T2 install system boots up in two stages. You are now in the first stage
+and if everything goes right, you will not spend much time here. Just 
+configure the installation source so the second stage boot system can be
+loaded and you can start the installation."
+exit_init=0
+while [ $exit_init = 0 ]; do
+	echo -n "
+     0. Load second stage system from local device
+     1. Load second stage system from network
+     2. Configure network interfaces
+     3. Activate already formatted swap device
+     4. Run shell (for experts!)
+
+What do you want to do [0-4] (default=0)? "
+
+	in=; [ $autoload = 0 ] && read in || echo
+	[ "$in" ] || in=0
+	case $in in
+	  0)	load_ramdisk_file ;;
+	  1)	httpload ;;
+	  2)	net_config ;;
+	  3)	activate_swap ;;
+	  4)	exec_sh ;;
+	  *)    echo "No such option." ;;
+	esac
+	# only try autoload once
+	autoload=0
+done
+
+exec /sbin/init /sbin/init
+
+echo -e "\nPanic: Can't start /sbin/init!\n\n"

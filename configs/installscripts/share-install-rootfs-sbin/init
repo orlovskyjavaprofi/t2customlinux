@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# T2 SDE: target/share/install/rootfs/sbin/init
+# Partially based on linuxrc.c, Copyright (C) 2003, 2004 Clifford Wolf and Rene Rebe
+# Converted from C to shell, heavily cleaned and improved for the T2 SDE by:
+# (C)2005-2024 Rene Rebe, ExactCODE GmbH; Germany.
+
+export PATH="/sbin:/bin:/usr/sbin:/usr/bin"
+export HOME="/root"
+
+cd /dev; rm -f fd
+ln -sf /proc/kcore      core
+ln -sf /proc/self/fd    fd
+ln -sf fd/0             stdin
+ln -sf fd/1             stdout
+ln -sf fd/2             stderr
+cd /
+mkdir -p /mnt
+
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
+echo "\nWelcome to custom build of T2 Linux!\n"
+echo "Build by Orlovsky Consulting GbR - https://orlovskyconsulting.de"
+
+echo "
+Custom build T2 Linux - Installer in second stage.
+
+Second stage is small Linux image.
+It has almost everything what you need for the install of T2 Linux.
+This custom version of T2 Linux you can use even for restore of previous
+installation, or perform maintenance and or etc."
+
+for x in /etc/setup-*.sh /setup/setup.sh; do
+   if [ -f "$x" ]; then
+      echo; echo "Running $x ..."; sh $x
+      echo "Ready in $x for further interactions."
+   fi
+done
+
+ttydevs="console= $(< /proc/cmdline)"
+ttydevs=${ttydevs##*console=} ttydevs=${ttydevs%%[ ,]*}
+if [ ! "$ttydevs" ]; then
+   ttydevs="`grep -a -H Y /sys/class/tty/*/console`"
+   ttydevs="${ttydevs%%/console*}" ttydevs=${ttydevs##*/}
+fi
+ttydevs="${ttydevs:-tty1 tty2 tty3 tty4 tty5 tty6}"
+while true; do
+	echo -n "
+You can use following terminal types: for example 'ttyS0' or 'ttyUSB0' for the first serial port or just 'console',
+Proceed with installation and hit enter. (default: $ttydevs): "
+	read _ttydevs
+	if [ "$_ttydevs" ]; then # check
+		for x in $_ttydevs; do
+			[ ! -c /dev/$x ] &&
+				echo "$x is not a char-device." && continue 2
+		done
+		ttydevs="$_ttydevs"
+	fi
+	break
+done
+
+echo "
+	T2 Linux original developers/maintainers: https://t2sde.org/support .
+	This T2 Linux custom build version was build by Orlovsky Consulting GbR https://orlovskyconsulting.de
+	Any related bug/s for this build should be submitted to https://github.com/orlovskyjavaprofi/t2customlinux"
+	
+echo "
+If you not sure how to proceed with install, please read the official T2 documentation or read online docu on wiki https://github.com/orlovskyjavaprofi/t2customlinux/wiki .
+To start an installation, simply run: 'stone'"
+
+for x in $ttydevs; do
+   [[ "$x" != /dev/tty[0-9]* ]] && TERM=linux
+   ( while : ; do agetty -i -J -n -N -l /sbin/login-shell $x $TERM; done ) &
+done
+
+# DO NOT redirect output for the whole script here.
+# Just keep the process alive so the init PID doesn't exit.
+# This prevents the kernel from panicking because init died.
+while : ; do
+    sleep 3600
+done
+
+exec < /dev/null > /dev/null 2>&1
+while : ; do sleep 1; done
