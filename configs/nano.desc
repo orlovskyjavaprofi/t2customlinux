@@ -36,3 +36,13 @@ export CFLAGS
 # Add these if stripping CFLAGS isn't enough
 LDFLAGS=$(echo $LDFLAGS | sed 's/-mieee//g')
 export LDFLAGS
+
+post_configure() {
+    if [ -f Makefile ]; then
+        sed -i 's/-mieee//g' Makefile
+    fi
+    # Sometimes it is hidden in sub-makefiles
+    find . -name "Makefile" -exec sed -i 's/-mieee//g' {} +
+}
+
+var_append GCC_WRAPPER_APPEND ' ' '-Wl,--warn-unresolved-symbols'
