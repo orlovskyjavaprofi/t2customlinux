@@ -111,8 +111,11 @@ if [ ! -f $build_root/usr/lib64/locale/locale-archive ]; then
     chroot $build_root localedef -i C -f UTF-8 C.utf8
 fi
 
-cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib64/locale/
-ln -sf initramfs/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/locale-archive
+#if something gone wrong during locale-archive generation
+if [ ! -f $build_root/usr/lib64/locale/locale-archive ]; then
+	cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib64/locale/
+	ln -sf initramfs/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/locale-archive
+fi
 
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
