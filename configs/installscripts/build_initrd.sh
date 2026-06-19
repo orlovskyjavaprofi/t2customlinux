@@ -166,6 +166,7 @@ copy_with_libs "$build_root/usr/lib64/libsvn_client-1.a" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_client-1.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_client-1.so.0" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_client-1.so.0.0.0" "initramfs/usr/lib64"
+
 copy_with_libs "$build_root/usr/lib64/liblzo2.a" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/liblzo2.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/liblzo2.so.2" "initramfs/usr/lib64"
