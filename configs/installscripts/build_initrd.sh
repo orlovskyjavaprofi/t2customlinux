@@ -85,6 +85,7 @@ mkdir -p initramfs/usr/share/locale
 mkdir -p initramfs/usr/lib/locale
 mkdir -p initramfs/usr/lib64
 mkdir -p initramfs/etc
+mkdir -p initramfs/lib
 
 chroot $build_root localedef -i C -f UTF-8 C.utf8 2>/dev/null || true
 cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/
