@@ -24,9 +24,6 @@
 [CV-URL] http://www.nano-editor.org/download.php
 [D] d4e05090c9da3f5a2ec9c1431ee6020f20bc49d86d3d501dd95fda6e nano-9.0.tar.xz https://www.nano-editor.org/dist/v9/
 
-hook_add preconf 3 '    sed -i "/cannot make \$CC report undeclared builtins/s/^/: #/" configure'
-var_append confopt ' ' '--enable-extra --enable-nanorc --enable-color --enable-multibuffer'
-var_append confopt ' ' 'gl_cv_warn_c__Werror_builtin_declaration_mismatch=no'
 var_append confopt ' ' 'ac_cv_c_undeclared_builtin_options="none needed"'
-
+var_append confopt ' ' '--enable-extra --enable-nanorc --enable-color --enable-multibuffer'
 var_append GCC_WRAPPER_APPEND ' ' -std=c11
