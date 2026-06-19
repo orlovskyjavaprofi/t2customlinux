@@ -60,6 +60,7 @@ copy_with_libs "$build_root/usr/bin/unzstd" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/fget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/wget" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/tmux" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/localedef" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/man" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/ifconfig" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/man" "initramfs/usr/"
@@ -81,13 +82,13 @@ copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
 
 #Proper setup for all locale
-mkdir -p initramfs/usr/lib/
-mkdir -p initramfs/usr/lib64/locale
-cp -a $build_root/usr/lib64/locale initramfs/usr/lib64/
-ln -sf /usr/lib64/locale initramfs/usr/lib/locale
-
 mkdir -p initramfs/usr/share/locale
 cp -a $build_root/usr/share/locale initramfs/usr/share/
+cp -a $build_root/usr/share/i18n initramfs/usr/share/
+ln -sf initramfs/usr/share/i18n initramfs/usr/lib/i18n
+ln -sf initramfs/usr/share/i18n initramfs/usr/lib64/i18n
+ln -sf initramfs/usr/share/locale initramfs/usr/lib/locale
+ln -sf initramfs/usr/share/locale initramfs/usr/lib64/locale
 
 mkdir -p initramfs/opt/gnome/share/locale
 cp -a $build_root/opt/gnome/share/locale initramfs/opt/gnome/share/

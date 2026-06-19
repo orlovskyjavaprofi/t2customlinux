@@ -17,8 +17,8 @@ ln -sf fd/2             stderr
 cd /
 mkdir -p /mnt
 
-export LANG=C.UTF-8
-export LC_ALL=C.UTF-8
+export LANG=C.utf8
+export LC_ALL=C.utf8
 
 echo "\nWelcome to custom build of T2 Linux!\n"
 echo "Build by Orlovsky Consulting GbR - https://orlovskyconsulting.de"
