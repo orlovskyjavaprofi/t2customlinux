@@ -26,4 +26,4 @@
 
 var_append confopt ' ' 'ac_cv_c_undeclared_builtin_options="none needed"'
 var_append confopt ' ' '--enable-extra --enable-nanorc --enable-color --enable-multibuffer'
-hook_add premake 3 'sed -i "s/-mieee//g" Makefile'
+hook_add preconf 3 'export CFLAGS="${CFLAGS//-mieee/}"; export CXXFLAGS="${CXXFLAGS//-mieee/}"'
