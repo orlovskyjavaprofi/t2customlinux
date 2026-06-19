@@ -101,11 +101,12 @@ copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 mkdir -p "initramfs/etc"
 cp -a $build_root/etc/man_db.conf initramfs/etc/
 
-mkdir -p initramfs/usr/lib/locale
-cp -a $build_root/usr/lib/locale/locale-archive initramfs/usr/lib/locale/
-
 mkdir -p initramfs/lib64 initramfs/lib
 mkdir -p initramfs/usr/lib64/
+
+cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib64/locale/
+ln -sf initramfs/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/locale-archive
+
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
