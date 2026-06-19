@@ -104,6 +104,13 @@ cp -a $build_root/etc/man_db.conf initramfs/etc/
 mkdir -p initramfs/lib64 initramfs/lib
 mkdir -p initramfs/usr/lib64/
 
+# Generate locale archive in build root if missing
+if [ ! -f $build_root/usr/lib64/locale/locale-archive ]; then
+    echo "Generating locale archive..."
+    mkdir -p $build_root/usr/lib64/locale
+    chroot $build_root localedef -i C -f UTF-8 C.utf8
+fi
+
 cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib64/locale/
 ln -sf initramfs/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/locale-archive
 
