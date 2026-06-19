@@ -79,6 +79,8 @@ copy_with_libs "$build_root/sbin/ping" "initramfs/sbin/"
 copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
+
+#Proper setup for all locale
 mkdir -p initramfs/usr/lib/
 mkdir -p initramfs/usr/lib64/locale
 cp -a $build_root/usr/lib64/locale initramfs/usr/lib64/
@@ -90,7 +92,7 @@ cp -a $build_root/usr/share/locale initramfs/usr/share/
 mkdir -p initramfs/opt/gnome/share/locale
 cp -a $build_root/opt/gnome/share/locale initramfs/opt/gnome/share/
 
-# 4. Locale BINARY (The ONLY one that needs copy_with_libs)
+#Locale BINARY (The ONLY one that needs copy_with_libs)
 copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 mkdir -p "initramfs/etc"
 cp -a $build_root/etc/man_db.conf initramfs/etc/
