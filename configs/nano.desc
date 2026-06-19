@@ -25,4 +25,5 @@
 [D] d4e05090c9da3f5a2ec9c1431ee6020f20bc49d86d3d501dd95fda6e nano-9.0.tar.xz https://www.nano-editor.org/dist/v9/
 
 var_append confopt ' ' '--enable-extra --enable-nanorc --enable-color --enable-multibuffer'
+var_append confopt ' ' 'ac_cv_c_undeclared_builtin_options="none needed"'
 var_append GCC_WRAPPER_APPEND ' ' -std=c11
