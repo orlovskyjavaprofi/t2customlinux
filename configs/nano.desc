@@ -32,3 +32,7 @@ var_append GCC_WRAPPER_APPEND ' ' -std=c11
 # Strip the problematic flag
 CFLAGS=$(echo $CFLAGS | sed 's/-mieee//g')
 export CFLAGS
+
+# Add these if stripping CFLAGS isn't enough
+LDFLAGS=$(echo $LDFLAGS | sed 's/-mieee//g')
+export LDFLAGS
