@@ -114,8 +114,7 @@ copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 
 cp -a $build_root/etc/man_db.conf initramfs/etc/
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
-ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
-ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
+ln -sf initramfs/usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
 
 #Add here missing libs if one of packages requires a lib
 copy_with_libs "$build_root/usr/lib64/libmagic.so.1" "initramfs/usr/lib64/"
