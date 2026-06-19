@@ -91,6 +91,7 @@ cp -a $build_root/usr/share/locale/ initramfs/usr/share/locale/
 #Locale binary (Use your function for the executable)
 copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/lib64/locale" "initramfs/usr/lib64/"
+mkdir -p initramfs/opt/gnome/share/
 copy_with_libs "$build_root/opt/gnome/share/locale" "initramfs/opt/gnome/share/"
 
 mkdir -p "initramfs/etc"
