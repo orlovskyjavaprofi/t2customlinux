@@ -41,5 +41,5 @@ hook_add premake 5 "sed -i 's,/usr,$root/usr,' Makefile"
 hook_add premake 5 "sed -i 's,/usr/local,/usr,' Makefile"
 hook_add premake 5 "sed -i 's,/etc/,$root/etc/,g' Makefile"
 hook_add postmake 5 'cp vsftpd.conf $root$docdir/'
-
+hook_add premake 3 'sed -i "s/^#define VSF_BUILD_PAM/\/\/ #define VSF_BUILD_PAM/" builddefs.h'
 pkginstalled tcp_wrappers && hook_add premake 3 "sed -i -e 's/^#undef VSF_BUILD_TCPWRAPPERS/#define VSF_BUILD_TCPWRAPPERS/' builddefs.h"
