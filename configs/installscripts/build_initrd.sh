@@ -81,42 +81,40 @@ copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
 
-#Translation files (gettext .mo)
+# Translation files (gettext .mo)
 mkdir -p initramfs/usr/share/locale
 cp -a $build_root/usr/share/locale initramfs/usr/share/
-#i18n source data (charmaps, locales)
+
+# i18n source data (charmaps, locales)
 mkdir -p initramfs/usr/share/i18n
 cp -a $build_root/usr/share/i18n initramfs/usr/share/
-#lib64 points to lib (correct absolute symlink)
+
+chroot $build_root localedef -i C -f UTF-8 C.utf8 2>/dev/null || true
+
+mkdir -p initramfs/usr/lib/locale
+if [ -f $build_root/usr/lib64/locale/locale-archive ]; then
+    cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/
+else
+    echo "WARNING: locale-archive missing - falling back to C"
+    printf 'LANG=C\nLC_ALL=C\n' > initramfs/etc/locale.conf
+fi
+
+# lib64 symlink → lib
 mkdir -p initramfs/usr/lib64
 ln -sf /usr/lib/locale initramfs/usr/lib64/locale
-#Default locale
+
+# Default locale
 mkdir -p initramfs/etc
 printf 'LANG=C.utf8\nLC_ALL=C.utf8\n' > initramfs/etc/locale.conf
+
+# Gnome locale
 mkdir -p initramfs/opt/gnome/share/locale
 cp -a $build_root/opt/gnome/share/locale initramfs/opt/gnome/share/
 
-#Locale BINARY (The ONLY one that needs copy_with_libs)
+# Locale binary
 copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
-mkdir -p "initramfs/etc"
+
 cp -a $build_root/etc/man_db.conf initramfs/etc/
-
-mkdir -p initramfs/lib64 initramfs/lib
-mkdir -p initramfs/usr/lib64/
-
-# Generate locale archive in build root if missing
-if [ ! -f $build_root/usr/lib64/locale/locale-archive ]; then
-    echo "Generating locale archive..."
-    mkdir -p $build_root/usr/lib64/locale
-    chroot $build_root localedef -i C -f UTF-8 C.utf8
-fi
-
-#if something gone wrong during locale-archive generation
-if [ ! -f $build_root/usr/lib64/locale/locale-archive ]; then
-	cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib64/locale/
-	ln -sf initramfs/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/locale-archive
-fi
-
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
