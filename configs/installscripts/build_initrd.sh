@@ -80,32 +80,29 @@ copy_with_libs "$build_root/sbin/ping" "initramfs/sbin/"
 copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
-
-# Translation files (gettext .mo)
+# lib64 symlink → lib
 mkdir -p initramfs/usr/share/locale
+mkdir -p initramfs/usr/lib/locale
+mkdir -p initramfs/usr/lib64
+
+chroot $build_root localedef -i C -f UTF-8 C.utf8 2>/dev/null || true
+cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/
 cp -a $build_root/usr/share/locale initramfs/usr/share/
 
 # i18n source data (charmaps, locales)
 mkdir -p initramfs/usr/share/i18n
 cp -a $build_root/usr/share/i18n initramfs/usr/share/
 
-chroot $build_root localedef -i C -f UTF-8 C.utf8 2>/dev/null || true
-
-mkdir -p initramfs/usr/lib/locale
-if [ -f $build_root/usr/lib64/locale/locale-archive ]; then
-    cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/
+if [ -f initramfs/usr/lib/locale/locale-archive ]; then
+    ln -sf /usr/lib/locale initramfs/usr/lib64/locale
+	printf 'LANG=C.utf8\nLC_ALL=C.utf8\n' > initramfs/etc/locale.conf
 else
     echo "WARNING: locale-archive missing - falling back to C"
     printf 'LANG=C\nLC_ALL=C\n' > initramfs/etc/locale.conf
 fi
 
-# lib64 symlink → lib
-mkdir -p initramfs/usr/lib64
-ln -sf /usr/lib/locale initramfs/usr/lib64/locale
-
 # Default locale
 mkdir -p initramfs/etc
-printf 'LANG=C.utf8\nLC_ALL=C.utf8\n' > initramfs/etc/locale.conf
 
 # Gnome locale
 mkdir -p initramfs/opt/gnome/share/locale
