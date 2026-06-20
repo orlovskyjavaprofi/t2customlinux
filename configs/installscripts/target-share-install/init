@@ -323,6 +323,7 @@ First stage loader.
 You are now in the first stage.
 Configure the installation source so the second stage boot system can be
 loaded and you can start the installation.
+
 If you still dont know what to do try option 4 and run stone command, otherwise read online docu"
 exit_init=0
 while [ $exit_init = 0 ]; do

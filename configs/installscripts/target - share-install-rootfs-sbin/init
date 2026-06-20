@@ -78,7 +78,7 @@ done
 # Just keep the process alive so the init PID doesn't exit.
 # This prevents the kernel from panicking because init died.
 while : ; do
-    sleep 3600
+    sleep 4800
 done
 
 exec < /dev/null > /dev/null 2>&1
