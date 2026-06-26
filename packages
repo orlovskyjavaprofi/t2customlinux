@@ -74,7 +74,7 @@ O -----5---- 104.100 develop unwind 1.8.3 / base/library CROSS 0
 X -----5---- 104.300 develop liburcu 0.15.6 / base/development CROSS 0
 X --2--5---- 104.300 filesystem libaio 0.3.113 / base/development CROSS NO-LTO.gcc 0
 O -----5---- 104.300 filesystem liburing 2.14 / base/development CROSS NO-LTO.gcc 0
-X -?---5---- 104.500 base expat 2.8.0 / base/library CROSS 0
+X -?---5---- 104.500 base expat 2.8.2 / base/library CROSS 0
 O 0----5---- 104.550 perl perl-xml-parser 2.47 / extra/multimedia CROSS NO-LTO.clang 0
 O --2--5---- 104.600 security libressl 4.2.1 / base/library CROSS DIETLIBC 0
 X --2--5---- 104.800 database gdbm 1.26 / base/library CROSS 0
