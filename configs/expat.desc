@@ -1,0 +1,28 @@
+[COPY] --- T2-COPYRIGHT-BEGIN ---
+[COPY] t2/package/*/expat/expat.desc
+[COPY] Copyright (C) 2004 - 2026 The T2 SDE Project
+[COPY] Copyright (C) 1998 - 2003 ROCK Linux Project
+[COPY] SPDX-License-Identifier: GPL-2.0
+[COPY] --- T2-COPYRIGHT-END ---
+
+[I] XML parser library
+
+[T] Expat is an XML parser library written in C. It is a stream-oriented
+[T] parser in which an application registers handlers for things the parser
+[T] might find in the XML document (like start tags). An introductory
+[T] article on using Expat is available on xml.com.
+
+[U] https://expat.sourceforge.net/
+
+[A] James Clark <jjc@jclark.com>
+[M] RenÃ© Rebe <rene@exactco.de>
+[M] RenÃ© Rebe <rene@exactco.de>
+
+[C] base/library
+[F] CROSS
+
+[L] OpenSource
+[V] 2.8.1
+[P] X -?---5---9 104.500
+
+[D] 3ad89b8588e6644bd4e49981480d48b21289eebbcd4f0a1a4afb1c29f99b6ab4 expat-2.8.2.tar.xz https://sourceforge.net/projects/expat/files/expat/2.8.2/
