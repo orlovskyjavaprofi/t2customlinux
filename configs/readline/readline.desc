@@ -81,4 +81,3 @@ pkg_readline_postmake() {
     /sbin/ldconfig -r "$root" 2>/dev/null || true
 }
 hook_add postmake 5 pkg_readline_postmake
-hook_add postmake 5 pkg_readline_postmake
