@@ -28,6 +28,8 @@
 [D] 13da61afcdadeb99c1c57c0274271e50d25f4dd8832cea9bc60096a8 linux-patch-7.0.11.xz !https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.0.11.xz
 #[D] 0 linux-tip-6f85aad74a7.tar.gz git+https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git 6f85aad74a7
 
+echo "DEBUG: Base is $base"
+echo "DEBUG: Trying to source: $base/package/*/linux/linux-conf.in"
 . $base/package/*/linux/linux-conf.in
 
 autopatch=0
