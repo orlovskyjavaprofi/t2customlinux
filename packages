@@ -2303,7 +2303,7 @@ O -----5---- 800.000 ai goose-cli 1.32.0 / extra/ai CROSS 0
 O -----5---- 800.000 ai llama-cpp b8783 / extra/development OBJDIR 0
 O -----5---- 800.000 ai llamafile 0.10.0 / extra/development 0
 O -----5---- 800.000 ai mcp-toolbox 1.1.0 / extra/ai CROSS 0
-X -----5---- 800.000 ai tt-kmod 2.8.0 / extra/ai CROSS 0
+O -----5---- 800.000 ai tt-kmod 2.8.0 / extra/ai CROSS 0
 O -----5---- 800.000 ai whisper-cpp 1.8.4 / extra/development OBJDIR 0
 O -----5---- 800.000 archiver afio 2.5.2 / base/tool CROSS 0
 O -----5---- 800.000 archiver alien 8.95.9 / extra/development CROSS 0
