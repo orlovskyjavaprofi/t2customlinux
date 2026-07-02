@@ -25,7 +25,7 @@
 
 [CV-FLAGS] NO-MAJOR
 #always use latest stable kernel!
-[D] ad7f8010a17ecd9959c79cba639dfbbc9dccbbfb7323c5f1d04421368939f18f linux-7.1.tar.gz https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/
+[D] ce6860d2b917c001b451f6aa3546cea55003d51af4a141d597e99d3be136754f linux-7.1.tar.gz https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/
 
 echo "DEBUG: Base is $base"
 echo "DEBUG: Trying to source: $base/package/*/linux/linux-conf.in"
