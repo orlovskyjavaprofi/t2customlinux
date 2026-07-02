@@ -104,6 +104,7 @@ linux_premake() {
 hook_add premake 5 linux_premake
 
 linux_install() {
+    export LD_LIBRARY_PATH="$root/usr/lib64:$root/lib64:$LD_LIBRARY_PATH"
 	echo "Installing the kernel ..."
 	cp -vf System.map $root/boot/System.map-${lx_kernelrelease}
 	ln -sfv System.map-${lx_kernelrelease} $root/boot/System.map
@@ -190,6 +191,11 @@ linux_install() {
 			abort "At least one of the 3rd party kernel modules failed!"
 		fi
 
+        mkdir -p $root/lib64
+		for lib in libzstd libkmod; do
+		    find $root/usr/lib64/ -name "$lib.so*" -exec cp -af {} $root/lib64/ \;
+		done
+		
 		local depmod="depmod"
 		atstage native || depmod="${archprefix}depmod"
 		echo "Running $depmod -a -b $root/ -F $root/boot/System.map-${lx_kernelrelease} ${lx_kernelrelease}"
