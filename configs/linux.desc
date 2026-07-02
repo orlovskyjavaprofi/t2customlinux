@@ -24,6 +24,7 @@
 [V] 7.0.11
 
 [CV-FLAGS] NO-MAJOR
+#always latest kernel!
 [D] 0 linux-git git+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
 
 echo "DEBUG: Base is $base"
