@@ -24,9 +24,7 @@
 [V] 7.0.11
 
 [CV-FLAGS] NO-MAJOR
-[D] cc6ca744442d44f6b1680b81ebbc728bf1d3d45f8aeb031914db7edd linux-7.0.tar.xz http://www.kernel.org/pub/linux/kernel/v7.x/
-[D] 13da61afcdadeb99c1c57c0274271e50d25f4dd8832cea9bc60096a8 linux-patch-7.0.11.xz !https://www.kernel.org/pub/linux/kernel/v7.x/patch-7.0.11.xz
-#[D] 0 linux-tip-6f85aad74a7.tar.gz git+https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git 6f85aad74a7
+[D] 0 linux-git git+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
 
 echo "DEBUG: Base is $base"
 echo "DEBUG: Trying to source: $base/package/*/linux/linux-conf.in"
