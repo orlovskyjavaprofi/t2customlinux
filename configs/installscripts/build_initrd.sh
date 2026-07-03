@@ -183,7 +183,9 @@ copy_with_libs "$build_root/usr/lib64/libsvn_wc-1.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_wc-1.so.0" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_wc-1.so.0.0.0" "initramfs/usr/lib64"
 
-copy_with_libs "$build_root/lib64/libext2fs.a" "initramfs/lib64"
+copy_with_libs "$build_root/usr/lib64/libext2fs.a" "initramfs/usr/lib64/"
+ln -sf /usr/lib64/libext2fs.a initramfs/lib/libext2fs.a
+ln -sf /usr/lib64/libext2fs.a initramfs/lib64/libext2fs.a
 copy_with_libs "$build_root/lib64/libext2fs.so" "initramfs/lib64"
 copy_with_libs "$build_root/lib64/libext2fs.so.2" "initramfs/lib64"
 copy_with_libs "$build_root/lib64/libext2fs.so.2.4" "initramfs/lib64"
