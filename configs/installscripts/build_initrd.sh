@@ -80,6 +80,8 @@ copy_with_libs "$build_root/sbin/cfdisk" "initramfs/sbin/"
 copy_with_libs "$build_root/sbin/ip" "initramfs/sbin/"
 copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
+copy_with_libs "$build_root/sbin/udevadm" "initramfs/sbin/"
+copy_with_libs "$build_root/sbin/udevd" "initramfs/sbin/"
 
 # lib64 symlink → lib
 mkdir -p initramfs/usr/share/locale
@@ -249,6 +251,11 @@ copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.a" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so.0" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libsvn_subr-1.so.0.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/lib64/udev" "initramfs/lib64"
+copy_with_libs "$build_root/lib/udev" "initramfs/lib"
+copy_with_libs "$build_root/usr/doc/udev" "initramfs/usr/doc"
+copy_with_libs "$build_root/usr/lib/udev" "initramfs/usr/lib"
 
 # Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
