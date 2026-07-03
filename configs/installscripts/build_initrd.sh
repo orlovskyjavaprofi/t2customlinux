@@ -54,6 +54,16 @@ echo "Copy libcap to initrd image!"
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
 
+# Custom tools for power down and or reboot
+echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
+echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
+echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/shutdown"
+echo "echo h > /proc/sysrq-trigger" > "initramfs/bin/halt"
+chmod +x initramfs/bin/reboot
+chmod +x initramfs/bin/poweroff
+chmod +x initramfs/bin/shutdown
+chmod +x initramfs/bin/halt
+
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
 chmod +x initramfs/init
