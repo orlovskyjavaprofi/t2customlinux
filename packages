@@ -4863,7 +4863,7 @@ O -----5---- 800.000 kde wacomtablet 6.6.4 / extra/desktop/kde CROSS OBJDIR 0
 O -----5---- 800.000 kde xdg-desktop-portal-kde 6.6.4 / extra/office extra/desktop/kde CROSS OBJDIR 0
 O -----5---- 800.000 kde yakuake 26.04.0 / extra/desktop/kde CROSS OBJDIR 0
 O -----5---- 800.000 kde zanshin 26.04.0 / extra/office extra/desktop/kde CROSS OBJDIR 0
-X -----5---- 800.000 kernel linux 7.0.11 / base/kernel CROSS KERNEL CUSTOM-LTO NO-PIE NO-SSP 0
+X -----5---- 800.000 kernel linux 7.1.0 / base/kernel CROSS KERNEL CUSTOM-LTO NO-PIE NO-SSP 0
 O -----5---- 800.000 kernel tilck 0.1.3 / base/kernel CROSS NO-LTO OBJDIR NO-SSP 0
 O -----5---- 800.000 lua cffi-lua 0.2.4 / extra/tool CROSS 0
 O -----5---- 800.000 lua cgilua 6.0.2 / extra/development CROSS 0

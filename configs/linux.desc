@@ -21,7 +21,7 @@
 [E] opt lvm2
 
 [L] GPL
-[V] 7.0.11
+[V] 7.1.0
 
 [CV-FLAGS] NO-MAJOR
 #always use latest stable kernel!
