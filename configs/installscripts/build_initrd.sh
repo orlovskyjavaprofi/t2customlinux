@@ -261,6 +261,21 @@ cp -a "$build_root/lib64/udev" "initramfs/lib64/"
 cp -a "$build_root/lib/udev" "initramfs/lib/"
 cp -a "$build_root/usr/lib/udev" "initramfs/usr/lib/"
 
+# Remove old/incorrectly nested directories
+rm -rf initramfs/lib/udev initramfs/usr/lib/udev
+
+# Create clean destination structures
+mkdir -p initramfs/lib/udev/rules.d
+mkdir -p initramfs/usr/lib/udev/rules.d
+
+# Copy only the CONTENTS of the rules directories
+cp -a "$build_root/lib/udev/rules.d/"* "initramfs/lib/udev/rules.d/" 2>/dev/null || true
+cp -a "$build_root/usr/lib/udev/rules.d/"* "initramfs/usr/lib/udev/rules.d/" 2>/dev/null || true
+
+# Copy main configuration
+mkdir -p initramfs/etc/udev
+cp -a "$build_root/etc/udev/udev.conf" "initramfs/etc/udev/" 2>/dev/null || true
+
 # Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
@@ -277,6 +292,7 @@ cp -a $build_root/bin/tar initramfs/bin/
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
 cp -a initramfs/init initramfs/sbin/init
+
 chmod +x initramfs/init
 chmod +x initramfs/sbin/init
 chmod +x initramfs/bin/tar

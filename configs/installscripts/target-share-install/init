@@ -5,6 +5,21 @@
 # Converted from C to shell, heavily cleaned and improved for the T2 SDE by:
 # (C)2005-2023 Rene Rebe, ExactCODE GmbH; Germany.
 
+# --- UDEV INITIALIZATION START ---
+# Mount required virtual filesystems for udev
+mount -t devtmpfs none /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+
+# Start udev daemon
+/sbin/udevd --daemon
+
+# Trigger events so udev detects existing hardware
+/bin/udevadm trigger --type=subsystems --action=add
+/bin/udevadm trigger --type=devices --action=add
+/bin/udevadm settle
+# --- UDEV INITIALIZATION END ---
+
 doboot() {
 	if [ ! -e /sbin/init ]; then
 	 	echo "Can't find /sbin/init."
