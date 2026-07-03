@@ -23,6 +23,36 @@ cp $build_root/usr/embutils/{tar,readlink,rmdir} initramfs/bin/
 cp -a $build_root/usr/bin/{,un}zstd initramfs/usr/bin/
 cp $build_root/usr/bin/fget initramfs/bin/
 
+# lib64 symlink → lib
+mkdir -p initramfs/usr/share/locale
+mkdir -p initramfs/usr/lib/locale
+mkdir -p initramfs/usr/lib64
+mkdir -p initramfs/etc
+mkdir -p initramfs/lib
+
+chroot $build_root localedef -i C -f UTF-8 C.utf8 2>/dev/null || true
+cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/
+cp -a $build_root/usr/share/locale initramfs/usr/share/
+
+# i18n source data (charmaps, locales)
+mkdir -p initramfs/usr/share/i18n
+cp -a $build_root/usr/share/i18n initramfs/usr/share/
+
+if [ -f initramfs/usr/lib/locale/locale-archive ]; then
+    ln -sf /usr/lib/locale initramfs/usr/lib64/locale
+	printf 'LANG=C.utf8\nLC_ALL=C.utf8\n' > initramfs/etc/locale.conf
+else
+    echo "WARNING: locale-archive missing - falling back to C"
+    printf 'LANG=C\nLC_ALL=C\n' > initramfs/etc/locale.conf
+fi
+
+# Gnome locale
+mkdir -p initramfs/opt/gnome/share/locale
+cp -a $build_root/opt/gnome/share/locale initramfs/opt/gnome/share/
+
+cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
+ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
+
 sed '/PANICMARK/Q' $build_root/sbin/initrdinit > initramfs/init
 cat $base/target/share/install/init >> initramfs/init
 chmod +x initramfs/init
