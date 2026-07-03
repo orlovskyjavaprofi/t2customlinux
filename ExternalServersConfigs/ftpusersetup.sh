@@ -16,7 +16,9 @@ fi
 
 # 2. Setup the FTP directory
 # If you want to use the home dir instead, change FTP_DIR to "/home/$USER/ftp"
+echo "Creating $FTP_DIR directory"
 mkdir -p "$FTP_DIR"
+echo "Creating $FTP_DIR2 directory"
 mkdir -p "$FTP_DIR2"
 
 # 3. Apply permissions (nobody:nogroup is standard for restricted FTP)
