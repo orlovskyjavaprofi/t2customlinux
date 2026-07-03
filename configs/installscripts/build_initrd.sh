@@ -71,12 +71,13 @@ copy_with_libs "$build_root/usr/sbin/parted" "initramfs/usr/sbin/"
 copy_with_libs "$build_root/usr/bin/svn" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/git" "initramfs/usr/bin/"
 copy_with_libs "$build_root/usr/bin/killall" "initramfs/usr/bin/"
+copy_with_libs "$build_root/usr/bin/ping" "initramfs/usr/bin/"
+ln -sf /usr/bin/ping initramfs/bin/ping
 copy_with_libs "$build_root/sbin/agetty" "initramfs/sbin/"
 ln -sf /sbin/agetty initramfs/bin/agetty
 copy_with_libs "$build_root/sbin/fdisk" "initramfs/sbin/"
 copy_with_libs "$build_root/sbin/cfdisk" "initramfs/sbin/"
 copy_with_libs "$build_root/sbin/ip" "initramfs/sbin/"
-copy_with_libs "$build_root/sbin/ping" "initramfs/sbin/"
 copy_with_libs "$build_root/usr/bin/nano" "initramfs/usr/bin/"
 copy_with_libs "$build_root/bin/grep" "initramfs/bin/"
 
