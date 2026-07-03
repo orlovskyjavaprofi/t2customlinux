@@ -257,6 +257,10 @@ copy_with_libs "$build_root/lib/udev" "initramfs/lib"
 copy_with_libs "$build_root/usr/doc/udev" "initramfs/usr/doc"
 copy_with_libs "$build_root/usr/lib/udev" "initramfs/usr/lib"
 
+cp -a "$build_root/lib64/udev" "initramfs/lib64/"
+cp -a "$build_root/lib/udev" "initramfs/lib/"
+cp -a "$build_root/usr/lib/udev" "initramfs/usr/lib/"
+
 # Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
