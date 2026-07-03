@@ -200,6 +200,33 @@ for x in `egrep 'X .* KERNEL .*' $base/config/$config/packages |
   done
 done
 
+check_library_dependencies() {
+    echo_status "Validating library dependencies for all binaries..."
+    
+    # Check all binaries in the small staging area
+    local bin_dirs=("./bin" "./usr/bin" "./sbin" "./usr/sbin")
+    
+    for dir in "${bin_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            for bin in "$dir"/*; do
+                if [ -f "$bin" ] && [ -x "$bin" ]; then
+                    # Get list of required libraries
+                    # Use ldd to find missing dependencies
+                    missing=$(ldd "$bin" 2>/dev/null | grep "not found")
+                    
+                    if [ "$?" -eq 0 ]; then
+                        echo_error "CRITICAL: Binary $bin has missing dependencies:"
+                        echo_error "$missing"
+                        # Exit or log to a file
+                        exit 1
+                    fi
+                fi
+            done
+        fi
+    done
+    echo_status "All binary dependencies resolved."
+}
+
 check_libcap_availability() {
     echo_status "Validating libcap presence..."
     
@@ -222,8 +249,9 @@ check_libcap_availability() {
     fi
 }
 
-# Call the function here
+# validation checks
 check_libcap_availability
+check_library_dependencies
 
 echo_status "Creating stage2 archives"
 
