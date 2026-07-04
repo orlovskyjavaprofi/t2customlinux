@@ -2523,7 +2523,7 @@ O -----5---- 800.000 base procinfo 2.0.304 / base/tool CROSS 0
 O -----5---- 800.000 base quota 4.11 / base/system CROSS 0
 O -----5---- 800.000 base quotatool 1.8.0 / base/system CROSS 0
 O -----5---- 800.000 base rng-tools 6.17 / extra/base CROSS DIETLIBC 0
-X -----5---- 800.000 base rsyslog 8.2604.0 / base/system CROSS 0
+X -----5---- 800.000 base rsyslog 8.2606.0 / base/system CROSS 0
 O -----5---- 800.000 base serpnp 0.0.2 / base/system CROSS 0
 O -----5---- 800.000 base setserial 2.17 / base/system CROSS 0
 O -----5---- 800.000 base suspend 2007-02-23 / base/tool CROSS 0
