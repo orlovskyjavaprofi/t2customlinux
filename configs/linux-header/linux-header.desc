@@ -69,11 +69,14 @@ var_append makeinstopt ' ' 'oldheaders= INSTALL_HDR_PATH=$root/$prefix headers_i
 var_append makeopt ' ' "ARCH=x86"
 var_append makeopt ' ' "HOSTCC=gcc"
 
-# Define the build hook only ONCE
 pkg_linux_header_make() {
-    # Call the native headers_install target provided by the kernel
+    # 1. Generate a default configuration first.
+    # This creates the necessary internal files that satisfy 
+    # the Makefile's dependency checks.
+    make defconfig ARCH=x86
+
+    # 2. Now run the install command.
     make headers_install ARCH=x86 INSTALL_HDR_PATH="$root/usr"
 }
 
-# Register the hook only ONCE
 hook_add make 5 pkg_linux_header_make
