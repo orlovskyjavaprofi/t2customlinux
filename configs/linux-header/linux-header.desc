@@ -25,7 +25,7 @@
 [E] opt rustc rust-bindgen rsync
 
 [L] GPL
-[V] 6.10
+[V] 7.1.0
 
 # in theory we only need the initial headers (stage 0) however some arches
 # generate some and need a compiler to do so (SPARC) so we do rebuild them
@@ -33,7 +33,7 @@
 [P] X 01-------9 025.300
 
 [CV-FLAGS] NO-AUTO
-[D] 6dd3d6597eb3857f2cf7ee4c5917090bc4f6cac80bbe744bf3114643 linux-6.10.tar.xz https://cdn.kernel.org/pub/linux/kernel/v6.x/
+[D] ce6860d2b917c001b451f6aa3546cea55003d51af4a141d597e99d3be136754f linux-7.1.tar.gz https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/
 
 . $base/package/*/*/linux-conf.in
 
