@@ -4,79 +4,63 @@
 [COPY] Copyright (C) 1998 - 2003 ROCK Linux Project
 [COPY] SPDX-License-Identifier: GPL-2.0
 [COPY] --- T2-COPYRIGHT-END ---
-
 [I] "Sanitized" Linux kernel headers
-
 [T] This package includes the linux kernel headers (include files)
 [T] needed to compile applications.
 [T] The files resist in /usr/include/{asm,asm-generic,linux}.
-
 [U] https://www.kernel.org/
-
 [A] Linus Torvalds <torvalds@osdl.org>
 [M] René Rebe <rene@exactco.de>
-
 [C] base/system
 [F] CROSS DIETLIBC
-
 [K] + linux
 [R] - avr
-
 [E] opt rustc rust-bindgen rsync
-
 [L] GPL
 [V] 7.1.0
-
 # in theory we only need the initial headers (stage 0) however some arches
 # generate some and need a compiler to do so (SPARC) so we do rebuild them
 # in stage 1 ...
 [P] X 01-------9 025.300
-
 [CV-FLAGS] NO-AUTO
 [D] ce6860d2b917c001b451f6aa3546cea55003d51af4a141d597e99d3be136754f linux-7.1.tar.gz https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/snapshot/
-
 . $base/package/*/*/linux-conf.in
-
 autopatch=0 createdocs=0
-
 if atstage toolchain; then
 	root="$sysroot"
 fi
-
 main_lx_header() {
 	lx_patch
-	lx_config
-
+	# lx_config removed: headers-only package doesn't need the full
+	# kernel-image config machinery (allmodconfig/no2modconfig/etc.),
+	# and that pipeline breaks on kernels that dropped those kconfig
+	# targets. pkg_linux_header_make() below runs its own minimal
+	# 'defconfig' instead, which is all headers_install requires.
 	# garuanteed newer than system to really install them
 	find include -type f | xargs touch
-
 	makeopt=
 }
 hook_add premake 5 main_lx_header
-
 # fake good toolchain, e.g. for ia64
 atstage toolchain && var_append makeopt ' ' GAS_STATUS=good
-
 # remove stupid install Makfile trickery, sigh!
 hook_add postmake 5 "rm -vf $root$includedir/*/.*install*"
 var_append flistde''l '|' 'usr/include/.*\.install.*'
-
 var_remove makeinstopt ' ' install
 # The empty variables prevent removal of existing headers!
 var_append makeinstopt ' ' 'oldheaders= INSTALL_HDR_PATH=$root/$prefix headers_install'
-
 # Set build environment variables for the kernel Makefile
 var_append makeopt ' ' "ARCH=x86"
 var_append makeopt ' ' "HOSTCC=gcc"
-
 pkg_linux_header_make() {
-    # 1. Generate a default configuration first.
-    # This creates the necessary internal files that satisfy 
-    # the Makefile's dependency checks.
-    make defconfig ARCH=x86
+    # 1. Generate a minimal default configuration first.
+    # This creates the internal files (.config, autoconf.h, etc.)
+    # needed to satisfy the Makefile's dependency checks — without
+    # invoking the broader menuconfig/modconfig target chain that
+    # lx_config used to trigger.
+    make defconfig ARCH=x86 HOSTCC=gcc
 
     # 2. Now run the install command.
     make headers_install ARCH=x86 INSTALL_HDR_PATH="$root/usr"
 }
-
 hook_add make 5 pkg_linux_header_make
