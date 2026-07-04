@@ -62,34 +62,18 @@ hook_add postmake 5 "rm -vf $root$includedir/*/.*install*"
 var_append flistde''l '|' 'usr/include/.*\.install.*'
 
 var_remove makeinstopt ' ' install
-# the empty variables prevent removal of existing headers!
+# The empty variables prevent removal of existing headers!
 var_append makeinstopt ' ' 'oldheaders= INSTALL_HDR_PATH=$root/$prefix headers_install'
 
-# --- kernel/linux-header.desc ---
+# Set build environment variables for the kernel Makefile
+var_append makeopt ' ' "ARCH=x86"
+var_append makeopt ' ' "HOSTCC=gcc"
 
-pkg_linux_header_preconf() {
-    # 1. Kill the 'uname' warnings and toolchain probes
-    # We pretend everything is already configured
-    export ARCH=x86
-    export CC=gcc
-    export HOSTCC=gcc
-    export LD=ld
-    
-    # 2. Tell the kernel to stay inside the x86 directory (for x86_64)
-    # and bypass the linker check by overriding the variable
-    var_append makeopt ' ' "ARCH=x86 HOSTCC=gcc CC=gcc LD=ld"
-    
-    # 3. MASK the Kconfig check
-    # We tell the Makefile that 'scripts/Kconfig.include' is already processed
-    # or that the toolchain check should just return 'true'
-    sed -i 's/scripts\/kconfig\/conf/true/g' Makefile 2>/dev/null || true
-}
-hook_add preconf 5 pkg_linux_header_preconf
-
-# 4. EXPLICIT INSTALL
-# Bypass the usual T2 build logic and go straight to the header installation
+# Define the build hook only ONCE
 pkg_linux_header_make() {
+    # Call the native headers_install target provided by the kernel
     make headers_install ARCH=x86 INSTALL_HDR_PATH="$root/usr"
 }
-# We use a high priority hook to override the default T2 'make' behavior
+
+# Register the hook only ONCE
 hook_add make 5 pkg_linux_header_make
