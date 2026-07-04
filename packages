@@ -1,4 +1,4 @@
-X 01-------- 025.300 kernel linux-header 6.10 / base/system CROSS DIETLIBC 0
+X 01-------- 025.300 kernel linux-header 7.1.0 / base/system CROSS DIETLIBC 0
 O -----5---- 100.000 archiver libzip 1.11.4 / extra/archive CROSS 0
 X --2------- 100.000 base mkinitrd 2026-04-26 / base/system CROSS 0
 X -----5---- 100.000 develop duktape 2.7.0 / extra/development CROSS 0
