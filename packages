@@ -257,7 +257,7 @@ O --2--5---- 110.700 init runit 2.3.1 / base/system CROSS INIT 0
 O -----5---- 110.800 audio alsa-lib 1.2.15.3 / base/system base/kernel CROSS NO-LTO 0
 O -----5---- 110.800 audio salsa-lib 0.2.0 / base/system base/kernel CROSS 0
 O ?----5---- 110.899 gnome gobject-introspection 1.86.0 / extra/base 0
-X 01---5---- 110.900 gnome glib 2.88.1 / base/system CROSS LATOMIC.sparc 0
+X 01---5---- 110.900 gnome glib 2.88.2 / base/system CROSS LATOMIC.sparc 0
 O -----5---- 111.000 audio audiofile 0.3.6 / extra/multimedia CROSS 0
 X --2------- 111.000 network rocknet 2024-09-19 / base/system CROSS 0
 O -----5---- 111.000 python orjson 3.11.8 / extra/development 0
