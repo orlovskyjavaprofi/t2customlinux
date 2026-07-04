@@ -2180,7 +2180,7 @@ O -----5---- 500.000 rocm rocprofiler 7.2.2 / extra/development CROSS OBJDIR 0
 O -----5---- 500.000 scientific zarith 1.14 / extra/development 0
 O -----5---- 500.000 www seamonkey 2.53.23 / extra/office 0
 O -----5---- 500.010 develop ocaml-augeas 0.7 / extra/development CROSS NO-LTO.gcc NOPARALLEL 0
-O -----5---- 500.500 develop gdb 17.1 / base/development OBJDIR CROSS NO-LTO.gcc LATOMIC.sparc 0
+O -----5---- 500.500 develop gdb 17.2 / base/development OBJDIR CROSS NO-LTO.gcc LATOMIC.sparc 0
 O -----5---- 500.500 security pesign 116 / base/tool CROSS 0
 O -----5---- 500.500 security tpm2-tss 4.1.3 / base/tool CROSS 0
 O -----5---- 510.000 develop menhir 20260203 / extra/development 0
