@@ -11,7 +11,7 @@ Custom configs and examples for **[T2 Linux](https://t2linux.com/)** , **build t
 
 ## ALL LATEST ISO FOR DOWNLOAD ONLY IN [ISO BRANCH!](https://github.com/orlovskyjavaprofi/t2customlinux/tree/iso/ISO)
 
-## [IMPORTANT! READ RELEASES NOTES!](https://github.com/orlovskyjavaprofi/t2customlinux/wiki/Release-notes)
+## [IMPORTANT! READ RELEASE NOTES!](https://github.com/orlovskyjavaprofi/t2customlinux/wiki/Release-notes)
 
 ### Do you need guide for configuring your T2 Linux after install ? [Click here](https://github.com/orlovskyjavaprofi/t2customlinux/wiki/After-install-configuration-%E2%80%90-Amount-of-Terminals-%E2%80%90-SSH-%E2%80%90-Network)
 
