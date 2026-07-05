@@ -9,7 +9,7 @@ Custom configs and examples for **[T2 Linux](https://t2linux.com/)** , **build t
 ## This is template for so called base distribution without x server! (Hint: Linux server)
 ## Please notice we use our own version of build and mkinitrd and build_initrd scripts, you need definetly to apply it , if you wish to try our template of custom T2 Linux!
 
-## ALL LATEST ISO FOR DOWNLOAD ONLY IN [ISO BRANCH!](https://github.com/orlovskyjavaprofi/t2customlinux/tree/iso)
+## ALL LATEST ISO FOR DOWNLOAD ONLY IN [ISO BRANCH!](https://github.com/orlovskyjavaprofi/t2customlinux/tree/iso/ISO)
 
 ## [IMPORTANT! READ RELEASES NOTES!](https://github.com/orlovskyjavaprofi/t2customlinux/wiki/Release-notes)
 
