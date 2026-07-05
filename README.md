@@ -1,4 +1,6 @@
 # t2customlinux
+<img width="1024" height="1024" alt="t2linux" src="https://github.com/user-attachments/assets/8b02716d-e611-4c33-892e-42af5360b867" />
+
 ## We are not official [T2 Linux developers](https://t2linux.com/), we build our own custom version of T2 Linux based on official repo of T2 Linux!
 
 Custom configs and examples for **[T2 Linux](https://t2linux.com/)** , **build target X86_64 AMD CPU platform.**
