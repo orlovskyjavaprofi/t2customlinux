@@ -19,7 +19,7 @@
 [L] MIT
 [V] 3.6.0
 [P] X 01---5---9 106.000
-
+#newest update
 [D] c8d44deb555dfb7962c3438ff008c0626b5074a1b29f969dd3bda53a libffi-3.6.0.tar.gz https://github.com/libffi/libffi/releases/download/v3.6.0/
 
 var_append confopt " " "--enable-shared --disable-static"
