@@ -29,6 +29,8 @@ pkg_libffi_preconf() {
     # Force libffi to realize it is in the correct directory 
     # and stop it from trying to 'continue configure' elsewhere.
     export MKDIR_P="mkdir -p"
+	export CC="${CC:-x86_64-t2-linux-gnu-gcc}"
+    export LD="${LD:-x86_64-t2-linux-gnu-ld}"
 }
 hook_add preconf 5 pkg_libffi_preconf
 
