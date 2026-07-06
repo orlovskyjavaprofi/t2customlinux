@@ -93,7 +93,7 @@ X 0-2--5---- 105.950 base file 5.47 / base/tool CROSS DIETLIBC 0
 O -----5---- 105.950 graphic libpng 1.6.55 / base/library CROSS 0
 O -----5---- 106.000 base cpufrequtils 008 / base/tool CROSS 0
 O -----5---- 106.000 develop dyncall 1.4 / extra/development CROSS 0
-X 01---5---- 106.000 develop libffi 3.5.2 / base/library CROSS 0
+X 01---5---- 106.000 develop libffi 3.6.0 / base/library CROSS 0
 O -----5---- 106.000 develop libirecovery 1.3.1 / extra/development CROSS 0
 O -----5---- 106.000 filesystem libusbmuxd 2.1.1 / extra/development CROSS NO-LTO.gcc 0
 O -----5---- 106.000 go go 1.26.2 / extra/development CROSS 0
