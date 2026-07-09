@@ -46,6 +46,10 @@ fi
 # don't run configure.sh as we supply preconfigured config files anyway
 hook_add premake 5 "sed -i -e 's/config.h:/#config.h:/g' Makefile"
 
+hook_add premake 6 "sed -i 's/#define HAVE_ROSE 1/#define HAVE_ROSE 0/' config.h"
+hook_add premake 6 "sed -i 's/#define HAVE_AX25 1/#define HAVE_AX25 0/' config.h"
+hook_add premake 6 "sed -i 's/#define HAVE_NETROM 1/#define HAVE_NETROM 0/' config.h"
+
 var_append makeopt ' ' "LD='$CC' COPTS='$CFLAGS'"
 var_append makeinstopt ' ' BASEDIR=$root
 
