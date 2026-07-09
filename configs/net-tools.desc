@@ -47,6 +47,9 @@ fi
 hook_add premake 5 "sed -i -e 's/config.h:/#config.h:/g' Makefile"
 
 hook_add premake 6 "sed -i -e 's/rose\.o //g' -e 's/rose_gr\.o //g' lib/Makefile"
+hook_add premake 6 "sed -i -e '/extern struct aftype rose_aftype;/d' -e '/&rose_aftype,/d' -e '/rose_aftype.title = _(\"AMPR ROSE\");/d' lib/af.c"
+hook_add premake 6 "sed -i -e '/extern struct hwtype rose_hwtype;/d' -e '/&rose_hwtype,/d' -e '/rose_hwtype.title = _(\"AMPR ROSE\");/d' lib/hw.c"
+hook_add premake 6 "sed -i -e '/extern struct aftype rose_aftype;/d' -e '/rose_aftype.rprint = ROSE_rprint;/d' lib/getroute.c"
 
 var_append makeopt ' ' "LD='$CC' COPTS='$CFLAGS'"
 var_append makeinstopt ' ' BASEDIR=$root
