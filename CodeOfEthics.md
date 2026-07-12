@@ -1,5 +1,7 @@
 The custom T2 Linux distribution System does not have an official "Code of Conduct".
 
+Orlovsky Consulting GbR and i CEO of the company are final deciders on any resolutions and features for custom T2 Linux distribution.
+
 All people are welcome to use and enjoy the custom T2 Linux distribution Operating System, regardless of:
 
 - Ethnicity
