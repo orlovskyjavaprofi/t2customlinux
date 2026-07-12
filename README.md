@@ -3,7 +3,7 @@
 
 
 ## We are not official [T2 Linux developers](https://t2linux.com/), we build our own custom version of T2 Linux based on official repo of T2 Linux!
-
+## Read our [code of ethics](https://github.com/orlovskyjavaprofi/t2customlinux/blob/main/CodeOfEthics.md)
 Custom configs and examples for **[T2 Linux](https://t2linux.com/)** , **build target X86_64 AMD CPU platform.**
 ## Here we gather all our custom configs and or iso's which we have created during the building of custom t2 linux image
 
