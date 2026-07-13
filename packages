@@ -1628,7 +1628,7 @@ O -----5---- 200.000 ruby ruby 4.0.3 / extra/development CROSS FPIC 0
 O -----5---- 200.000 security libp11 0.4.18 / extra/tool CROSS 0
 O -----5---- 200.000 security matrixssl 1.8.3 / base/library CROSS 0
 O -----5---- 200.000 security signond 8.61 / extra/tool CROSS 0
-O -----5---- 200.000 tde tqt 14.1.5 / extra/x11 0
+O -----5---- 200.000 tde tqt 14.1.6 / extra/x11 0
 O -----5---- 200.000 textproc dos2unix 7.5.5 / base/library CROSS 0
 O -----5---- 200.000 textproc glaze 7.4.0 / extra/library CROSS OBJDIR 0
 O -----5---- 200.000 textproc texi2html 5.0 / extra/tool 0
