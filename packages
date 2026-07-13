@@ -54,7 +54,7 @@ O ?1---5---- 102.400 develop libedit 20251016-3.1 / base/library CROSS 0
 X 01---5---- 102.400 develop m4 1.4.21 / base/development CROSS DIETLIBC LATOMIC.sparc 0
 O ?1---5---- 102.400 textproc libstemmer 3.0.1 / base/library CROSS 0
 X 01---5---- 102.400 textproc libxml 2.15.3 / base/library CROSS DIETLIBC NO-LTO.clang 0
-O -----5---- 102.400 textproc libyaml 0.2.5 / base/library CROSS 0
+X -----5---- 102.400 textproc libyaml 0.2.5 / base/library CROSS 0
 O 0----5---- 102.500 archiver lzma 4.32.7 / base/tool CROSS 0
 X 01---5---- 102.500 develop llvm 22.1.8 / base/system CROSS OBJDIR NO-LTO.gcc LATOMIC.sparc LATOMIC.sparc64 0
 X -1---5---- 102.500 security openssl 3.6.2 / base/library CROSS DIETLIBC NO-LTO.gcc LATOMIC.arch32 0
