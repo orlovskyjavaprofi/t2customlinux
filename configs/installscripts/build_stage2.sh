@@ -203,28 +203,34 @@ done
 check_library_dependencies() {
     echo_status "Validating library dependencies for all binaries..."
     
-    # Check all binaries in the small staging area
     local bin_dirs=("./bin" "./usr/bin" "./sbin" "./usr/sbin")
+    local total_errors=0
     
     for dir in "${bin_dirs[@]}"; do
         if [ -d "$dir" ]; then
             for bin in "$dir"/*; do
-                if [ -f "$bin" ] && [ -x "$bin" ]; then
-                    # Get list of required libraries
-                    # Use ldd to find missing dependencies
+                # Check if it's a file, executable, and not a script (to avoid false positives)
+                if [ -f "$bin" ] && [ -x "$bin" ] && file "$bin" | grep -q "ELF"; then
+                    
                     missing=$(ldd "$bin" 2>/dev/null | grep "not found")
                     
-                    if [ "$?" -eq 0 ]; then
+                    if [ $? -eq 0 ]; then
                         echo_error "CRITICAL: Binary $bin has missing dependencies:"
                         echo_error "$missing"
-                        # Exit or log to a file
-                        exit 1
+                        total_errors=$((total_errors + 1))
                     fi
                 fi
             done
         fi
     done
-    echo_status "All binary dependencies resolved."
+
+    if [ "$total_errors" -gt 0 ]; then
+        echo_error "Audit Complete: Found $total_errors binaries with missing dependencies."
+        return 1 # Return failure to the main script
+    else
+        echo_status "All binary dependencies resolved."
+        return 0
+    fi
 }
 
 check_libcap_availability() {
