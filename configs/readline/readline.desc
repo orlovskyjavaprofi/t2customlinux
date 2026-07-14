@@ -62,8 +62,8 @@ pkg_readline_preconf() {
     sed -i 's/TERMCAP_LIB=-lcurses/TERMCAP_LIB=-lncursesw/g' configure
 
     # Phase E: Atomic Shielding (The critical fix)
-    sed -i 's/rm -f/# rm -f/g' support/shlib-install
-    sed -i 's/mv \$target \$target.old/# mv \$target \$target.old/' support/shlib-install
+    sed -i 's/rm -f/true # rm -f/g' support/shlib-install
+    sed -i 's/mv \$target \$target.old/true # mv/g' support/shlib-install
 }
 hook_add preconf 5 pkg_readline_preconf
 
