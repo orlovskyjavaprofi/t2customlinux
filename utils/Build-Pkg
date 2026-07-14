@@ -1,0 +1,1078 @@
+#!/usr/bin/env bash
+#
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/scripts/Build-Pkg
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# Copyright (C) 1998 - 2003 ROCK Linux Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+
+exec 2>&1
+
+buildstart="`date '+%s'`"
+
+options=''
+config=default
+
+clear_src=1
+norebuild=0
+update=0
+
+make_tar=''
+prefix="usr"
+prefix_auto=1
+verbose=0
+xtrace=0
+debug=0
+chroot=0
+root=""
+id=''
+progress=
+
+stagelevel=9
+this_is_the_2nd_run=0
+
+#
+# ----  Functions
+#
+
+
+help_msg() {
+	echo
+	echo "Usage: scripts/Build-Pkg [ -0 | -1 | -2  ... | -8 | -9 ]"
+	echo "	[ -v ]  [ -xtrace ]  [ -chroot ]"
+	echo "	[ -root { <rootdir> | auto } ]"
+	echo "	[ -cfg <config> ]  [ -update ]"
+	echo "	[ -prefix <prefix-dir> ]  [ -norebuild ]"
+	echo "	[ -noclearsrc ]"
+	echo "	[ -id <id> ]  [ -debug ]  pkg-name(s)"
+	echo
+}
+
+
+#
+# ---- Parse options + config and make Build-Pkg sub-calls
+#
+
+while [ "$1" ]; do
+	case "$1" in
+		-this_is_the_2nd_run) this_is_the_2nd_run=1 ;;
+		-[0-9])   options="$options $1"     stagelevel=${1#-} ;;
+		-v)       options="$options $1"     verbose=1     ;;
+		-xtrace)  options="$options $1"     xtrace=1      ;;
+		-debug)   options="$options $1"     debug=1 clear_src=0 ;;
+		-update)  options="$options $1"     update=1      ;;
+		-chroot)  options="$options $1"     chroot=1      ;;
+		-chr-sub) options="$options $1"     chroot=0      ;;
+		-cfg)     options="$options $1 $2"  config="$2"   ; shift ;;
+		-progress) options="$options $1 $2" progress="$2" ; shift ;;
+		-root)    options="$options $1 $2"  root="$2"     ; shift ;;
+		-prefix)  options="$options $1 $2"  prefix="$2" prefix_auto=0 ; shift ;;
+		-id)      options="$options $1 $2"  id="$2"       ; shift ;;
+		-noclearsrc) options="$options $1"  clear_src=0   ;;
+		-norebuild)  options="$options $1"  norebuild=1   ;;
+		-*) help_msg; exit 1 ;;
+		*)  break ;;
+	esac
+	shift
+done
+
+# check if arguments are left as package names
+if [ $# = 0 ]; then
+	help_msg; exit 1
+fi
+
+. scripts/functions.in
+. scripts/parse-config
+
+if [ -z "$root" -a $stagelevel -le 2 ] ||
+   [ -z "$root" -a $chroot -eq 1 ] ||
+   [ "$root" = auto ]; then
+	# stage 0 cross compiler build
+	if [ $stagelevel -eq 0 ]; then root="build/$SDECFG_ID/TOOLCHAIN/$toolsdir"
+	# the new systems root
+	else root="build/$SDECFG_ID"; fi
+fi
+
+[ "$root" -a "${root#/}" = "$root" ] && root="$base/$root"
+
+# remove leading and trailing / on prefix and root
+prefix=${prefix%/} prefix=${prefix#/} root=${root%/}
+
+# xroot is for internal use and always points to the new system
+xroot="$root"
+if [ $stagelevel -le 2 ]; then
+	sysroot="$base/build/$SDECFG_ID" # always fresh sandbox
+else
+	root=
+	sysroot=
+fi
+
+
+if [ -z "$id" ]; then
+	id=`get_unique`
+	options="$options -id $id"
+fi
+
+# more than one package is passed
+if [ $# -gt 1 ]; then
+    for x; do
+	if ! scripts/Build-Pkg $options $x &&
+	   [ $stagelevel -le $SDECFG_CONTINUE_ON_ERROR_AFTER ]; then
+		exit 1
+	fi
+    done
+    exit 0
+fi
+
+pkg="${1%=*}" xpkg="${1#*=}"
+
+builddir="$base/src.$pkg"
+[ $config != "default" ] && builddir="$builddir.$config"
+builddir="$builddir.$id"
+
+if [ "$chroot" = 1 ]; then
+
+	cd "$xroot" || exit 1
+
+	x_mknod() {
+		[ ! -c "$1" -a ! -b "$1" ] && mknod "$@"
+	}
+
+	x_mknod dev/null     c 1 3
+	x_mknod dev/zero     c 1 5
+	x_mknod dev/random   c 1 8
+	x_mknod dev/urandom  c 1 9
+	x_mknod dev/loop0    b 7 0
+	x_mknod dev/loop1    b 7 1
+	x_mknod dev/loop2    b 7 2
+	x_mknod dev/loop3    b 7 3
+	x_mknod dev/tty      c 5 0
+
+	if [ ! -L dev/fd ]; then
+		ln -s /proc/self/fd dev/fd
+	fi
+
+	realconf=$(cd $base/config; pwd -P)
+	realdown=$(cd $base/download; pwd -P)
+	realbase=$(dirname $(cd $base/scripts; pwd -P))
+
+	if [ ! -e TOOLCHAIN/loop/scripts ]; then
+		mkdir -p TOOLCHAIN/{loop,config,download}
+		mount --bind $realbase TOOLCHAIN/loop
+		mount --bind $realconf TOOLCHAIN/config
+		mount --bind $realdown TOOLCHAIN/download
+		mount --bind /tmp tmp
+	fi
+
+	if [ ! -f proc/mounts ]; then
+		mount -nt proc proc proc
+	fi
+
+	for x in architecture kernel misc package scripts target; do
+		if [ ! -e TOOLCHAIN/$x ]; then ln -s "loop/$x" "TOOLCHAIN/$x"; fi
+	done
+
+	if [ ! -e "TOOLCHAIN/build/$SDECFG_ID" ]; then
+		mkdir -p "TOOLCHAIN/build"
+		ln -snf ../.. "TOOLCHAIN/build/$SDECFG_ID"
+	fi
+
+	mkdir -p "TOOLCHAIN/src.$pkg.$config.$id"
+	ln -s "$PWD/TOOLCHAIN/src.$pkg.$config.$id" "$builddir"
+
+	cat > $builddir/chroot.sh <<- EOT
+		export SDE_THIS_IS_CHROOT=1; cd /TOOLCHAIN
+		scripts/Build-Pkg $options -chr-sub -root "/" "$1"
+	EOT
+
+	cat > $builddir/debug.sh <<- EOT
+		#!/usr/bin/env bash
+		if [ ! -f "$xroot/proc/mounts" ]; then
+		    mount -nt proc proc "$xroot/proc"
+		fi
+		if [ ! -e "$xroot/TOOLCHAIN/loop/scripts" ]; then
+		    mkdir -p "$xroot/"TOOLCHAIN/{loop,config,download}
+		    mount --bind $realbase "$xroot/TOOLCHAIN/loop"
+		    mount --bind $realconf "$xroot/TOOLCHAIN/config"
+		    mount --bind $realdown "$xroot/TOOLCHAIN/download"
+		fi
+
+		export SDE_THIS_IS_CHROOT=1
+		chroot "$xroot" /bin/bash TOOLCHAIN/src.$pkg.$config.$id/debug_x.sh
+
+		if ! fuser -s "$xroot/TOOLCHAIN/"; then
+			echo "Loop mounts appear unused - un-mounting ..."
+			umount "$xroot/TOOLCHAIN/"{loop,config,download}
+			umount "$xroot/{proc,tmp}"
+		fi
+	EOT
+	chmod +x $builddir/debug.sh
+
+	if [ "$TZ" ]; then
+		if [ "${TZ#/}" != "$TZ" ]; then
+			cp $TZ TOOLCHAIN/localtime
+		else
+			cp /usr/share/zoneinfo/$TZ TOOLCHAIN/localtime
+		fi
+	else
+		if [ -f /etc/localtime ]; then
+			cp /etc/localtime TOOLCHAIN/localtime
+		else
+			ln -sf /usr/share/zoneinfo/Factory TOOLCHAIN/localtime
+		fi
+	fi
+
+	if [ "$SDECFG_PKG_DISTCC_HOST_RESOLV" = "1" ]; then
+	    cat /etc/resolv.conf > etc/resolv.conf
+	fi
+
+	TZ="/TOOLCHAIN/localtime" chroot . bin/bash TOOLCHAIN/src.$pkg.$config.$id/chroot.sh
+	returncode=$?
+
+	if [ ! -d "$builddir/." ]; then
+		rm "$builddir"
+	fi
+
+	exit $returncode
+fi
+
+scripts/Build-Tools -$stagelevel -cfg $config || exit 1
+
+if [ "$SDECFG_FLIST" = "flwrapper" -a -z "$FLWRAPPER" ]; then
+	export FLWRAPPER_WLOG="$builddir/fl_wrapper.wlog"
+	export FLWRAPPER_RLOG="$builddir/fl_wrapper.rlog"
+	export FLWRAPPER_BASEPID=$$
+	export FLWRAPPER_FILTERDIR="/tmp/:$builddir"
+	[ "$LD_PRELOAD" ] && LD_PRELOAD="${LD_PRELOAD}:"
+	export FLWRAPPER="$base/build/$SDECFG_ID/TOOLCHAIN/$toolsdir/lib/fl_wrapper.so"
+	export LD_PRELOAD="${LD_PRELOAD}$FLWRAPPER"
+fi
+export INSTALL_WRAPPER_LOGFILE="$builddir/install_wrapper.log"
+export CMD_WRAPPER_LOGFILE="$builddir/cmd_wrapper.log"
+
+if [ $norebuild = 1 -a -f $root/var/adm/logs/$stagelevel-$xpkg.log ]; then
+	echo_pkg_deny $stagelevel $pkg "already built"
+	exit 0
+fi
+
+# TODO: should we be pedantic and force rebuild of low stages even if $norebuild?
+if [ "$SDECFG_RETRY_BROKEN" = 0 -a $norebuild = 1 -a \
+     -f $root/var/adm/logs/$stagelevel-$xpkg.err ]; then
+	echo_pkg_deny $stagelevel $pkg "already failed"
+	exit 1
+fi
+
+archdir="$builddir/archdir"
+
+detect_confdir
+
+if [ -z "$confdir" ]; then
+	echo_pkg_deny $stagelevel $pkg "does not exist"; exit 1
+fi
+
+mkdir -p $root/var/adm/{logs,flists,olists,md5sums,packages,dependencies,\
+dep-debug,parse-config,cache,descs}
+rm -f $root/var/adm/logs/$stagelevel-$xpkg.{out,log,err}
+
+md5sum=md5sum
+if ! type -p $md5sum > /dev/null; then
+	md5sum="md5 -r"
+fi
+
+if [ $this_is_the_2nd_run = 0 ]; then
+	[ $stagelevel -gt 2 ] && [ "$SDECFG_HOMEBREW" = 0 ] && . /etc/profile
+	options="-this_is_the_2nd_run $options $pkg=$xpkg"
+	if [ "$SDECFG_CREATE_CACHE" = 1 ]; then
+		mkdir -p $root/var/adm/cache
+		rm -f $root/var/adm/cache/$xpkg{,.tm}
+
+		/usr/bin/time -o "$root/var/adm/cache/$xpkg.tm" \
+		              -f '%U %S' $0 $options
+		returncode=$?
+		[ ! -e "$root/var/adm/cache/$xpkg.tm" ] && exit $returncode
+
+		buildtime=$(grep -v '^Command ' < $root/var/adm/cache/$xpkg.tm |
+			gawk '{printf "%d", ($1 + $2) * 100 }')
+		rm -f $root/var/adm/cache/$xpkg.tm
+
+		# store reference time
+		if [ -f $root/var/adm/logs/$stagelevel-$xpkg.log ]; then
+		    if [ $pkg = binutils ]; then
+			echo $buildtime > $base/build/$SDECFG_ID/TOOLCHAIN/reftime
+		    fi
+
+		    # estimate initial, non-binutils reference time from first in-system emerge
+		    if [ ! -s $base/build/$SDECFG_ID/TOOLCHAIN/reftime -a \
+			 $stagelevel = 9 -a $buildtime -gt 1000 -a \
+			 -e $base/package/*/$pkg/$pkg.cache ]; then
+			reftime=$(sed -n "s/\[BUILDTIME\] \([^ ]*\).*/\1/p" $base/package/*/$pkg/$pkg.cache)
+
+			gawk "BEGIN {printf(\"%d\n\", int($buildtime * 100 / ($reftime > 0 ? $reftime : 1)));}" > \
+			$base/build/$SDECFG_ID/TOOLCHAIN/reftime
+		    fi
+		fi
+
+		# compute relative build time to binutils (LFS-style)
+		if [ -s $base/build/$SDECFG_ID/TOOLCHAIN/reftime ]; then
+			reftime=$(< $base/build/$SDECFG_ID/TOOLCHAIN/reftime)
+		else
+			reftime=$buildtime # so until we have a ref all will be 100%
+		fi
+		# quantize for less .cache update noise
+		buildtime=`gawk "BEGIN { buildtime = 100 * $buildtime / $reftime; \
+			if (buildtime <= 5) q = 1; else if (buildtime <= 20) q = 2; \
+			else if (buildtime <= 200) q = 5; else if (buildtime <= 500) q = 10; \
+			else if (buildtime <= 1000) q = 20; else q = 50; \
+			printf(\"%d\", int((buildtime + q/2) / q) * q); }"`
+
+		{
+			LANG=C date '+[TIMESTAMP] %s %c'
+
+			[ -f $root/var/adm/logs/$stagelevel-$xpkg.err ] &&
+				x=" ERROR" || x=""
+
+			echo "[BUILDTIME] $buildtime ($stagelevel)$x"
+
+			x="$root/var/adm/packages/$xpkg"
+			if [ -f $x ]; then
+				echo "[SIZE] `grep "^Package Size: " $x |
+				       cut -f3- -d' '`"
+			fi
+			echo
+
+			x="$root/var/adm/dependencies/$xpkg"
+			[ "$pkg" != "t2-debug" -a -f $x ] &&
+				sed 's,^opt:,[OPT],; s,^:,[DEP],' $x
+		} > $root/var/adm/cache/$xpkg
+
+		exit $returncode
+	else
+		exec $0 $options
+	fi
+fi
+
+
+#
+# ----  Setting Build Variables
+#
+
+flistroot="bin boot etc lib lib64 lib32 libx32 share sbin usr var opt run"
+
+# remove the obvious noise: ldconfig, our /var/adm as well as other noise
+flistrfilter="ldconfig\..*:	.*|.*:	/bin/sh|.*:	/bin/hostname|.*:	/var/adm/.*|.*:	.*/share/locale/.*"
+# internal t2 scripts
+#var_append flistrfilter '|' ".*Build-Pkg)[^.]*\.[^.]*:	.*"
+var_append flistrfilter '|' ".*Build-Pkg\).execve:	.*/bin/patch"
+var_append flistrfilter '|' ".*\.cmd_wrapper.sh\..*:	.*"
+# indirectly referenced .so
+var_append flistrfilter '|' ".*:	.*/lib.*\.so.*"
+# everything configure tries randomly e.g. even bin/mt(-st)
+#var_append flistrfilter '|' ".*configure.*:	.*"
+var_append flistrfilter '|' ".*\.dot.*:	.*font.*"
+var_append flistrfilter '|' ".*cmake\.open:	.*/(bin|sbin)"
+var_append flistrfilter '|' ".*cmake\..*:	.*/lib.*/.*\.cmake"
+var_append flistrfilter '|' ".*qmake.*\..*:	.*/mkspecs/.*\.p.*"
+var_append flistrfilter '|' ".*qmlcachegen\..*:	.*"
+var_append flistrfilter '|' ".*:	.*/gettext/its/.*.loc"
+var_append flistrfilter '|' ".*python.*:	.*/bin/(git|hg)"
+var_append flistrfilter '|' ".*python.*:	.*python.*/site-packages/mercurial/.*"
+# some packages just query all, if really used .h et al. are used anyway
+var_append flistrfilter '|' ".*pkg-config.*:	.*\.pc"
+var_append flistrfilter '|' ".*:	.*/gtk-doc/.*\.devhelp2"
+var_append flistrfilter '|' ".*glib-compile-schemas.*:	.*/glib.*/schemas.*"
+var_append flistrfilter '|' ".*:	.*/share/mime/mime.cache"
+# python, ruby, ... lang registries
+var_append flistrfilter '|' ".*/site-packages/.*(PKG-INFO|METADATA|egg-info|entry_points.txt|requires.txt)"
+var_append flistrfilter '|' ".*/ruby/gems/.*gemspec"
+# x11 mkfontdir's mkfontscale
+var_append flistrfilter '|' ".*mkfontscale\..*:	.*"
+# fc-cache
+var_append flistrfilter '|' ".*fc-cache\..*:	.*"
+# gtk*-icon-cache
+var_append flistrfilter '|' ".*:	.*-update-icon-cache"
+# wxrc & friends
+var_append flistrfilter '|' ".*:	.*\.desktop"
+# don't depend on shared, randomly 1st created directories
+var_append flistrfilter '|' ".*\.mkdir:	.*"
+# WIP workaround for kde pkgs "touching" hicolor /icons/ dir
+var_append flistrfilter '|' ".*\.utime.*:	.*/icons/.*"
+# gcc parallel stl backend tbb.h test
+var_append flistrfilter '|' ".*:	.*/include/tbb/tbb.h"
+
+# ignore some written files, too
+flistdel="etc/ld.so.cache|proc/[0-9]*/fd|etc/blkid.tab|var/tmp/.*|usr/tmp/.*|var/adm/logs/.*|.*\\.old"
+
+# filter some cache and query updates
+var_append flistdel '|' ".*/gio/modules/giomodule.cache|.*/schemas/gschemas.compiled"
+var_append flistdel '|' ".*/share/icons/.*/icon-theme.cache|.*/share/applications/mimeinfo.cache"
+var_append flistdel '|' ".*/lib.*gdk-pixbuf-.*/loaders.cache"
+
+# filter log files and caches touched by sideload builds on Debian GNU/Hurd
+# note: this is a workaround until fl_wrapper is implemented for Hurd
+var_append flistdel '|' "var/cache/ldconfig/aux-cache"
+var_append flistdel '|' "var/log/auth.log"
+var_append flistdel '|' "var/log/messages"
+var_append flistdel '|' "var/log/syslog"
+var_append flistdel '|' "var/log/daemon.log"
+var_append flistdel '|' "var/lib/dhcp/*"
+var_append flistdel '|' "var/log/wtmp.db"
+
+flistvalid="$base|/tmp|/var/backups|/proc|/dev"
+foodirlist="bindir sbindir libdir datadir includedir sysconfdir localstatedir docdir"
+
+init_vars_and_hooks
+
+#
+# ---- Read various config files
+#
+
+mkdir -p $builddir; chmod 755 $builddir
+
+parse_desc $pkg
+
+echo_pkg_start $stagelevel $repository $xpkg $ver "$extraver" "$(pkgbuildtime $pkg)" "$progress"
+
+if [ "$SDECFG_PARANOIA_CHECK" = 1 ]; then
+	x="`scripts/Check-PkgFormat $pkg`"
+	[ "$x" ] && abort "$x\nDisable the 'Paranoia Check' config `
+	                  `option to ignore such errors."
+fi
+
+targetdir="$base/target/$target"
+
+if [ "$SDECFG_TMPFS_MAX_SIZE" != 0 ]; then
+	x="$(match_source_file -p)"
+	[ "$x" ] && x="$(du -cm $x | tail -1 | cut -f 1)"
+	[ "$x" ] || x=0
+	[ "$x" -gt "${SDECFG_TMPFS_MAX_SIZE:-0}" ] && SDECFG_TMPFS=0
+fi
+
+if [ $clear_src = 1 ]; then
+	if [ "$SDECFG_TMPFS" = 1 ]; then
+		mount -n -o remount,exec,$SDECFG_TMPFS_OPT /tmp
+		mkdir -p /tmp/${builddir##*/}
+		mount -n --bind /tmp/${builddir##*/} $builddir
+	fi
+fi
+
+if [ $update = 1 -a ! -f $xroot/var/adm/md5sums/$xpkg ]; then
+	#echo_warning "Ignoring update mode since package isn't installed already."
+	update=0
+fi
+if [ $update = 1 ]; then
+	(
+		cd $xroot/
+		$md5sum --check var/adm/md5sums/$xpkg 2>&1 < /dev/null |
+			grep ': FAILED$' | cut -f1 -d:
+	) > $builddir/backup_files.txt
+	if [ -s $builddir/backup_files.txt ]; then
+		echo_status "Creating backup of old package data."
+		mkdir -p $xroot/var/adm/backup; chmod 700 $xroot/var/adm/backup
+		backup_tar="$xroot/var/adm/backup/$(date '+%Y%m%d%H%M%S')_$xpkg.tar.gz"
+		(cd $xroot/; tar --no-recursion -czf - -T $builddir/`
+			`backup_files.txt || true) > $backup_tar
+	else
+		update=0
+	fi
+fi
+
+detect_patchfiles
+
+# Erase positional parameters to prevent unintended parameter
+# passing. We do not want to pass the current positional parameters
+# to the loaded script.
+set --
+
+# define new abort function for errors while building
+#
+abort() {
+	[ "$*" ] && echo "$*"; echo "--- BUILD ERROR ---"
+	rm -vf $root/var/adm/logs/$stagelevel-$xpkg.log
+	false
+}
+
+{
+	trap 'echo "Got SIGINT (Ctrl-C). Aborting build."; exit 1' INT
+	exec < /dev/null
+
+
+if [ $stagelevel -gt 2 ]; then
+	for pc_file in $xroot/var/adm/parse-config/*; do
+		if [ -s "$pc_file" -a "${pc_file##*/}" != "$xpkg" ]
+		then . "$pc_file"; fi
+	done
+	unset pc_file
+fi
+. $base/build/$SDECFG_ID/TOOLCHAIN/$toolsdir/lib/parse-config
+
+set_confopt
+
+hasflag OBJDIR && configscript="../configure" &&
+	hook_add preconf 3 "mkdir -p objs; cd objs"
+
+# include package pre config - if any
+if [ -f $base/build/$SDECFG_ID/TOOLCHAIN/$toolsdir/lib/pkg_${pkg}_pre.conf ]; then
+	echo_status "Reading build/.../$toolsdir/lib/pkg_${pkg}_pre.conf"
+	. $base/build/$SDECFG_ID/TOOLCHAIN/$toolsdir/lib/pkg_${pkg}_pre.conf
+fi
+
+# read the package configuration, $confdir might differ from package/*/$pkg ...
+source_desc $base/package/*/$pkg/$pkg.desc
+for x in $(get_expanded $base/target/%/pkg_$pkg.conf $targetchain) \
+	$targetdir/package/$pkg/$pkg.conf \
+	architecture/$arch/package/$pkg/$pkg.conf \
+	$confdir/$pkg.conf \
+	$base/package/*/$pkg/$pkg.conf; do
+	if [ -f $x ]; then
+		[ $x != $base/package/*/$pkg/$pkg.conf ] &&
+			echo_status "Reading package config: ${x#$base/}"
+		. $x
+		break
+	fi
+done
+
+# include package post config - if any
+if [ -f $base/build/$SDECFG_ID/TOOLCHAIN/$toolsdir/lib/pkg_${pkg}_post.conf ]; then
+	echo_status "Reading build/.../$toolsdir/lib/pkg_${pkg}_post.conf"
+	. $base/build/$SDECFG_ID/TOOLCHAIN/$toolsdir/lib/pkg_${pkg}_post.conf
+fi
+
+if [ -f $base/architecture/$arch/pkg-header ]; then
+	echo_status "Reading overwrites from architecture/$arch/pkg-header."
+	. $base/architecture/$arch/pkg-header
+fi
+
+for x in $(get_expanded $base/target/%/pkg-header `get_reverted $targetchain`); do
+	if [ -f $x ]; then
+		echo_status "Reading overwrites from ${x#$base/}."
+		. $x
+	fi
+done
+
+#
+# ---- Variable updates based on the configuration files read
+#
+
+if [ -z "$prefix" -o "${prefix#usr}" != "$prefix" ]; then
+	flistdel="$flistdel|usr/share/info/(dir|standards.info)"
+	if [ "$SDECFG_DISABLE_NLS" = 1 ]; then
+		flistdel="$flistdel|usr/share/locale/..[/_].*"
+		flistdel="$flistdel|usr/share/man/..[/_].*"
+	fi
+else
+	flistdel="$flistdel|$prefix/info/(dir|standards.info)"
+	if [ "$SDECFG_DISABLE_NLS" = 1 ]; then
+		flistdel="$flistdel|$prefix/share/locale/..[/_].*"
+		flistdel="$flistdel|$prefix/man/..[/_].*"
+	fi
+fi
+
+#
+# ----  Build Package
+#
+if hasflag NOPARALLEL && [ "$SDECFG_PARALLEL" -gt 1 ]; then
+	echo 'Parallel build disabled for this package'
+	SDECFG_PARALLEL=1
+fi
+
+export TMPDIR="$builddir/tmp"
+mkdir -p "$TMPDIR"
+
+if [ "$SDECFG_FLIST" = "flwrapper" ]; then
+	rm -f $builddir/fl_wrapper.{rlog,wlog}
+	touch $builddir/fl_wrapper.{rlog,wlog}
+elif [ "$SDECFG_FLIST" = "find" ]; then
+	touch $builddir/temp.time_stamp
+	sleep 2
+fi
+
+hook_eval prepare
+
+	# Makes debugging build problems easier
+	#
+	hook_dump > $builddir/debug.hooks
+	#
+	{
+	  dump_env
+	  cat <<- EOT
+		PS1='\\[\\e[00m\\e[01;31m\\]debug-`
+					`$xpkg\\[\\e[00m\\]:[\\W]\\\$ '
+		alias cp="cp -i"; alias mv="mv -i"
+		alias rm="rm -i"; alias ls="ls --color=auto -a"
+		alias ..="cd .."; alias ...="cd ../.."
+		fixfile () {
+		  # we use .vanilla to not rediff backup .orig from patch
+		  for f; do [ -f \$f.vanilla ] || cp \$f{,.vanilla}; done
+		  # maybe we do not have the editor yet?
+		  which \$EDITOR > /dev/null || EDITOR=nvi
+		  LD_PRELOAD= \$EDITOR "\$@"
+		}
+		fixfilediff() {
+		  local p=\${1:+$confdir/\$1}
+		  (find -name '*.vanilla' -printf '%P\n' | while read x; do
+		    diff -u \$x \${x/.vanilla/}
+		  done) | tee -a \${p:-/dev/null}
+		}
+		EOT
+	} > $builddir/debug.buildenv
+	#
+	cat > $builddir/debug_x.sh <<- EOT
+		#!/usr/bin/env bash
+		cd $builddir
+		[ -f ERROR-LOG ] && sed -n 's/^[rR]unning.*/# &/p' ERROR-LOG
+		exec bash --rcfile debug.buildenv 200>> build.pid
+	EOT
+	#
+	if [ "$SDE_THIS_IS_CHROOT" != 1 ]; then
+		mv $builddir/debug_x.sh $builddir/debug.sh
+		chmod +x $builddir/debug.sh
+	fi
+
+	# Create PID file
+	#
+	# The builtin-variable '$$' is not this pid because this proc
+	# is just a sub-proc of $$. That's why the $builddir/strace.tmp
+	# hack is required to get the right pid to trace.
+	#
+	# We also conntect filedescriptor 3 with the pid file. So the command
+	# 'fuser' can be used to create a list of all processes which are part
+	# of this build process.
+	#
+	sh -c 'echo $PPID' > $builddir/build.pid
+	exec 200>> $builddir/build.pid
+
+	if [ "$SDECFG_DEBUG" != 0 ]; then
+		hasflag KERNEL && _CC=$KCC || _CC=$CC
+		echo "Command wrapper test: '${_CC} --version'"
+		type ${_CC}; CMD_WRAPPER_DEBUG=1 ${_CC} --version
+		unset _CC
+		echo "[ writing debug log to $builddir/cmd_wrapper.log ]"
+	fi
+
+	if [ "$debug" = 1 ]; then
+		echo "Everything is set up. We are in debug mode - so exit now."
+		exit
+	fi
+
+	if [ "$SDECFG_FLIST" = "strace" ]; then
+		strace -o $builddir/strace.out -F -f -q -e open,creat,mkdir,`
+		       `mknod,link,symlink,rename,utime,chdir,execve,fork,`
+		       `vfork,_exit,exit_group -p $(< $builddir/build.pid) &
+		 strace_pid=$!; sleep 1; cd $base
+	fi
+
+	(
+		set -e
+
+		mkdir -p "$builddir/archdir"
+		populate_archdir
+
+		echo "Running main build function '$mainfunction'"
+		if [ $xtrace -eq 1 -o $SDECFG_XTRACE -eq 1 ]; then
+			PS4=$'=[$FUNCNAME:$LINENO (last \\\$?=$?)> '; set -o xtrace
+			cd $builddir; eval "$mainfunction"
+			set +o xtrace
+		else
+			cd $builddir; eval "$mainfunction"
+		fi
+		touch $root/var/adm/logs/$stagelevel-$xpkg.log
+	)
+	[ -f $root/var/adm/logs/$stagelevel-$xpkg.log ] ||
+	  abort "Due to previous errors, no $stagelevel-$xpkg.log file!
+(Try enabling xtrace in the config to track an error inside the build system.)"
+
+	hook_eval postinstall
+
+	echo "Creating file list and doing final adaptions ... "
+	cd $xroot/
+	[ -s "var/adm/parse-config/$xpkg" ] &&
+		echo "var/adm/parse-config/$xpkg" >> $builddir/flist.txt
+	for x in var/adm/{flists,md5sums,packages,descs,dependencies}/$xpkg; do
+		touch $x; echo $x >> $builddir/flist.txt
+	done
+	[ "$SDECFG_CREATE_CACHE" = 1 ] &&
+		touch var/adm/cache/$xpkg && echo var/adm/cache/$xpkg >> $builddir/flist.txt
+
+	#
+	if [ "$SDECFG_FLIST" = "strace" ]; then
+		sleep 1; kill -INT $strace_pid; sleep 1
+		fl_stparse -w $builddir/fl_wrapper.wlog \
+			   -r $builddir/fl_wrapper.rlog < $builddir/strace.out
+	fi
+	if [ "$SDECFG_FLIST" = "flwrapper" -o "$SDECFG_FLIST" = "strace" ]; then
+		if [ "$stagelevel" -le 2 ]; then
+			xbase="$(cd $xroot/ 2> /dev/null; pwd -P)"
+			flistvalid="$xbase|$flistvalid"
+			found_invalid=0
+			while read file; do
+				if [ -e "$file" ]; then
+					echo "Created file outside basedir: $file"
+					abort_soon=1
+				else # non fatal for now (configure junk)
+					echo "Warning: Created vanished file outside basedir: $file"
+				fi
+				if [ "$found_invalid" = 0 ]; then
+					echo "base #1: $base"
+					echo "base #2: $xbase"
+					found_invalid=1
+				fi
+			done < <(egrep -v "	($flistvalid)/" $builddir/fl_wrapper.wlog |
+			          cut -f2- | sort -u)
+
+			[ "$abort_soon" = 1 ] && abort
+		fi
+
+		fl_wrparse -D -s -r "$xroot/" < $builddir/fl_wrapper.wlog > $builddir/flist.txt.tmp
+
+		# check for file creation beside the allowed top-level
+		# directories - allow root since qt, wxwidgets, ... create some
+		# profile there ... - on stage 0 we have an ugly symlink hack
+		# so we get doc, $arch_machine, ... in the top level dir :-(
+		if [ $stagelevel -gt 0 ]; then
+		  fr="$flistroot root TOOLCHAIN proc/[0-9]*/fd dev/tty"
+
+		  while read file; do
+			echo "Created file outside allowed top-level dir: $file"
+			abort_soon=1
+		  done < <(egrep -v "^(${fr// /|})(/|$)" $builddir/flist.txt.tmp)
+		  [ "$abort_soon" = 1 ] && abort
+		fi
+
+		egrep "^(${flistroot// /|})(/|$)" $builddir/flist.txt.tmp >> $builddir/flist.txt
+
+	elif [ "$SDECFG_FLIST" = "find" ]; then
+		find $flistroot \
+			\( -not -type d -or -type d -empty \) \
+			-and \( -newer $builddir/temp.time_stamp -or \
+			-cnewer $builddir/temp.time_stamp \) -printf "%p\n" >> $builddir/flist.txt
+	fi
+
+	# evaluate flistdel
+	egrep -v "^($flistdel)\$" $builddir/flist.txt > $builddir/flist.txt.new
+	mv $builddir/flist.txt{.new,}
+
+	hook_eval postflist
+
+	# save the old flist for later orphaned file check
+	[ -e var/adm/flists/$xpkg ] &&
+		cp -f var/adm/flists/$xpkg $builddir/flist.txt.old
+
+	fl_wrparse -D -p "$xpkg" -r "$xroot/" < $builddir/flist.txt |
+		sort -u > $builddir/flist.txt.new
+
+	# analyze which files have not been reinstalled and thus are (normally)
+	# no longer needed (orphaned)
+	if [ -e $builddir/flist.txt.old ]; then
+		echo "Searching for orphaned files ..."
+		diff --normal $builddir/flist.txt.{old,new} |
+		grep '^<' | cut -d ' ' -f 2- > $builddir/olist.txt.new
+		[ -e var/adm/olists/$xpkg ] &&
+			cp -f var/adm/olists/$xpkg $builddir/olist.txt.old ||
+			touch $builddir/olist.txt.old
+		cat $builddir/olist.txt.{old,new} | sort -u > var/adm/olists/$xpkg
+	fi
+
+	# TODO: until all olist regressions are fixed merge the two lists ...
+	touch $builddir/flist.txt.old
+	if [ "$noorphaned" = 1 ]; then
+	    cat $builddir/flist.txt.new > var/adm/flists/$xpkg
+	else
+	    cat $builddir/flist.txt.{old,new} | egrep -v "^$xpkg: ($flistdel)\$" |
+		sort -u > var/adm/flists/$xpkg
+	fi
+	echo Found `wc -l < var/adm/flists/$xpkg` "files for this package."
+	echo Found `wc -l < var/adm/olists/$xpkg` "orphaned files for this package."
+
+	if [ $stagelevel -gt 0 ] && [ "$SDECFG_FLIST" = "flwrapper" -o "$SDECFG_FLIST" = "strace" ]
+	then
+		echo "Calculating package dependencies ..."
+
+		! egrep -v "^($flistrfilter)\$" $builddir/fl_wrapper.[rw]log |
+		sort -u | fl_wrparse -D -s -r "$xroot/" -p '' | sort -u |
+		grep -v ' var/adm/' | gawk '
+			# read the var/adm/... file content in
+			ARGIND < ARGC-1 {
+			    if ($1 != "'$xpkg':")
+				f[$2] = $1 " " f[$2];
+			}
+			# iterate over the read file list streamed to stdin
+			ARGIND == ARGC-1 {
+			    file = $2;
+				if (f[file]) {
+				    print f[file] " " file;
+				}
+			}
+		' var/adm/flists/* - >> $builddir/dependencies.debug
+
+		awk 'BEGIN { FS=": "; } { print ": " $1; }' \
+			< $builddir/dependencies.debug >> $builddir/dependencies.txt
+
+		sort -u $builddir/dependencies.debug > var/adm/dep-debug/$xpkg
+
+		# alternatives handling, 1st so pkgs can enforce alternatives
+		alt_pattern=
+		while read basepkg alt; do
+			var_append alt_pattern ';' "s/$alt/$basepkg/"
+		done < $base/misc/share/PKG-ALTERNATIVES
+		sed "$alt_pattern" $builddir/dependencies.txt > $builddir/dependencies.txt.new
+		mv $builddir/dependencies.txt{.new,}
+
+		# remove dependencies as requested by the package
+		# TODO: goups are not used yet (and it is not easy here)
+		del_pattern=
+		for x in t2-src $SDECFG_LIBC $SDECFG_DEFAULT_CC ${compressor%% *} \
+			`echo "$desc_E" | sed -n 's/^del //p' `; do
+			del_pattern="$del_pattern -e \".*: $x\$\""
+		done
+		if [ -n "$del_pattern" ]; then
+			echo "Deleting dependencies, pattern: $del_pattern ..."
+			eval egrep -v $del_pattern \
+			  $builddir/dependencies.txt > $builddir/dependencies.txt.new
+			mv $builddir/dependencies.txt{.new,}
+		fi
+
+		# merge the dependencies defined by the package
+		echo -n "Adding dependencies"
+		for x in `echo "$desc_E" | egrep '^(add|opt) ' | sed 's/^[^ ]* //' `; do
+			echo -n ", $x"
+			echo ": $x" >> $builddir/dependencies.txt
+		done
+		echo
+	
+		sort -u $builddir/dependencies.txt > $builddir/dependencies.txt.new
+		mv $builddir/dependencies.txt{.new,}
+
+		echo -n "Marking optional dependencies"
+		for x in `echo "$desc_E" | sed -n 's/^opt //p' `; do
+			echo -n ", $x"
+			sed -i "s/^: $x$/opt&/" $builddir/dependencies.txt
+		done
+		echo
+
+		cat $builddir/dependencies.txt > var/adm/dependencies/$xpkg
+	fi
+
+	echo "Creating md5sum files ..."
+	getfiles < var/adm/flists/$xpkg > $builddir/files.lst
+	grep -v '^var/adm/' $builddir/files.lst | sed -e 's,^.*,"\0",' |
+		xargs -r $md5sum > var/adm/md5sums/$xpkg
+
+	echo "Creating package description ..."
+	#
+	buildend="`date '+%s'`"
+	buildlist="$(grep "^Build \[.\] at " var/adm/packages/$xpkg || true
+		echo "Build [$stagelevel] at `date --date=@$buildstart '+%Y-%m-%d from %T'`" \
+		     "to `date --date=@$buildend '+%T'`" \
+		     " `date --date=@$((buildend - buildstart)) --utc '+%H:%M:%S'`")"
+	#
+	srccksum=$(pkgchksum $base/package/*/$pkg)
+	cat > var/adm/packages/$xpkg << EOT
+Package Name and Version: $xpkg $ver${extraver:+ $extraver}
+Package Size: `getdu $root/ < var/adm/flists/$xpkg`, `
+				wc -l < var/adm/flists/$xpkg | tr -d ' '` files
+T2 Package Source Checksum: $srccksum
+T2 Version and Architecture: $sdever $arch
+$buildlist
+Prefix: $prefix
+EOT
+
+	# Location libdir: /opt/*/lib
+	for x in $foodirlist; do
+		if [ "`eval echo \\$$x`" != "`pkggetdir $x`" ]; then
+			echo "Location $x: `eval echo \\$$x`" \
+				>> var/adm/packages/$xpkg
+		fi
+	done
+
+	cat >> var/adm/packages/$xpkg << EOT
+Status: ${desc_S:-ALPHA},  License: ${desc_L:-Unknown}
+
+  ${desc_I:-$xpkg}
+
+$(echo "${desc_T:-No description available.}" | sed 's,^,  ,')
+
+URL(s):
+$(echo "${desc_U:-http://t2sde.org/packages/$pkg.html}" | sed 's,^,  ,')
+
+Original Author(s):
+$(echo "${desc_A:-Unknown}" | sed 's,^,  ,')
+
+Package Maintainer(s):
+$(echo "${desc_M:-Unknown}" | sed 's,^,  ,')
+
+Download URL(s):
+$(echo "${desc_D:-None}" | gawk '{ print "  " $3 $2; }')
+EOT
+	(
+	    echo "[CONFIG] ${SDECFG_ID#*-}"
+	    descfile=$base/package/*/$pkg/$pkg.desc
+	    while read x; do
+		if [ "${x#\[}" != "$x" ]; then
+		    x="`echo ${x// */} | tr -d '[]'`"
+		    y="${x/-/_}"
+		    IFS='
+'
+		    eval lines=\"\${desc_$y}\"
+		    for line in $lines; do
+		    	echo "[$x] $line"
+		    done
+		fi
+	    done < $base/misc/share/PKG-DESC-FORMAT
+	) > var/adm/descs/$xpkg
+
+	echo "Making post-install adaptions."
+
+	if [ "$SDECFG_PARANOIA_CHECK" = 1 ]; then
+		found_errors=0
+		found_dups=0
+
+		# check for files which are 'shared' with other packages
+		if [ "$check_shared" != "0" ]; then
+			while read _ file; do
+				# ignore shared directories
+				[ -d $root/$file ] && continue
+
+				if [ $found_dups = 0 ]; then
+					echo "Found shared files with other packages:"
+					found_errors=1 found_dups=1
+				fi
+				echo "$file:" $(cd $root/var/adm/flists; grep -l " $file\$" *)
+			# sed $xpkg to . to have this pkg's duplicates sorted first
+			done < <(sed "s,^$xpkg:,.," $root/var/adm/flists/* |
+				  sort -k2 | uniq -d -f1 | grep '^\. ')
+		fi
+
+		found_local=0
+
+		# check for files in /usr/local
+		if [ "$check_usrlocal" != "0" ]; then
+			while read file; do
+				if [ $found_local = 0 ]; then
+					echo "Found files in /usr/local:"
+					found_errors=1 found_local=1
+				fi
+				echo $file
+			done < <(sed "s,^$xpkg: ,/," $root/var/adm/flists/$xpkg |
+				    egrep "^/usr/local")
+		fi
+
+		found_bad=0
+
+		# check for registered 'bad files'
+		if [ "$check_badfiles" != "0"  -a -n "$badfiles" ]; then
+			echo "$badfiles" > $builddir/badfiles.txt
+			while read x file; do
+				if [ $found_bad = 0 ]; then
+					echo "Found registered 'bad files' in package:"
+					found_errors=1 found_bad=1
+				fi
+				desc="No description found!"
+				for ((x=0; x<badfiles_nr; x++)); do
+					if echo " $file" | grep -q "${badfiles_desc[x]%%$'\n'*}"
+					then desc="${badfiles_desc[x]#*$'\n'}"; fi
+				done
+				echo "$file: $desc"
+			done < <(grep -f $builddir/badfiles.txt $root/var/adm/flists/$xpkg)
+		fi
+
+		[ $found_errors != 0 ] && abort "Due to previous errors."
+	fi
+
+} 2>&1 | {
+	trap '' INT
+
+	#echo_status "Writing output to \$root/var/adm/logs/$stagelevel-$xpkg.out"
+
+	if [ "$SDECFG_VERBOSE" = 1 -o "$verbose" = 1 ]; then
+		tee $root/var/adm/logs/$stagelevel-$xpkg.out |
+		# possible without awk?
+		gawk "/$/ {print; printf \"\x1b[1;35m^${progress:+-$progress}-$xpkg\x1b[0m\r\"; fflush();}"
+	else
+		cat > $root/var/adm/logs/$stagelevel-$xpkg.out
+	fi
+}
+
+hook_eval finish
+
+if [ $update = 1 ]; then
+	echo_status "Restoring backup of old package data."
+
+	while read fn; do
+		[ -f $xroot/$fn ] && mv $xroot/$fn $xroot/$fn.new
+	done < $builddir/backup_files.txt
+
+	tar -C $xroot/ -xzpf $backup_tar
+
+	while read fn; do
+		cmp -s $fn $fn.new && rm -f $fn.new
+	done < $builddir/backup_files.txt
+
+	rm -f $backup_tar
+fi
+
+cd $base
+
+umount -r -d -f    $builddir/* 2> /dev/null
+umount -r -d -f -l $builddir/* 2> /dev/null
+
+if [ "$SDECFG_TMPFS" = 1 ]; then
+    if [ -e $root/var/adm/logs/$stagelevel-$xpkg.log \
+	 -o "$SDECFG_TMPFS_KEEP_ON_ERROR" != 1 ]; then
+	rm -rf /tmp/${builddir##*/}/*
+	umount -n -r -d -f    $builddir 2> /dev/null
+	umount -n -r -d -f -l $builddir 2> /dev/null
+	rm -rf /tmp/${builddir##*/}
+    fi
+fi
+
+# cleanup_src <error code>
+# Cleanup the src.* directory the way configured.
+# 
+cleanup_src() {
+    # cleaning the src disabled manually
+    [ $clear_src = 0 ] && return
+
+    case "$SDECFG_KEEP_SRC" in
+        0)      : # always clean, just fall-thru
+                ;;
+        1)      return ;;
+        2)      [ $1 != 0 ] && return ;;
+        3|4)    [ "$SDECFG_KEEP_SRC" = 3 -a $1 != 0 ] && return
+                local list=" $SDECFG_KEEP_SRC_LIST "; list="${list//:/ }"; list="${list//,/ }"
+                [ "${list/ $pkg /}" != "$list" ] && return
+                ;;
+    esac
+
+    if [ -d "$builddir" ]; then
+        # 1. Rename the directory to a hidden temp name. 
+        # This is an atomic operation that takes milliseconds.
+        local trashdir="${builddir}.trash.$(date +%s.%N)"
+        mv "$builddir" "$trashdir" 2>/dev/null
+
+        # 2. Trigger the actual deletion in the background.
+        # This allows the build process to exit immediately, and 
+        # lets the kernel handle the file removal outside of the script's scope.
+        ( rm -rf "$trashdir" & )
+    fi
+}
+
+if [ -f $root/var/adm/logs/$stagelevel-$xpkg.log ]; then
+	cp $root/var/adm/logs/$stagelevel-$xpkg.out $builddir/BUILD-LOG
+	cleanup_src 0
+	mv $root/var/adm/logs/$stagelevel-$xpkg.{out,log}
+	echo_pkg_finish $stagelevel $repository $xpkg
+	exit 0
+else
+	cp $root/var/adm/logs/$stagelevel-$xpkg.out $builddir/ERROR-LOG
+	cleanup_src 1
+	if [ "$SDECFG_VERBOSE" != 1 -a "$verbose" != 1 ]; then
+		echo_errorquote "$(grep -v 'make[^ ]*:' \
+			$root/var/adm/logs/$stagelevel-$xpkg.out |
+			grep -B8 -- '--- BUILD ERROR ---' |
+			sed '/--- BUILD ERROR ---/d')"
+	fi
+	mv $root/var/adm/logs/$stagelevel-$xpkg.{out,err}
+	echo_pkg_abort $stagelevel $repository $xpkg
+	exit 1
+fi
