@@ -180,7 +180,7 @@ O -----5---- 109.425 develop opencl-clhpp 2025.07.22 / extra/development CROSS 0
 O -----5---- 109.425 develop opencl-headers 2025.06.13 / extra/development CROSS 0
 O -----5---- 109.430 develop opencl-loader 2024.10.24 / extra/development CROSS 0
 X 0----5---- 109.500 base bc 1.08.2 / base/tool CROSS 0
-X --2--5---- 109.500 base util-linux 2.41.3 / base/system CROSS DIETLIBC 0
+X --2--5---- 109.500 base util-linux 2.42.2 / base/system CROSS DIETLIBC 0
 O -1---5---- 109.500 develop gn 2324 / base/development 0
 X ?----5---- 109.500 develop meson 1.11.1 / base/development CROSS 0
 O -----5---- 109.500 graphic libspng 0.7.4 / extra/base CROSS 0
