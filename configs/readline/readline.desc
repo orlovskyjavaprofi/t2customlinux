@@ -39,6 +39,9 @@ var_remove confopt ' ' --disable-static
 var_append local_ldflags ' ' "-L$root/lib64 -L$root/usr/lib64 -lncursesw"
 
 pkg_readline_preconf() {
+    export T2_NO_MAN_GZIP=1	
+    export T2_NO_LIBTOOL_LA_CHECK=1
+	
     # Phase A: Linker fix
     if [ -f "$root/lib64/libncursesw.so.6" ]; then
         ln -sf ../../lib64/libncursesw.so.6 "$root/usr/lib64/libncursesw.so.6"
