@@ -200,6 +200,19 @@ for x in `egrep 'X .* KERNEL .*' $base/config/$config/packages |
   done
 done
 
+fix_missing_libs() {
+    echo_status "Attempting to fix missing library dependencies..."
+    # The binaries are looking for libraries that were likely in 2nd_stage 
+    # but not moved to 2nd_stage_small.
+    find ../2nd_stage/ -name "libfdisk.so.*" -o -name "libsmartcols.so.*" | while read lib; do
+        target_dir="./lib64"
+        [ ! -d "$target_dir" ] && target_dir="./lib"
+        mkdir -p "$target_dir"
+        cp -ad "$lib" "$target_dir/"
+        echo_status "Copied $lib to $target_dir"
+    done
+}
+
 check_library_dependencies() {
     echo_status "Validating library dependencies for all binaries..."
     
@@ -260,6 +273,7 @@ check_libcap_availability() {
 }
 
 # validation checks
+fix_missing_libs
 check_libcap_availability
 check_library_dependencies
 
