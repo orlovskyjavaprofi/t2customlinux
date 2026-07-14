@@ -201,16 +201,25 @@ for x in `egrep 'X .* KERNEL .*' $base/config/$config/packages |
 done
 
 fix_missing_libs() {
-    echo_status "Attempting to fix missing library dependencies..."
-    # The binaries are looking for libraries that were likely in 2nd_stage 
-    # but not moved to 2nd_stage_small.
-    find ../2nd_stage/ -name "libfdisk.so.*" -o -name "libsmartcols.so.*" | while read lib; do
-        target_dir="./lib64"
-        [ ! -d "$target_dir" ] && target_dir="./lib"
-        mkdir -p "$target_dir"
-        cp -ad "$lib" "$target_dir/"
-        echo_status "Copied $lib to $target_dir"
+    echo_status "Syncing library dependencies from build environment..."
+    
+    # 1. Use rsync to preserve symlink integrity and ensure we get the real files
+    # Replace /path/to/your/build/root with the actual location of your full build
+    local build_root="../2nd_stage"
+    local target_lib="./lib64"
+    [ ! -d "$target_lib" ] && target_lib="./lib"
+
+    # Find and sync specifically the required libs, ensuring we get the symlink chain
+    find "$build_root" -name "libfdisk.so*" -o -name "libsmartcols.so*" | while read -r lib; do
+        # Copy the actual file and the symlinks
+        cp -af "$lib" "$target_lib/"
     done
+
+    # 2. Update the library cache if you are in a chroot
+    if [ -f "$target_lib/ld-linux-x86-64.so.2" ]; then
+        echo_status "Updating ldconfig..."
+        chroot . /sbin/ldconfig
+    fi
 }
 
 check_library_dependencies() {
