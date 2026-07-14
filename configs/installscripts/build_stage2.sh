@@ -202,24 +202,52 @@ done
 
 fix_missing_libs() {
     echo_status "Syncing library dependencies from build environment..."
-    
-    # 1. Use rsync to preserve symlink integrity and ensure we get the real files
-    # Replace /path/to/your/build/root with the actual location of your full build
+
     local build_root="../2nd_stage"
     local target_lib="./lib64"
     [ ! -d "$target_lib" ] && target_lib="./lib"
 
-    # Find and sync specifically the required libs, ensuring we get the symlink chain
-    find "$build_root" -name "libfdisk.so*" -o -name "libsmartcols.so*" | while read -r lib; do
-        # Copy the actual file and the symlinks
-        cp -af "$lib" "$target_lib/"
+    if [ ! -d "$build_root" ]; then
+        echo_error "CRITICAL: build_root '$build_root' not found, cannot sync libs."
+        return 1
+    fi
+
+    local sync_errors=0
+
+    # Group -name predicates so -o doesn't leak into anything else added later
+    find "$build_root" \( -name "libfdisk.so*" -o -name "libsmartcols.so*" \) -print | while read -r lib; do
+        if ! cp -af "$lib" "$target_lib/"; then
+            echo_error "CRITICAL: failed to copy $lib to $target_lib/"
+            sync_errors=$((sync_errors + 1))
+        fi
     done
 
-    # 2. Update the library cache if you are in a chroot
-    if [ -f "$target_lib/ld-linux-x86-64.so.2" ]; then
+    # Refresh the linker cache so the newly copied libs are actually picked up
+    if [ -x "./sbin/ldconfig" ] || [ -x "./usr/sbin/ldconfig" ]; then
         echo_status "Updating ldconfig..."
         chroot . /sbin/ldconfig
+    else
+        echo_error "WARNING: ldconfig not found in target root, skipping cache refresh."
     fi
+
+    # Verify the version-node mismatch is actually resolved before declaring success
+    echo_status "Verifying versioned symbols after sync..."
+    for bin in ./sbin/fdisk ./sbin/sfdisk ./sbin/swapon; do
+        [ -x "$bin" ] || continue
+        if ldd "$bin" 2>&1 | grep -q "not found"; then
+            echo_error "CRITICAL: $bin still has unresolved symbols after sync:"
+            ldd "$bin" 2>&1 | grep "not found"
+            sync_errors=$((sync_errors + 1))
+        fi
+    done
+
+    if [ "$sync_errors" -gt 0 ]; then
+        echo_error "fix_missing_libs finished with $sync_errors error(s)."
+        return 1
+    fi
+
+    echo_status "Library sync complete, all target binaries resolved."
+    return 0
 }
 
 check_library_dependencies() {
