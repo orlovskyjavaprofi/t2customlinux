@@ -67,16 +67,17 @@ pkg_readline_preconf() {
 }
 hook_add preconf 5 pkg_readline_preconf
 
-pkg_readline_postmake() {
+pkg_readline_postinstall() {
+    # Move to postinstall: this runs after the package manager 
+    # has finished cataloging files, avoiding the segfaults.
     mkdir -p "$root/lib64"
-    cp -d "$root/usr/lib64"/libhistory.so* "$root/lib64/" 2>/dev/null || true
-    cp -d "$root/usr/lib64"/libreadline.so* "$root/lib64/" 2>/dev/null || true
     
-	local major_ver="${ver%%.*}"
-    ln -sf "libhistory.so.$major_ver" "$root/lib64/libhistory.so.$major_ver.${ver%.*}"
-    ln -sf "libreadline.so.$major_ver" "$root/lib64/libreadline.so.$major_ver.${ver%.*}"
+    cp -ad "$root/usr/lib64"/libhistory.so* "$root/lib64/" 2>/dev/null
+    cp -ad "$root/usr/lib64"/libreadline.so* "$root/lib64/" 2>/dev/null
     
-   /sbin/ldconfig -r "$root" 2>/dev/null || true
+    local major_ver="${ver%%.*}"
+    # Use absolute paths for links in the target root
+    ln -sf "/usr/lib64/libhistory.so.$major_ver" "$root/lib64/libhistory.so.$major_ver.${ver%.*}"
+    ln -sf "/usr/lib64/libreadline.so.$major_ver" "$root/lib64/libreadline.so.$major_ver.${ver%.*}"
 }
-
-hook_add postmake 5 pkg_readline_postmake
+hook_add postinstall 5 pkg_readline_postinstall
