@@ -206,17 +206,21 @@ check_library_dependencies() {
     local bin_dirs=("./bin" "./usr/bin" "./sbin" "./usr/sbin")
     local total_errors=0
     
+    # You must loop through the directories defined in bin_dirs
     for dir in "${bin_dirs[@]}"; do
         if [ -d "$dir" ]; then
             for bin in "$dir"/*; do
-                # Check if it's a file, executable, and not a script (to avoid false positives)
                 if [ -f "$bin" ] && [ -x "$bin" ] && file "$bin" | grep -q "ELF"; then
                     
-                    missing=$(ldd "$bin" 2>/dev/null | grep "not found")
-                    
-                    if [ $? -eq 0 ]; then
+                    missing=$(ldd "$bin" 2>/dev/null)
+                    if [ $? -ne 0 ]; then
+                        echo_error "WARNING: Could not run ldd on $bin. Is the dynamic linker set?"
+                        continue 
+                    fi
+
+                    if echo "$missing" | grep -q "not found"; then
                         echo_error "CRITICAL: Binary $bin has missing dependencies:"
-                        echo_error "$missing"
+                        echo "$missing" | grep "not found"
                         total_errors=$((total_errors + 1))
                     fi
                 fi
@@ -226,7 +230,7 @@ check_library_dependencies() {
 
     if [ "$total_errors" -gt 0 ]; then
         echo_error "Audit Complete: Found $total_errors binaries with missing dependencies."
-        return 1 # Return failure to the main script
+        return 1 
     else
         echo_status "All binary dependencies resolved."
         return 0
