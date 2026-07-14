@@ -30,6 +30,8 @@
 
 [D] 98054a0b5f15d2469460bf12478f4a7905db412af93d62295124facc gettext-1.0.tar.xz http://ftp.gnu.org/pub/gnu/gettext/
 
+export MAKEFLAGS="-j1"
+
 # Force these flags ALWAYS, regardless of build stage
 var_append confopt ' ' "--disable-csharp --disable-openmp --without-emacs --disable-libasprintf --disable-relocatable"
 
