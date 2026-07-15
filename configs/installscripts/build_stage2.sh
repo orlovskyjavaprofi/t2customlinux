@@ -201,7 +201,11 @@ for x in `egrep 'X .* KERNEL .*' $base/config/$config/packages |
 done
 
 fix_missing_libs() {
+    echo_status "Skipping lib sync — util-linux installs directly into target root now, 2nd_stage source is stale."
+    return 0
+
     echo_status "Syncing library dependencies from build environment..."
+
 
     local build_root="../2nd_stage"
     local target_lib="./lib64"
