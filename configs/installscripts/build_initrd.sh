@@ -91,6 +91,14 @@ copy_with_libs "$build_root/usr/lib64/libpcre2-posix.so.3.0.7" "initramfs/usr/li
 copy_with_libs "$build_root/usr/lib64/libpcre2-8.so.0.15.0" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libpcre2-16.so.0.15.0" "initramfs/usr/lib64"
 
+copy_with_libs "$build_root/usr/lib64/libfdisk.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/lib64/libfdisk.so.1" "initramfs/lib64"
+copy_with_libs "$build_root/lib64/libfdisk.so.1.1.0" "initramfs/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libparted.so.2.0.5" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libparted.so.2" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libparted.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libparted.a" "initramfs/usr/lib64"
 
 # Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
