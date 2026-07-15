@@ -5,6 +5,7 @@ USER="filehoster"
 PASS="temporarypassword" # Replace with your desired throwaway password
 FTP_DIR="/mnt/t2-trunk/ftp"
 FTP_DIR2="/home/filehoster/ftp"
+LOGS="/mnt/logs"
 # 1. Create the user if it doesn't exist
 if ! id "$USER" &>/dev/null; then
     useradd -m "$USER"
@@ -20,6 +21,8 @@ echo "Creating $FTP_DIR directory"
 mkdir -p "$FTP_DIR"
 echo "Creating $FTP_DIR2 directory"
 mkdir -p "$FTP_DIR2"
+echo "Creating $LOGS directory"
+mkdir -p "$LOGS"
 
 # 3. Apply permissions (nobody:nogroup is standard for restricted FTP)
 chown nobody:nogroup "$FTP_DIR"
