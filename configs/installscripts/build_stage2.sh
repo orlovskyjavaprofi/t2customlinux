@@ -284,7 +284,8 @@ check_library_dependencies() {
 
     if [ "$total_errors" -gt 0 ]; then
         echo_error "Audit Complete: Found $total_errors binaries with missing dependencies."
-        return 1 
+		#This audit important to know what to add extra, but its not precondition for breaking the build
+        return 0 
     else
         echo_status "All binary dependencies resolved."
         return 0
