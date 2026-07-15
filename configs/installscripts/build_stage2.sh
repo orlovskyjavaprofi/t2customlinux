@@ -210,7 +210,6 @@ fix_missing_libs() {
 
     if [ ! -d "$build_root" ]; then
         echo_error "WARNING: build_root '$build_root' not found, cannot sync libs."
-        return 0
     fi
 
     local sync_errors=0
