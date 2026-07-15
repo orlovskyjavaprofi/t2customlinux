@@ -1,0 +1,511 @@
+#!/usr/bin/env bash
+#
+# --- T2-COPYRIGHT-BEGIN ---
+# t2/scripts/Build-Target
+# Copyright (C) 2004 - 2026 The T2 SDE Project
+# Copyright (C) 1998 - 2003 ROCK Linux Project
+# SPDX-License-Identifier: GPL-2.0
+# --- T2-COPYRIGHT-END ---
+#
+#   Run this command from the T2 SDE base directory as scripts/Build-Target
+#   after running the scripts/Config and the now optional
+#   scripts/Download commands.
+# 
+#   It compiles/builds all the packages and stores their binary package
+#   ssuitable for distribution.
+# 
+#   This script (and Build-Pkg) is T2 SDE's work-horse. It builds in a
+#   chroot environment (stage 0..2) and goes through a number of build
+#   stages (stage 3..9).
+#
+
+config=default
+build_only_this_job=
+autodownload=1
+options="$*"
+downloadopt="-q"
+verbose=
+xtrace=
+noclearsrc=
+stepi=1
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-cfg)		config=$2; shift ;;
+		-job)		build_only_this_job=$2; shift ;;
+		-nodownload)	autodownload=0 ;;
+		-noclearsrc)	noclearsrc="-noclearsrc" ;;
+		-xtrace)	xtrace="-xtrace" ;;
+		-v)		verbose="-v" ;;
+		[0-9]-*)	build_only_this_job=$1 ;;
+		*)		echo "Usage: [ -nodownload ] [ -noclearsrc ] [ -cfg config ] [ -job <stage>-<package> ]"
+		       		exit 1 ;;
+	esac
+	shift
+done
+
+. scripts/parse-config
+. scripts/functions.in
+
+build_root="$base/build/$SDECFG_ID"
+build_toolchain="$base/build/$SDECFG_ID/TOOLCHAIN"
+build_logs="$build_toolchain/logs"; mkdir -p "${build_logs}"
+build_pkgs="$build_toolchain/pkgs"; mkdir -p "${build_root}"
+
+if [ "$SDECFG_PARANOIA_CHECK" = 1 ]; then
+	scripts/Check-System || exit 1
+fi
+
+# Package Build loop - executed by build-target
+#
+pkgloop() {
+	local x= y=
+
+	if [ "$SDECFG_NOBROKENDEPS" = 1 ]; then
+		nobrokendeps="-nobrokendeps"
+	else
+		nobrokendeps=""
+	fi
+
+	# crude pkg count
+	pkgs=$(sed -n '/^X 0/p;/^X .1/p;/^X ..2/p;/^X ...3/p;/^X ....4/p;/X .....5/p;
+/^X ......6/p;/^X .......7/p;/^X ........8/p;/^X .........9/p' config/$config/packages | wc -l)
+
+	if [ -z "$build_only_this_job" ]; then
+	  if [ "`ls ${build_root}/var/adm/logs/*.err 2> /dev/null`" ]; then
+		echo_header "Removing old error logs ..."
+		for y in 0 1 2 3 4 5 6 7 8 9; do
+			if [ "$SDECFG_RETRY_BROKEN" -eq 1 -o $y -le $SDECFG_CONTINUE_ON_ERROR_AFTER ]; then
+				for x in ${build_root}/var/adm/logs/$y-*.err; do
+					if [ -f $x ]; then
+						echo_status "Removing ${x#$build_root/} ..."
+						rm -f $x
+					fi
+				done
+			fi
+		done
+	  fi
+	  if [ "`ls ${build_root}/var/adm/logs/*.out 2> /dev/null`" ]; then
+		echo_header "Removing old output logs ..."
+		for x in ${build_root}/var/adm/logs/*.out; do
+			echo_status "Removing ${x#$build_root/} ..."
+			rm -f $x
+		done
+	  fi
+
+	  # For all build stages, build all selected packages
+	  local maxstage=5 stagelevel
+	  [ "$SDECFG_DO_REBUILD_STAGE" = 1 ] && maxstage=9
+	  [ "$SDECFG_CROSSBUILD" = 1 ] && maxstage=2
+	  for stagelevel in $(seq 0 $maxstage); do
+		pkgloop_stage $stagelevel
+	  done
+	else
+		rm -f ${build_root}/var/adm/logs/${build_only_this_job}.{log,err}
+		local stagelevel=${build_only_this_job%%-*}
+		local STAGES='..........'
+		local match="^. ${STAGES:0:$stagelevel}$stagelevel[^ ]* [^ ]* [^ ]* ${build_only_this_job#*-} "
+		next="$(grep "$match" < config/$config/packages)"
+		if [ ! "$next" ]; then
+			echo_error "No job matching job spec: $build_only_this_job"
+			exit 1
+		fi
+
+		pkgloop_package $stepi $stagelevel ${next#? }
+		exit 0
+	fi
+
+	rm -f src/invalid-files.lst
+
+	local pkglst=`mktemp` errors=0
+	echo_header "Searching for old lingering files ..."
+	sed '/^[^X]/d; s,.*=,,' config/$config/packages | cut -d' ' -f5 |
+	if [ $SDECFG_PKGFILE_VER = 1 ]; then
+		while read p; do
+			local v=$(sed -n '/Package Name and Version: / {s///; s/[^ ]* //; s/ /-/; p}' \
+				  build/$SDECFG_ID/var/adm/packages/$p 2>/dev/null)
+			echo "$p-$v"
+		done
+	else
+		cat
+	fi > $pkglst
+	for file in $(ls build/$SDECFG_ID/TOOLCHAIN/pkgs/ 2> /dev/null); do
+		x="$file"
+		case $SDECFG_PKGFILE_TYPE in
+		  tar.*)	x=${x%.$SDECFG_PKGFILE_TYPE} ;;
+		  none)		: ;;
+		esac
+		if ! grep -qx "$x" $pkglst && ! test "$x" = packages.db; then
+			file="build/$SDECFG_ID/TOOLCHAIN/pkgs/$file"
+			echo_error "$file should not be present (now in src/invalid-files.lst)!"
+			mkdir -p src; echo "$file" >> src/invalid-files.lst
+			errors=1
+		fi
+	done
+	for dir in build/$SDECFG_ID/var/adm/{cache,dependencies,descs,flists,md5sums,packages}; do
+		for file in $(ls $dir 2> /dev/null); do
+			if [ $SDECFG_PKGFILE_VER = 1 ]; then
+				x="$file-"
+			else
+				x="$file"
+			fi
+			if ! grep -q "$x" $pkglst; then
+				echo_error "$dir/$file should not be present (now in src/invalid-files.lst)!"
+				mkdir -p src; echo "$dir/$file" >> src/invalid-files.lst
+				errors=1
+			fi
+		done
+	done
+	for file in $(ls build/$SDECFG_ID/var/adm/logs/); do
+			x="`echo $file | sed -e 's/^.-//' -e 's/\.log//' -e 's/\.err//' -e s'/\.out//'`"
+			if [ $SDECFG_PKGFILE_VER = 1 ]; then
+				x=$x-
+			else
+				x=$x
+			fi
+
+		if ! grep -q "$x" $pkglst; then
+			file="build/$SDECFG_ID/var/adm/logs/$file"
+			echo_error "$file should not be present (now in src/invalid-files.lst)!"
+			mkdir -p src; echo "$file" >> src/invalid-files.lst
+			errors=1
+		fi
+	done
+	[ $errors = 0 ] && echo_status "None found."
+	rm $pkglst
+}
+
+# Parallel build handling
+#
+#
+JOBS="$SDECFG_PARALLEL"
+
+# Build command per component (could also be a single function with a case)
+build() {
+	local pkg=$1
+	local STAGES='..........'
+	local match="^X ${STAGES:0:$stagelevel}$stagelevel[^ ]* [^ ]* [^ ]* $pkg "
+	next="$(grep "$match" < config/$config/packages)"
+	if [ ! "$next" ]; then
+		echo_error "No job matching job spec: $build_only_this_job"
+		exit 1
+	fi
+
+	pkgloop_package $stepi $stagelevel ${next#X }
+}
+
+# -------------------------------------
+# 2) Scheduler: run when deps complete
+# -------------------------------------
+is_ready() {
+  local ready=0
+  #echo -n "$1 ready?"
+  for d in ${dependencies["$1"]}; do
+    # echo -n " $d ${state["$d"]}"
+    [[ "${state["$d"]}" != "done" ]] && ready=1 && break
+  done
+  #echo " $ready"
+  return $ready
+}
+
+running_count() {
+  local n=0
+  for t in ${!deplist[@]}; do
+    [[ "${state["$t"]}" = "running" ]] && ((n++)) || true
+  done
+  echo "$n"
+}
+
+start_target() {
+  local t="$1"
+  #echo "==> START $t"
+
+  [ $((firsti++)) = 1 ] &&
+	scripts/Build-Tools -$stagelevel -cfg $config
+  build "$t" &
+  ((++stepi))
+
+  local p=$!
+  pid_of["$t"]=$p
+  target_of["$p"]=$t
+  state["$t"]=running
+}
+
+end_target() {
+  local p="$1" rc="$2"
+  local t="${target_of["$p"]}"
+
+  if [[ "$rc" -eq 0 ]]; then
+    #echo "==> DONE  $t"
+    state["$t"]=done
+
+    # remove target t from dependencies
+    targets=" $targets "
+    targets="${targets/ $t/ }"
+
+    unset deplist[$t] dependencies[$t]
+    for d in ${!deplist[@]}; do
+	dependencies[$d]="${dependencies["$d"]/ $t / }"
+    done
+  else
+    #echo "==> FAIL  $t (rc=$rc)" >&2
+    state["$t"]=failed
+  fi
+}
+
+pkgloop_parallel() {
+  local -A state pid_of target_of # state: pending | running | done | failed
+
+  # clean/sync deps w/ actually built targets
+  for t in ${!deplist[@]}; do
+	state["$t"]=pending
+	deps=
+	for d in ${dependencies["$t"]}; do
+		[ "${deplist["$d"]}" ] && deps="$deps $d"
+	done
+	dependencies[$t]="$deps "
+  done
+
+cleanup() {
+	local PGRP=$(ps -o pgid= -p $$ | tr -d ' ')
+	kill -TERM -$PGRP 2>/dev/null
+}
+
+trap cleanup SIGINT
+
+# Main loop
+while :; do
+  local firsti=1
+
+  # If any failed, stop early
+  for t in ${!deplist[@]}; do
+    if [[ "${state["$t"]}" = "failed" ]]; then
+      echo "Aborting due to failure." >&2
+      wait
+      exit 1
+    fi
+  done
+
+  # Launch as many ready jobs as possible up to JOBS
+  for t in ${!deplist[@]}; do
+      [[ "$(running_count)" -gt "$JOBS" ]] && break
+
+      if [[ "${state["$t"]}" = "pending" ]] && is_ready "$t"; then
+        start_target "$t"
+        progress=1
+        [[ "$(running_count)" -ge "$JOBS" ]] && break
+      fi
+  done
+
+  # Are we finished?
+  all_done=1
+  for t in ${!deplist[@]}; do
+    [[ "${state["$t"]}" = "done" ]] || { all_done=0; break; }
+  done
+  [[ "$all_done" -eq 1 ]] && {
+	#echo "All components built."
+	return
+  }
+
+  # No running jobs but not all done => dependency cycle or missing target
+  if [[ "$(running_count)" -eq 0 ]]; then
+    echo "No runnable targets. Check for cycles or missing deps:" >&2
+    echo "States:" >&2
+    first=
+    for t in $targets; do
+	if [ ${state["$t"]} = pending ]; then
+		 echo "  $t: ${state["$t"]} (deps:${dependencies["$t"]% })" >&2
+		 [ "$first" ] || first=$t
+	fi
+    done
+
+    echo "Starting 1st: $first"
+    start_target "$first"
+  fi
+
+  # Wait for one job to finish, then continue scheduling
+  # Requires bash >= 4.3 for wait -n
+  set +e
+  wait -n
+  rc=$?
+  set -e
+
+  # Determine which PID finished by checking running PIDs
+  # (bash doesn't directly tell you which one with wait -n)
+  for t in ${!deplist[@]}; do
+    if [[ "${state["$t"]}" = "running" ]]; then
+      p="${pid_of["$t"]}"
+      if ! kill -0 "$p" 2>/dev/null; then
+        # Reap it to get real rc
+        set +e
+        wait "$p"
+        rc2=$?
+        set -e
+	end_target "$p" "$rc2"
+      fi
+    fi
+  done
+done
+}
+
+# Process one stage of build
+#
+pkgloop_stage() {
+	local stagelevel=$1
+	local STAGES='..........'
+       	stage="^X ${STAGES:0:$stagelevel}$stagelevel"
+
+	# Read packages and dependencies
+	local targets=
+	local -A deplist dependencies
+
+	while read _ pkg_stages pkg_pri pkg_tree pkg pkg_ver \
+		pkg_prefix pkg_extra _
+	do
+		if [ -e ${build_root}/var/adm/logs/$stagelevel-$pkg.log ]; then
+			((++stepi))
+		else
+			targets="$targets $pkg"
+			deplist["$pkg"]=y
+			dependencies["$pkg"]="$(grep -a '\[\(DEP\|OPT\)\]' package/*/$pkg/$pkg.cache |
+				cut -d' ' -f 2 | tr '\n' ' ') $SDECFG_DEFAULT_CC $SDECFG_LIBC"
+		fi
+	done < <(grep "$stage" config/$config/packages)
+
+	pkgloop_parallel
+}
+
+# Process one line of output generated by Create-PkgQueue
+#
+pkgloop_package() {
+	pkgi="$1"; shift
+	stagelevel="$1" pkg_stages="$2" pkg_pri="$3" pkg_tree="$4"
+	pkg_name="$5" pkg_ver="$6" pkg_prefix="$7" pkg_extra="$8"
+
+	[ "$build_only_this_job" -a "$stagelevel-$pkg_name" != "$build_only_this_job" ] && return
+
+	[ $(expr "$pkg_stages" : ".*$stagelevel.*") -eq 0 ] && return
+	pkg_laststage=$(echo "$pkg_stages" | sed "s,-,,g; s,.*\(.\),\1,")
+
+	cmd_root="-root auto"
+	[ $stagelevel -gt 2 ] && cmd_root="$cmd_root -chroot"
+
+	if [ "$pkg_prefix" != "/" ]; then
+		cmd_prefix="-prefix $pkg_prefix"
+	else cmd_prefix=""; fi
+
+	if [ "$autodownload" = 1 ]; then
+		scripts/Download -cfg $config $downloadopt $pkg_name
+	fi
+
+	cmd_buildpkg="scripts/Build-Pkg -$stagelevel -cfg $config $verbose -progress $pkgi/$pkgs"
+	cmd_buildpkg="$cmd_buildpkg $noclearsrc $xtrace $cmd_root $cmd_prefix $pkg_name"
+
+	# Execute action handler
+	if ! pkgloop_action &&
+	   [ $stagelevel -le $SDECFG_CONTINUE_ON_ERROR_AFTER ]; then
+		exit 1
+	fi
+
+	if [ ! -f ${build_root}/var/adm/logs/$stagelevel-$pkg_name.log -a \
+	     ! -f ${build_root}/var/adm/logs/$stagelevel-$pkg_name.err ]
+	then
+		echo_header "Package build ended abnormally!"
+		echo_error "Usually a package build creates either a *.log"
+		echo_error "or a *.err file. As neither is there, creating a"
+		echo_error "*.err file and aborting the build process."
+		touch ${build_root}/var/adm/logs/$stagelevel-$pkg_name.err
+		exit 1
+	fi
+
+	if [ $stagelevel -gt 0 -a $pkg_laststage -eq $stagelevel -a \
+	     "$SDECFG_PKGFILE_TYPE" != none ]
+	then
+		if [ -f ${build_root}/var/adm/logs/$stagelevel-$pkg_name.err ]
+		then echo_error "Package build failed, can not create binary package."
+		else
+			mkdir -p "${build_pkgs}"
+
+			local file=${pkg_name}
+			if [ "$SDECFG_PKGFILE_VER" = 1 ]; then
+				local v="$(sed -n '/Package Name and Version: / {s///; s/[^ ]* //; s/ /-/; p}' \
+					   ${build_root}/var/adm/packages/$pkg_name)"
+				file="$file-$v"
+			fi
+
+			[[ $SDECFG_PKGFILE_TYPE = tar.* ]] &&
+				file=$file.$SDECFG_PKGFILE_TYPE
+			local compressor=${SDECFG_PKGFILE_TYPE#tar.}
+			case $compressor in
+			  br)	compressor=brotli ;;
+			  gz)	compressor=gzip ;;
+			  bz2)	compressor=bzip2 ;;
+			  lzo)	compressor=lzop ;;
+			  zst)	[ "$arch_sizeof_char_p" = 8 ] &&
+				compressor="zstd -T0 --ultra -20" || compressor="zstd -T0 -19"
+			  	;;
+			  # lzma, xz et al. are named after the extension
+			  gem)	compressor=bzip2 file=$file.tar.bz2 ;;
+			esac
+
+			echo_status "Creating ${build_pkgs#$base/}/$file"
+			(
+			# sort var/adm before the rest - so they can be extracted, quickly
+			(cd "$build_root/"
+			  (grep    ' var/adm' var/adm/flists/$pkg_name
+			   grep -v ' var/adm' var/adm/flists/$pkg_name) | cut -f2- -d' ' |
+			  tar -cf- --no-recursion --files-from=- | $compressor
+			) > ${build_pkgs}/$file.tmp
+			mv ${build_pkgs}/$file{.tmp,}
+
+			if [ "$SDECFG_PKGFILE_TYPE" = gem ]; then
+				mine -C "$build_root/var/adm" $build_pkgs/$file $pkg_name \
+				     $build_pkgs/${file%.tar.bz2}.gem.tmp
+				mv $build_pkgs/${file%.tar.bz2}.gem{.tmp,}
+				rm -f $build_pkgs/$file
+			fi
+			) 
+		fi
+	fi
+}
+
+# Action executed by pkgloop(). This function may be redefined
+# before calling pkgloop().
+#
+pkgloop_action() {
+	$cmd_buildpkg
+}
+
+# Try to umount any directories mounted by Build-Pkg -chroot
+# if we are the last process using them.
+#
+umount_chroot() {
+	local ret=$?
+	exec 201> /dev/null
+	# umount TOOLCHAIN loop if no other builds are running anymore
+	if ! (cd $build_logs; fuser *.log >/dev/null 2>&1) && [ -e $build_toolchain/loop/scripts ]; then
+		echo_status "Unmounting loop mounts ..."
+		umount -d -f    $build_toolchain/{loop,config,download} 2>/dev/null ||
+		umount -d -f -l $build_toolchain/{loop,config,download} 2>/dev/null
+		umount -d -f    $build_root/proc 2>/dev/null ||
+		umount -d -f -l $build_root/proc 2>/dev/null
+	fi
+	return $ret
+}
+
+# must trap outside the group command
+trap 'umount_chroot' EXIT
+
+{
+	ln -sf build_target_$$.log ${build_logs}/build_target.log
+	scripts/Build-Tools -1 -cfg $config
+	_built=0
+	for x in $(get_expanded target/%/build.sh $targetchain); do
+		if [ -f $x ]; then
+			. $x
+			_built=1
+			break
+		fi
+	done
+	[ $_built = 1 ] || echo_warning "No target/*/build.sh controlling the build!"
+} 2>&1 201>> "${build_logs}/build_target_$$.log" #| tee -a "${build_logs}/build_target_$$.log"
