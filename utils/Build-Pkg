@@ -1053,7 +1053,7 @@ cleanup_src() {
         # 2. Trigger the actual deletion in the background.
         # This allows the build process to exit immediately, and 
         # lets the kernel handle the file removal outside of the script's scope.
-        ( rm -rf "$trashdir" & )
+        rm -rf "$trashdir"
     fi
 }
 
