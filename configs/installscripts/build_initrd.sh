@@ -149,6 +149,11 @@ copy_with_libs "$build_root/lib64/libncursesw.so.6.6" "initramfs/lib64"
 copy_with_libs "$build_root/lib64/libncursesw.so.6" "initramfs/lib64"
 copy_with_libs "$build_root/lib64/libncursesw.so" "initramfs/lib64"
 
+copy_with_libs "$build_root/usr/lib64/libgmp.so.10" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libgmp.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libgmp.so.10.5.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libgmp.a" "initramfs/usr/lib64"
+
 copy_with_libs "$build_root/bin/awk" "initramfs/bin"
 copy_with_libs "$build_root/usr/share/awk" "initramfs/usr/share"
 copy_with_libs "$build_root/usr/bin/awk" "initramfs/usr/bin"
