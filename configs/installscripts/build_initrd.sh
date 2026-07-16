@@ -107,6 +107,39 @@ copy_with_libs "$build_root/usr/lib64/libmagic.so.1" "initramfs/usr/lib64/"
 copy_with_libs "$build_root/usr/lib64/libmagic.so.1.0.0" "initramfs/usr/lib64/"
 copy_with_libs "$build_root/usr/lib64/libmagic.so" "initramfs/usr/lib64/"
 
+copy_with_libs "$build_root/usr/lib64/libext2fs.a" "initramfs/usr/lib64/"
+ln -sf /usr/lib64/libext2fs.a initramfs/lib/libext2fs.a
+ln -sf /usr/lib64/libext2fs.a initramfs/lib64/libext2fs.a
+copy_with_libs "$build_root/lib64/libext2fs.so" "initramfs/lib64"
+copy_with_libs "$build_root/lib64/libext2fs.so.2" "initramfs/lib64"
+copy_with_libs "$build_root/lib64/libext2fs.so.2.4" "initramfs/lib64"
+
+copy_with_libs "$build_root/usr/lib64/liburcu.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/liburcu.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/liburcu.so.8" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/liburcu.so.8.1.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/liblzo2.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/liblzo2.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/liblzo2.so.2" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/liblzo2.so.2.0.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libelf.a" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libelf-0.195.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libelf.so.1" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libelf.so" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libmpfr.so.6" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libmpfr.so.6.2.2" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libmnl.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libmnl.so.0.2.0" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libmnl.so.0" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/lib64/libe2p.so.2" "initramfs/lib64"
+copy_with_libs "$build_root/lib64/libe2p.so" "initramfs/lib64"
+copy_with_libs "$build_root/lib64/libe2p.so.2.3" "initramfs/lib64"
+
 # Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
