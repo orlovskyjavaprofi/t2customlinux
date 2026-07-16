@@ -117,6 +117,23 @@ pkg_grub_rebuild() {
 }
 [[ "$arch" = x86* ]] && ! atstage toolchain && hook_add postmake 7 pkg_grub_rebuild
 
+pkg_grub_efi_image() {
+    local output_file="$root/boot/grub/grubx64.efi"
+    
+    mkdir -p "$root/boot/grub"
+    
+    # -d grub-core: points to the compiled module files (.mod)
+    # -O x86_64-efi: target platform
+    # -p /boot/grub: default directory where GRUB looks for grub.cfg
+    ./grub-mkimage \
+        -d grub-core \
+        -O x86_64-efi \
+        -o "$output_file" \
+        -p "/boot/grub" \
+        fat ext2 xfs btrfs part_gpt part_msdos normal configfile echo search loadenv all_video gzio gfxterm font test cat
+}
+hook_add postmake 8 pkg_grub_efi_image
+
 var_append INSTALL_WRAPPER_FILTER '|' 'sed -e s,info/grub.info,info/grub2.info, \
   -e s,man8/grub-install.8,man8/grub2-install.8, \
   -e s,bin/grub-install,bin/grub2-install, -e s,bin/grub-set-default,bin/grub2-set-default,'
