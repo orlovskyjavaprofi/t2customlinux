@@ -332,8 +332,8 @@ exec_sh() {
 	sh
 }
 
-# try to auto-load from a disc, first
-autoload=1
+#Load menua first until user pick options
+autoload=0
 echo "Welcome to T2 Linux custom build by Orlovsky Consulting GbR"
 echo "
 First stage loader.
