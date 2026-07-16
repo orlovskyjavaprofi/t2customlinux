@@ -30,6 +30,9 @@ mkdir -p initramfs/usr/lib64
 mkdir -p initramfs/etc
 mkdir -p initramfs/lib
 
+cp -a $build_root/lib64/ld-linux-x86-64.so.2 initramfs/lib64/
+ln -sf /lib64/ld-linux-x86-64.so.2 initramfs/lib/ld-linux-x86-64.so.2
+
 #setting up locale
 chroot $build_root localedef -i C -f UTF-8 C.utf8 2>/dev/null || true
 cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/
@@ -82,6 +85,8 @@ copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 echo "Copy libcap to initrd image!"
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
+ln -sf /usr/lib64/libcap.so.2 initramfs/usr/lib64/libcap.so.2
+ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
 
 
 copy_with_libs "$build_root/usr/lib64/libpcre2-8.so.0" "initramfs/usr/lib64"
