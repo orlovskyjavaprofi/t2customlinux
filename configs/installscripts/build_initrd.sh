@@ -30,9 +30,11 @@ mkdir -p initramfs/usr/lib64
 mkdir -p initramfs/etc
 mkdir -p initramfs/lib
 
+#setting up locale
 chroot $build_root localedef -i C -f UTF-8 C.utf8 2>/dev/null || true
 cp -a $build_root/usr/lib64/locale/locale-archive initramfs/usr/lib/locale/
 cp -a $build_root/usr/share/locale initramfs/usr/share/
+
 
 # i18n source data (charmaps, locales)
 mkdir -p initramfs/usr/share/i18n
@@ -49,6 +51,9 @@ fi
 # Gnome locale
 mkdir -p initramfs/opt/gnome/share/locale
 cp -a $build_root/opt/gnome/share/locale initramfs/opt/gnome/share/
+
+# Locale binary
+copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 
 echo "Copy libcap to initrd image!"
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
