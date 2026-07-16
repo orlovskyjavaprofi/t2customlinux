@@ -52,13 +52,6 @@ fi
 mkdir -p initramfs/opt/gnome/share/locale
 cp -a $build_root/opt/gnome/share/locale initramfs/opt/gnome/share/
 
-# Locale binary
-copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
-
-echo "Copy libcap to initrd image!"
-cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
-ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
-
 copy_with_libs() {
     local src=$1
     local dest=$2
@@ -82,6 +75,14 @@ copy_with_libs() {
         fi
     fi
 }
+
+# Locale binary
+copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
+
+echo "Copy libcap to initrd image!"
+cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
+ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
+
 
 copy_with_libs "$build_root/usr/lib64/libpcre2-8.so.0" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libpcre2-8.so" "initramfs/usr/lib64"
