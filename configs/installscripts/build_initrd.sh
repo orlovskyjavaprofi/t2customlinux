@@ -140,6 +140,19 @@ copy_with_libs "$build_root/lib64/libe2p.so.2" "initramfs/lib64"
 copy_with_libs "$build_root/lib64/libe2p.so" "initramfs/lib64"
 copy_with_libs "$build_root/lib64/libe2p.so.2.3" "initramfs/lib64"
 
+copy_with_libs "$build_root/usr/lib64/libreadline.so.8" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libreadline.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libreadline.so.8.3" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libreadline.a" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/lib64/libncursesw.so.6.6" "initramfs/lib64"
+copy_with_libs "$build_root/lib64/libncursesw.so.6" "initramfs/lib64"
+copy_with_libs "$build_root/lib64/libncursesw.so" "initramfs/lib64"
+
+copy_with_libs "$build_root/bin/awk" "initramfs/bin"
+copy_with_libs "$build_root/usr/share/awk" "initramfs/usr/share"
+copy_with_libs "$build_root/usr/bin/awk" "initramfs/usr/bin"
+
 # Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
