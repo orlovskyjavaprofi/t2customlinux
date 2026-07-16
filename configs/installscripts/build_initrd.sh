@@ -27,6 +27,7 @@ cp $build_root/usr/bin/fget initramfs/bin/
 mkdir -p initramfs/usr/share/locale
 mkdir -p initramfs/usr/lib/locale
 mkdir -p initramfs/usr/lib64
+mkdir -p initramfs/lib64/
 mkdir -p initramfs/etc
 mkdir -p initramfs/lib
 
