@@ -100,6 +100,13 @@ copy_with_libs "$build_root/usr/lib64/libparted.so.2" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libparted.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libparted.a" "initramfs/usr/lib64"
 
+copy_with_libs "$build_root/usr/lib64/libproc2.so.1" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libproc2.so.1.0.1" "initramfs/usr/lib64"
+
+copy_with_libs "$build_root/usr/lib64/libmagic.so.1" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/usr/lib64/libmagic.so.1.0.0" "initramfs/usr/lib64/"
+copy_with_libs "$build_root/usr/lib64/libmagic.so" "initramfs/usr/lib64/"
+
 # Custom tools for power down and or reboot
 echo "echo b > /proc/sysrq-trigger" > "initramfs/bin/reboot"
 echo "echo o > /proc/sysrq-trigger" > "initramfs/bin/poweroff"
