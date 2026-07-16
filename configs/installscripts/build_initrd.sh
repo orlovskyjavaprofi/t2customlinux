@@ -31,6 +31,8 @@ mkdir -p initramfs/lib64/
 mkdir -p initramfs/etc
 mkdir -p initramfs/lib
 
+touch initramfs/etc/machine-id
+
 cp -a $build_root/lib64/ld-linux-x86-64.so.2 initramfs/lib64/
 ln -sf /lib64/ld-linux-x86-64.so.2 initramfs/lib/ld-linux-x86-64.so.2
 
@@ -59,32 +61,26 @@ cp -a $build_root/opt/gnome/share/locale initramfs/opt/gnome/share/
 copy_with_libs() {
     local src=$1
     local dest=$2
+    # Ensure dest exists
+    mkdir -p "$dest"
     cp -a "$src" "$dest/"
     
-    # 1. Copy libraries
-    for lib in $(ldd "$src" | grep "=> /" | awk '{print $3}'); do
+    # Use the build_root environment to resolve libraries correctly
+    local libs=$(chroot "$build_root" ldd "$src" | grep "=> /" | awk '{print $3}')
+    for lib in $libs; do
         mkdir -p "initramfs/$(dirname "$lib")"
-        cp -an "$lib" "initramfs/$(dirname "$lib")"
+        cp -an "$build_root/$lib" "initramfs/$lib"
     done
-    
-    # 2. CRITICAL: Copy the dynamic loader (ld-linux)
-    # The loader is often not listed by ldd, but it is required.
-    local loader=$(ldd "$src" | grep "ld-linux" | awk '{print $1}')
-    if [ -n "$loader" ]; then
-        # If the loader is just a filename, find its full path
-        local loader_path=$(find /lib64 /lib -name "$loader" | head -n 1)
-        if [ -n "$loader_path" ]; then
-            mkdir -p "initramfs/$(dirname "$loader_path")"
-            cp -an "$loader_path" "initramfs/$(dirname "$loader_path")"
-        fi
-    fi
 }
+
+copy_with_libs "$build_root/bin/ls" "initramfs/bin/"
+copy_with_libs "$build_root/bin/mount" "initramfs/bin/"
+copy_with_libs "$build_root/bin/sh" "initramfs/bin/"
 
 # Locale binary
 copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 
 echo "Copy libcap to initrd image!"
-cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
 copy_with_libs "$build_root/usr/lib64/libcap.so" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libcap.so.2" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libcap.so.2.78" "initramfs/usr/lib64"
