@@ -84,10 +84,9 @@ copy_with_libs "$build_root/usr/bin/locale" "initramfs/usr/bin/"
 
 echo "Copy libcap to initrd image!"
 cp -a $build_root/usr/lib64/libcap.so.2* initramfs/usr/lib64/
-ln -sf /usr/lib64/libcap.so.2 initramfs/lib/libcap.so.2
-ln -sf /usr/lib64/libcap.so.2 initramfs/usr/lib64/libcap.so.2
-ln -sf /usr/lib64/libcap.so.2 initramfs/lib64/libcap.so.2
-
+copy_with_libs "$build_root/usr/lib64/libcap.so" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libcap.so.2" "initramfs/usr/lib64"
+copy_with_libs "$build_root/usr/lib64/libcap.so.2.78" "initramfs/usr/lib64"
 
 copy_with_libs "$build_root/usr/lib64/libpcre2-8.so.0" "initramfs/usr/lib64"
 copy_with_libs "$build_root/usr/lib64/libpcre2-8.so" "initramfs/usr/lib64"
