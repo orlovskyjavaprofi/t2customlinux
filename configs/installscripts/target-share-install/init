@@ -11,6 +11,9 @@ mount -t devtmpfs none /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
+exec 0<>/dev/console 1>&0 2>&0
+
+
 # Start udev daemon
 /sbin/udevd --daemon
 
