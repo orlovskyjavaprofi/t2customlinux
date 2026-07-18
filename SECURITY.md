@@ -10,6 +10,6 @@ project are currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-Open issue and provide exact description of the vulnerabilitya
+## Open issue and provide exact description of the vulnerability
 
-Critical vulnerability will be fixed within reasonable time
+## Critical vulnerability will be fixed within reasonable time
