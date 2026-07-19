@@ -1,0 +1,10 @@
+source "https://rubygems.org"
+
+gem "jekyll", "~> 4.4"
+gem "jekyll-theme-basically-basic"
+
+group :jekyll_plugins do
+  gem "jekyll-feed"
+end
+
+gem "csv"
