@@ -1,1 +1,1 @@
-Sitemap: /sitemap.xml
+Sitemap: https://orlovskyjavaprofi.github.io/t2customlinux/sitemap.xml
