@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+Welcome - Custom T2 Linux Build
+</title>
+
+<meta name="description" content="Custom T2 Linux Build by Orlovsky Consulting GbR">
+
+<style>
+
+* {
+    box-sizing:border-box;
+}
+
+
+body {
+
+    margin:0;
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:#0f172a;
+    color:#e5e7eb;
+    line-height:1.7;
+
+}
+
+
+header {
+
+    background:#020617;
+    padding:35px;
+    text-align:center;
+    border-bottom:1px solid #1e293b;
+
+}
+
+
+header h1 {
+
+    color:#60a5fa;
+    font-size:2.4rem;
+
+}
+
+
+
+.container {
+
+    max-width:900px;
+    margin:auto;
+    padding:40px 25px;
+
+}
+
+
+
+.card {
+
+    background:#111827;
+    border:1px solid #1f2937;
+    border-radius:14px;
+    padding:35px;
+    margin-bottom:30px;
+
+}
+
+
+
+.logo {
+
+    display:block;
+    width:300px;
+    max-width:100%;
+    margin:25px auto;
+    border-radius:15px;
+
+}
+
+
+
+h2 {
+
+    color:#93c5fd;
+    border-bottom:1px solid #334155;
+    padding-bottom:8px;
+
+}
+
+
+a {
+
+    color:#60a5fa;
+    text-decoration:none;
+
+}
+
+
+a:hover {
+
+    text-decoration:underline;
+
+}
+
+
+
+.video {
+
+    position:relative;
+    padding-bottom:56.25%;
+    height:0;
+    overflow:hidden;
+    border-radius:12px;
+    margin-top:25px;
+
+}
+
+
+.video iframe {
+
+    position:absolute;
+    width:100%;
+    height:100%;
+    left:0;
+    top:0;
+
+}
+
+
+
+.button {
+
+    display:inline-block;
+    background:#2563eb;
+    color:white;
+    padding:12px 22px;
+    border-radius:8px;
+    margin:10px 5px;
+    font-weight:bold;
+
+}
+
+
+.button:hover {
+
+    opacity:.85;
+    text-decoration:none;
+
+}
+
+
+
+.warning {
+
+    background:#451a03;
+    border-left:5px solid #f97316;
+    padding:20px;
+    border-radius:8px;
+
+}
+
+
+
+footer {
+
+    text-align:center;
+    padding:25px;
+    color:#64748b;
+    border-top:1px solid #1e293b;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+
+<header>
+
+<h1>
+🐧 Custom T2 Linux Build
+</h1>
+
+<p>
+Welcome to the custom T2 Linux project by Orlovsky Consulting GbR
+</p>
+
+</header>
+
+
+
+
+<div class="container">
+
+
+
+<div class="card">
+
+
+<h2>
+CUSTOM T2 LINUX BUILD BY
+<a href="https://orlovskyconsulting.de">
+ORLOVSKY CONSULTING GbR
+</a>
+</h2>
+
+
+
+<img class="logo"
+src="https://github.com/user-attachments/assets/57bed95c-3a35-4ad3-a664-1fceb0dd529e"
+alt="T2 Linux logo">
+
+
+
+<div class="video">
+
+<iframe 
+src="https://www.youtube.com/embed/5lWsozTy8iU"
+title="Custom T2 Linux video"
+frameborder="0"
+allowfullscreen>
+</iframe>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+About this project
+</h2>
+
+
+<div class="warning">
+
+<strong>
+Important:
+</strong>
+
+<br>
+
+We are not official T2 Linux developers.
+
+<br><br>
+
+We create our own custom version of T2 Linux based on the official project.
+
+</div>
+
+
+<p>
+
+Official T2 Linux project:
+
+<a href="https://t2linux.com/">
+https://t2linux.com/
+</a>
+
+</p>
+
+
+<p>
+
+Read our
+
+<a href="https://github.com/orlovskyjavaprofi/t2customlinux/blob/main/CodeOfEthics.md">
+Code of Ethics
+</a>
+
+</p>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+Build Information
+</h2>
+
+
+<p>
+
+Custom configurations and examples for
+
+<a href="https://t2linux.com/">
+T2 Linux
+</a>
+
+</p>
+
+
+<ul>
+
+<li>
+Target platform: <strong>X86_64 AMD CPU</strong>
+</li>
+
+<li>
+Custom Linux builds created from source
+</li>
+
+<li>
+Server-oriented base distribution without X server
+</li>
+
+<li>
+Custom build tools and initialization scripts
+</li>
+
+</ul>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+Custom Build Notes
+</h2>
+
+
+<p>
+
+Please note that this project uses our own versions of:
+
+</p>
+
+
+<ul>
+
+<li>
+build scripts
+</li>
+
+<li>
+mkinitrd
+</li>
+
+<li>
+build_initrd tools
+</li>
+
+</ul>
+
+
+<p>
+
+These modifications are required if you want to reproduce our custom T2 Linux templates.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+Documentation & Downloads
+</h2>
+
+
+<a class="button"
+href="https://github.com/orlovskyjavaprofi/t2customlinux/wiki">
+
+📖 Wiki
+
+</a>
+
+
+<a class="button"
+href="https://github.com/orlovskyjavaprofi/t2customlinux/tree/iso/ISO">
+
+⬇ Download ISO
+
+</a>
+
+
+<a class="button"
+href="https://github.com/orlovskyjavaprofi/t2customlinux/wiki/Release-notes">
+
+📝 Release Notes
+
+</a>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+Community & Contact
+</h2>
+
+
+<p>
+
+Contact us:
+
+</p>
+
+
+<p>
+
+<a href="https://matrix.to/#/!QVrovyUEvxuiQbUUuo:gitter.im">
+ELEMENT
+</a>
+
+<br>
+
+<a href="https://orlovskyconsulting.slack.com/">
+SLACK
+</a>
+
+<br>
+
+<a href="https://ocgforum.javaprofide.de/">
+Forum
+</a>
+
+<br>
+
+<a href="https://www.facebook.com/profile.php?id=100077632844654">
+Facebook
+</a>
+
+</p>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+<footer>
+
+Custom T2 Linux Build
+<br>
+🐙 @orlovskyjavaprofi
+
+</footer>
+
+
+
+</body>
+
+</html>
