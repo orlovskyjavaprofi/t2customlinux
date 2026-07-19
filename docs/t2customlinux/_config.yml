@@ -6,8 +6,8 @@ description: >-
   official T2 Linux developers.
   Orlovsky Consulting GbR https://orlovskyconsulting.de
 
-baseurl: "" # Leave empty for username.github.io, otherwise "/repository-name"
-url: ""     # Set this when deploying, e.g. https://username.github.io
+baseurl: "https://orlovskyjavaprofi.github.io"
+url: "/t2customlinux"
 
 author: Orl Consultancy
 
