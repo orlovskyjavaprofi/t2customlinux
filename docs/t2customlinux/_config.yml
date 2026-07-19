@@ -14,7 +14,7 @@ author: Orl Consultancy
 github_username: orlovskyjavaprofi
 twitter_username: OrlConsultGbR
 
-theme: jekyll-theme-basically-basic
+theme: jekyll-shell-theme
 
 plugins:
   - jekyll-feed
