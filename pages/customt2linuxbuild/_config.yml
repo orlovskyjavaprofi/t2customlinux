@@ -1,0 +1,20 @@
+title: Custom T2 Linux Build
+
+description: >-
+  Community-maintained build of the T2 Linux distribution. This project provides
+  custom builds and packaging. It is not affiliated with or maintained by the
+  official T2 Linux developers.
+  Orlovsky Consulting GbR https://orlovskyconsulting.de
+
+baseurl: "" # Leave empty for username.github.io, otherwise "/repository-name"
+url: ""     # Set this when deploying, e.g. https://username.github.io
+
+author: Orl Consultancy
+
+github_username: orlovskyjavaprofi
+twitter_username: OrlConsultGbR
+
+theme: jekyll-theme-basically-basic
+
+plugins:
+  - jekyll-feed
