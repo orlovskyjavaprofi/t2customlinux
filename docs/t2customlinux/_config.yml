@@ -6,8 +6,8 @@ description: >-
   official T2 Linux developers.
   Orlovsky Consulting GbR https://orlovskyconsulting.de
 
-baseurl: ""
-url: ""
+baseurl: "/t2customlinux/"
+url: "https://orlovskyjavaprofi.github.io"
 
 author: Orl Consultancy
 
