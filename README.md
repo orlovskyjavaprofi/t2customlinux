@@ -1,4 +1,4 @@
-## Only this branch includes latest iso builds!
+## Only on this branch you will find all/latest iso builds!
 
 ## [HERE YOU CAN FIND OUR LATEST ISO FOR DOWNLOAD ONLY!](https://github.com/orlovskyjavaprofi/t2customlinux/tree/iso/ISO)
 
