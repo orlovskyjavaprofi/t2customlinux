@@ -1,5 +1,5 @@
-## CUSTOM T2 LINUX BUILD BY [ORLOVSKY CONSULTING GbR](https://orlovskyconsulting.de)
 <div align="center">
+  ## CUSTOM T2 LINUX BUILD BY [ORLOVSKY CONSULTING GbR](https://orlovskyconsulting.de)
 <a href="https://orlovskyjavaprofi.github.io/t2customlinux/"><img width="480" height="480" alt="t2linux" src="https://github.com/user-attachments/assets/57bed95c-3a35-4ad3-a664-1fceb0dd529e" /></a>
 </div>
 
