@@ -33,4 +33,11 @@ Well don't hesitate visit **[Orlovsky Consulting GbR oficial website](https://or
 ## We add our contact info to target/share/install/rootfs/sbin/init ;)
 ## [Read our wiki](https://github.com/orlovskyjavaprofi/t2customlinux/wiki)
 
+### This mail lists powered by google, in some cases free emails not support, so you was warned about!
+**[Stay informed about our latest releases!](https://groups.google.com/g/custom-t2-linux-build-anounces)
+[If you want to talk about everything related to custom T2 Linux and have questions or issues.](https://groups.google.com/g/custom-t2-general)
+[Discuss relevant issues with TDE and XFCE which we ship with our distro.](https://groups.google.com/g/custom-t2-linux-desktop)
+[Discuss questions or issues with running server apps based on our custom T2 Linux.](https://groups.google.com/g/custom-t2-linux-server)
+[Participate as developer in development of custom T2 Linux, be honest about your skills and how you can help!](https://groups.google.com/g/custom-t2-dev-builder)**
+
 ## [Suggest idea or request](https://github.com/orlovskyjavaprofi/t2customlinux/discussions)
