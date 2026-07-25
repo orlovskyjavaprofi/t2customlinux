@@ -27,3 +27,5 @@ Well don't hesitate visit **[Orlovsky Consulting GbR oficial website](https://or
 **[Participate as developer in development of custom T2 Linux, be honest about your skills and how you can help!](https://groups.google.com/g/custom-t2-dev-builder)**
 
 ## [Suggest idea or request](https://github.com/orlovskyjavaprofi/t2customlinux/discussions)
+
+# [Back to main](https://github.com/orlovskyjavaprofi/t2customlinux/blob/main/README.md)
