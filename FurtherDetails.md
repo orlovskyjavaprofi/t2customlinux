@@ -23,6 +23,8 @@ Well don't hesitate visit **[Orlovsky Consulting GbR oficial website](https://or
 **[Discuss relevant issues with TDE and XFCE which we ship with our distro.](https://groups.google.com/g/custom-t2-linux-desktop)**
 
 **[Discuss questions or issues with running server apps based on our custom T2 Linux.](https://groups.google.com/g/custom-t2-linux-server)**
+
+**[Become dev or builder of custom T2 Linux.](https://groups.google.com/g/custom-t2-dev-builder)**
 **[Open an issue if you want to participate at dev mail list!](https://github.com/orlovskyjavaprofi/t2customlinux/issues)**
 
 **[Participate as developer in development of custom T2 Linux, be honest about your skills and how you can help!](https://groups.google.com/g/custom-t2-dev-builder)**
