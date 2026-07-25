@@ -18,4 +18,4 @@ Custom configs and examples for **[T2 Linux](https://t2linux.com/)** , **build t
 
 ## ALL LATEST ISO FOR DOWNLOAD ONLY IN [ISO BRANCH!](https://github.com/orlovskyjavaprofi/t2customlinux/tree/iso/ISO)
 
-## [Further details (Please read it too!)](https://github.com/orlovskyjavaprofi/t2customlinux/blob/1de2b9c469b1c1d704764eea58989b651687be09/FurtherDetails.md)
+## [Further details (Please read it too!)](https://github.com/orlovskyjavaprofi/t2customlinux/blob/main/FurtherDetails.md)
