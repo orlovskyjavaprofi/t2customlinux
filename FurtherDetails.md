@@ -28,4 +28,4 @@ Well don't hesitate visit **[Orlovsky Consulting GbR oficial website](https://or
 
 ## [Suggest idea or request](https://github.com/orlovskyjavaprofi/t2customlinux/discussions)
 
-# [Back to main](https://github.com/orlovskyjavaprofi/t2customlinux/blob/main/README.md)
+# [Back to main](https://github.com/orlovskyjavaprofi/t2customlinux/tree/main)
