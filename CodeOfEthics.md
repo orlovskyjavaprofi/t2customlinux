@@ -1,23 +1,23 @@
-The custom T2 Linux distribution System does not have an official "Code of Conduct".
+# The custom T2 Linux distribution System does not have an official "Code of Conduct".
 
-Orlovsky Consulting GbR and i CEO of the company are final deciders on any resolutions and features for custom T2 Linux distribution.
+##Orlovsky Consulting GbR and i CEO of the company are final deciders on any resolutions and features for custom T2 Linux distribution.
 
-All people are welcome to use and enjoy the custom T2 Linux distribution Operating System, regardless of:
+### All people are welcome to use and enjoy the custom T2 Linux distribution Operating System, regardless of:
 
-- Ethnicity
+**- Ethnicity
 - Gender
 - Nationality
 - Religion
 - Political Leanings
-- Taste in Music
+- Taste in Music**
 
 When interacting with the custom T2 Linux distribution Operating System (email, forums, or any other communications) there exists a very simple (very easy to follow) set of rules:
 
-- Be Excellent to Each Other.
+**- Be Excellent to Each Other.
 - No Cursin' or Swearin'.
-- Meritocracy Rules.
+- Meritocracy Rules.**
 
-That said, the leadership of the custom T2 Linux distribution Operating System highly recommends the following.
+## That said, the leadership of the custom T2 Linux distribution Operating System highly recommends the following.
 
 The Ten Commandments (English Translation from Exodus 20: 2 - 14):
 
