@@ -24,9 +24,9 @@ When interacting with the custom T2 Linux distribution Operating System (email, 
 
 **- Meritocracy Rules.**
 
-## That said, the leadership of the custom T2 Linux distribution Operating System highly recommends the following.
+## That said, the leadership of the custom T2 Linux distribution Operating System highly recommends the following:
 
-The Ten Commandments (English Translation from Exodus 20: 2 - 14):
+**The Ten Commandments (English Translation from Exodus 20: 2 - 14):**
 
 - I am the L‑rd your G‑d, Who brought you out of the land of Egypt, out of the house of bondage.
 - You shall have no other gods before Me. You shall not make for yourself a graven image, nor any manner of likeness of anything that is in heaven above, that is in the earth beneath, or that is in the water under the earth. You shall not bow down to them, nor serve them. For I the L‑rd your G‑d am a jealous G‑d, visiting the iniquity of the fathers upon the children of the third and fourth generation of them that hate Me; and showing mercy unto the thousandth generation of them that love Me and keep My commandments.
