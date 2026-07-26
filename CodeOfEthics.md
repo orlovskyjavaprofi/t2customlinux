@@ -4,12 +4,12 @@
 
 ### All people are welcome to use and enjoy the custom T2 Linux distribution Operating System, regardless of:
 
-**- Ethnicity
-- Gender
-- Nationality
-- Religion
-- Political Leanings
-- Taste in Music**
+**- Ethnicity**
+**- Gender**
+**- Nationality**
+**- Religion**
+**- Political Leanings**
+**- Taste in Music**
 
 When interacting with the custom T2 Linux distribution Operating System (email, forums, or any other communications) there exists a very simple (very easy to follow) set of rules:
 
