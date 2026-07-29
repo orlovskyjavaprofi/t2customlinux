@@ -27,6 +27,18 @@ Well don't hesitate visit **[Orlovsky Consulting GbR oficial website](https://or
 **[Become dev or builder of custom T2 Linux.](https://groups.google.com/g/custom-t2-dev-builder)**
 **[Open an issue if you want to participate at dev mail list!](https://github.com/orlovskyjavaprofi/t2customlinux/issues)**
 
+## Alternative powered by freelist.org
+
+**[Stay informed about our latest releases!](https://www.freelists.org/list/anouncecustomt2linux)**
+
+**[If you want to talk about everything related to custom T2 Linux and have questions or issues.](https://www.freelists.org/list/generalt2customlinux)**
+
+**[Discuss relevant issues with TDE and XFCE which we ship with our distro.](https://www.freelists.org/list/desktop-customt2linux)**
+
+**[Discuss questions or issues with running server apps based on our custom T2 Linux.](https://www.freelists.org/list/servercustomt2linux)**
+
+**[Participate as developer in development of custom T2 Linux, be honest about your skills and how you can help!](https://www.freelists.org/list/devcustomt2linux)**
+
 **[Participate as developer in development of custom T2 Linux, be honest about your skills and how you can help!](https://groups.google.com/g/custom-t2-dev-builder)**
 
 ## [Suggest idea or request](https://github.com/orlovskyjavaprofi/t2customlinux/discussions)
